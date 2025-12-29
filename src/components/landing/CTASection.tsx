@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { ArrowRight, Sparkles, CheckCircle2 } from "lucide-react";
 
 const benefits = [
@@ -58,7 +58,7 @@ export function CTASection() {
                 className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
                 asChild
               >
-                <Link to="/register">
+                <Link href="/register">
                   Inscrire Mon École
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>
@@ -68,7 +68,7 @@ export function CTASection() {
                 size="xl"
                 asChild
               >
-                <Link to="/contact">
+                <Link href="/contact">
                   Parler à un conseiller
                 </Link>
               </Button>

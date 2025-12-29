@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import Link from 'next/link'
 import { 
   GraduationCap, 
   Mail, 
@@ -8,42 +8,40 @@ import {
   Twitter,
   Linkedin,
   Youtube
-} from "lucide-react";
+} from 'lucide-react'
 
 const regions = [
-  "Centre", "Littoral", "Ouest", "Nord-Ouest", 
-  "Sud-Ouest", "Nord", "Adamaoua", "Est", "Sud", "Extrême-Nord"
-];
+  'Centre', 'Littoral', 'Ouest', 'Nord-Ouest', 
+  'Sud-Ouest', 'Nord', 'Adamaoua', 'Est', 'Sud', 'Extrême-Nord'
+]
 
 const links = {
   product: [
-    { label: "Fonctionnalités", href: "/features" },
-    { label: "Tarifs", href: "/pricing" },
-    { label: "Témoignages", href: "/#testimonials" },
-    { label: "FAQ", href: "/#faq" },
+    { label: 'Fonctionnalités', href: '/features' },
+    { label: 'Tarifs', href: '/pricing' },
+    { label: 'Témoignages', href: '/#testimonials' },
+    { label: 'FAQ', href: '/#faq' },
   ],
   company: [
-    { label: "À propos", href: "/about" },
-    { label: "Blog", href: "/blog" },
-    { label: "Carrières", href: "/careers" },
-    { label: "Contact", href: "/contact" },
+    { label: 'À propos', href: '/about' },
+    { label: 'Blog', href: '/blog' },
+    { label: 'Carrières', href: '/careers' },
+    { label: 'Contact', href: '/contact' },
   ],
   legal: [
-    { label: "Confidentialité", href: "/privacy" },
-    { label: "CGU", href: "/terms" },
-    { label: "Cookies", href: "/cookies" },
+    { label: 'Confidentialité', href: '/privacy' },
+    { label: 'CGU', href: '/terms' },
+    { label: 'Cookies', href: '/cookies' },
   ],
-};
+}
 
 export function Footer() {
   return (
     <footer className="bg-foreground text-background">
-      {/* Main Footer */}
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
-          {/* Brand Column */}
           <div className="lg:col-span-2">
-            <Link to="/" className="flex items-center gap-2 mb-6">
+            <Link href="/" className="flex items-center gap-2 mb-6">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
                 <GraduationCap className="w-7 h-7 text-primary-foreground" />
               </div>
@@ -71,14 +69,13 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Product Links */}
           <div>
             <h4 className="font-semibold text-lg mb-4">Produit</h4>
             <ul className="space-y-3">
               {links.product.map((link) => (
                 <li key={link.href}>
                   <Link 
-                    to={link.href} 
+                    href={link.href} 
                     className="text-muted-foreground hover:text-primary transition-colors"
                   >
                     {link.label}
@@ -88,14 +85,13 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Company Links */}
           <div>
             <h4 className="font-semibold text-lg mb-4">Entreprise</h4>
             <ul className="space-y-3">
               {links.company.map((link) => (
                 <li key={link.href}>
                   <Link 
-                    to={link.href} 
+                    href={link.href} 
                     className="text-muted-foreground hover:text-primary transition-colors"
                   >
                     {link.label}
@@ -105,7 +101,6 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Contact */}
           <div>
             <h4 className="font-semibold text-lg mb-4">Contact</h4>
             <ul className="space-y-4">
@@ -132,7 +127,6 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Regions */}
         <div className="mt-12 pt-8 border-t border-muted/20">
           <h4 className="font-semibold mb-4 text-center">Nous couvrons les 10 régions du Cameroun</h4>
           <div className="flex flex-wrap justify-center gap-2">
@@ -148,7 +142,6 @@ export function Footer() {
         </div>
       </div>
 
-      {/* Bottom Bar */}
       <div className="border-t border-muted/20">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -159,7 +152,7 @@ export function Footer() {
               {links.legal.map((link) => (
                 <Link
                   key={link.href}
-                  to={link.href}
+                  href={link.href}
                   className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   {link.label}
@@ -170,5 +163,5 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  );
+  )
 }

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Check, Sparkles, Zap, Crown, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -158,7 +158,7 @@ export function PricingSection() {
                   size="lg"
                   asChild
                 >
-                  <Link to="/register">
+                  <Link href="/register">
                     {plan.cta}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Link>

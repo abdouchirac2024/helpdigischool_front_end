@@ -1,73 +1,171 @@
-# Welcome to your Lovable project
+# Help Digi School - Next.js
 
-## Project info
+Plateforme SaaS #1 pour la gestion des écoles primaires au Cameroun.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## 🚀 Technologies
 
-## How can I edit this code?
+- **Next.js 16** - Framework React avec App Router et Turbopack
+- **React 19** - Dernière version de React
+- **TypeScript** - Typage statique
+- **Tailwind CSS** - Styling utility-first
+- **shadcn/ui** - Composants UI
+- **React Query** - Gestion d'état serveur
+- **Radix UI** - Composants accessibles
 
-There are several ways of editing your application.
+## 📦 Installation
 
-**Use Lovable**
+```bash
+# Installer les dépendances
+npm install
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Lancer le serveur de développement
 npm run dev
+
+# Build production
+npm run build
+
+# Lancer en production
+npm run start
 ```
 
-**Edit a file directly in GitHub**
+## 🏗️ Structure du Projet
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```
+src/
+├── app/                      # App Router Next.js
+│   ├── (auth)/              # Groupe de routes auth
+│   │   ├── login/
+│   │   └── register/
+│   ├── (marketing)/         # Groupe de routes marketing
+│   │   ├── features/
+│   │   ├── pricing/
+│   │   └── contact/
+│   ├── layout.tsx           # Layout racine
+│   ├── page.tsx             # Page d'accueil
+│   ├── globals.css          # Styles globaux
+│   └── not-found.tsx        # Page 404
+├── components/
+│   ├── ui/                  # Composants shadcn/ui
+│   ├── layout/              # Navbar, Footer
+│   ├── landing/             # Sections landing page
+│   └── providers.tsx        # Providers React Query, Theme
+├── hooks/                   # Custom hooks
+├── lib/                     # Utilitaires
+└── types/                   # Types TypeScript
+```
 
-**Use GitHub Codespaces**
+## 🌐 Routes
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- `/` - Page d'accueil
+- `/login` - Connexion
+- `/register` - Inscription
+- `/features` - Fonctionnalités
+- `/pricing` - Tarifs
+- `/contact` - Contact
 
-## What technologies are used for this project?
+## 🎨 Fonctionnalités
 
-This project is built with:
+- ✅ Server-Side Rendering (SSR)
+- ✅ Static Site Generation (SSG)
+- ✅ SEO optimisé avec Metadata API
+- ✅ Dark mode avec next-themes
+- ✅ Responsive design
+- ✅ Composants accessibles (Radix UI)
+- ✅ Formulaires avec React Hook Form + Zod
+- ✅ Animations Tailwind CSS
+- ✅ Turbopack pour des builds ultra-rapides
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 📝 Développement
 
-## How can I deploy this project?
+Le projet utilise :
+- **App Router** de Next.js 16
+- **Route Groups** pour organiser les routes
+- **Server Components** par défaut
+- **Client Components** (`'use client'`) pour l'interactivité
+- **Turbopack** pour une compilation ultra-rapide
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+## 🚢 Déploiement
 
-## Can I connect a custom domain to my Lovable project?
+Le projet peut être déployé sur :
+- **Vercel** (recommandé)
+- Netlify
+- AWS Amplify
+- Railway
+- Render
 
-Yes, you can!
+```bash
+npm run build
+npm run start
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 🔧 Scripts Disponibles
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+```bash
+npm run dev      # Serveur de développement (port 3000)
+npm run build    # Build production
+npm run start    # Serveur production
+npm run lint     # Linter ESLint
+```
+
+## 📚 Documentation
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [App Router](https://nextjs.org/docs/app)
+- [Tailwind CSS](https://tailwindcss.com/docs)
+- [shadcn/ui](https://ui.shadcn.com/)
+- [React Query](https://tanstack.com/query/latest)
+
+## 🎯 Fonctionnalités de l'Application
+
+### Gestion Scolaire
+- Notes et bulletins PDF
+- Paiements Mobile Money (MTN MoMo, Orange Money)
+- Gestion des élèves et classes
+- Communication avec les parents
+- Statistiques et rapports
+
+### Interface
+- Design moderne et responsive
+- Mode sombre/clair
+- Animations fluides
+- Accessibilité WCAG
+
+## 🔐 Variables d'Environnement
+
+Créez un fichier `.env.local` :
+
+```env
+# API
+NEXT_PUBLIC_API_URL=https://api.helpdigischool.cm
+
+# Database (si nécessaire)
+DATABASE_URL=
+
+# Auth (si nécessaire)
+NEXTAUTH_SECRET=
+NEXTAUTH_URL=http://localhost:3000
+```
+
+## 🤝 Contribution
+
+1. Fork le projet
+2. Créez une branche (`git checkout -b feature/AmazingFeature`)
+3. Commit vos changements (`git commit -m 'Add some AmazingFeature'`)
+4. Push vers la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrez une Pull Request
+
+## 📄 License
+
+© 2025 Help Digi School. Tous droits réservés.
+
+## 📞 Contact
+
+- **Email**: contact@helpdigischool.cm
+- **Téléphone**: +237 6 00 00 00 00
+- **Adresse**: Douala, Cameroun
+
+---
+
+**Version**: 1.0.0  
+**Next.js**: 16.1.1  
+**React**: 19.2.3
