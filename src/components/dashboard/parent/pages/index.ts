@@ -1,2 +1,5 @@
 export { ParentMessagesPage } from './MessagesPage'
 export { ParentSettingsPage } from './SettingsPage'
+export { ParentChildrenPage } from './ChildrenPage'
+export { ParentReportsPage } from './ReportsPage'
+export { ParentPaymentsPage } from './PaymentsPage'
