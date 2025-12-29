@@ -19,7 +19,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
-      <main>
+      <main className="pb-20 lg:pb-0">
         <HeroSection />
         <FeaturesSection />
         <StatsSection />

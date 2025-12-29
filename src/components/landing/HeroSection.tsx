@@ -19,8 +19,7 @@ const features = [
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
-      {/* Background */}
+    <section className="relative min-h-screen flex items-center pt-16 lg:pt-20 overflow-hidden">{/* Background */}
       <div className="absolute inset-0 gradient-hero opacity-[0.03]" />
       <div className="absolute inset-0 pattern-dots opacity-50" />
       
