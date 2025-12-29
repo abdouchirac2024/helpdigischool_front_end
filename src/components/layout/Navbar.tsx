@@ -1,17 +1,14 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { 
   GraduationCap, 
-  Menu, 
-  X, 
   Home, 
   Sparkles, 
   CreditCard, 
-  HelpCircle,
+  Mail,
   LogIn,
   UserPlus
 } from 'lucide-react'
@@ -19,13 +16,12 @@ import { cn } from '@/lib/utils'
 
 const navLinks = [
   { href: '/', label: 'Accueil', icon: Home },
-  { href: '/features', label: 'Fonctionnalités', icon: Sparkles },
+  { href: '/features', label: 'Services', icon: Sparkles },
   { href: '/pricing', label: 'Tarifs', icon: CreditCard },
-  { href: '/contact', label: 'Contact', icon: HelpCircle },
+  { href: '/contact', label: 'Contact', icon: Mail },
 ]
 
 export function Navbar() {
-  const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
 
   return (
@@ -104,36 +100,40 @@ export function Navbar() {
       </nav>
 
       {/* Mobile Bottom Navigation - iOS Style */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-gray-200 shadow-lg pb-safe">
-        <div className="grid grid-cols-4 gap-1 px-2 py-2">
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  'flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-xl transition-all duration-200 active:scale-95',
-                  isActive
-                    ? 'text-[#2302B3] bg-[#2302B3]/10'
-                    : 'text-gray-600 active:bg-gray-100'
-                )}
-              >
-                <link.icon className={cn(
-                  'w-6 h-6 transition-all',
-                  isActive ? 'scale-110' : ''
-                )} />
-                <span className={cn(
-                  'text-[10px] font-medium',
-                  isActive ? 'font-semibold' : ''
-                )}>
-                  {link.label}
-                </span>
-              </Link>
-            )
-          })}
-        </div>
-      </nav>
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] pointer-events-none">
+        <nav className="bg-white border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] pointer-events-auto">
+          <div className="grid grid-cols-4 px-4 py-3 safe-area-inset-bottom">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="flex flex-col items-center justify-center gap-1.5 py-1 transition-all duration-200 active:scale-95"
+                >
+                  <div className={cn(
+                    'w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300',
+                    isActive 
+                      ? 'bg-[#2302B3] shadow-lg shadow-[#2302B3]/30' 
+                      : 'bg-transparent'
+                  )}>
+                    <link.icon className={cn(
+                      'w-6 h-6 transition-all duration-300',
+                      isActive ? 'text-white' : 'text-gray-400'
+                    )} />
+                  </div>
+                  <span className={cn(
+                    'text-[11px] font-medium transition-all duration-300',
+                    isActive ? 'text-[#2302B3] font-semibold' : 'text-gray-400'
+                  )}>
+                    {link.label}
+                  </span>
+                </Link>
+              )
+            })}
+          </div>
+        </nav>
+      </div>
     </>
   )
 }

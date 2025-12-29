@@ -48,6 +48,8 @@ export default function LoginForm() {
         title: 'Connexion réussie!',
         description: 'Redirection vers votre tableau de bord...',
       })
+      // Redirect to dashboard
+      window.location.href = '/dashboard'
     }, 1500)
   }
 

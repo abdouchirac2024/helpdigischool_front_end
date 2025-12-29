@@ -1,0 +1,1 @@
+export { SecretaryDashboard } from './SecretaryDashboard'
