@@ -10,7 +10,14 @@ import {
   Globe,
   Zap,
   Clock,
-  Heart
+  Heart,
+  School,
+  ClipboardList,
+  BookOpen,
+  UserCircle,
+  UserCheck,
+  Settings,
+  Crown
 } from "lucide-react";
 
 const mainFeatures = [
@@ -61,6 +68,75 @@ const additionalFeatures = [
   { icon: GraduationCap, label: "Spécial primaire" },
 ];
 
+const roleAccess = [
+  {
+    icon: Crown,
+    role: "Admin SaaS",
+    color: "from-amber-500 to-orange-500",
+    bgColor: "bg-amber-500/10",
+    borderColor: "border-amber-500/30",
+    textColor: "text-amber-600",
+    description: "Vue globale toutes écoles",
+    features: ["Dashboard stats agrégées 1000+ écoles", "Gestion revenus & abonnements", "Support technique centralisé", "Analytics par région/département"],
+    badge: "Super Admin",
+  },
+  {
+    icon: School,
+    role: "Admin École",
+    color: "from-primary to-blue-600",
+    bgColor: "bg-primary/10",
+    borderColor: "border-primary/30",
+    textColor: "text-primary",
+    description: "Gérer votre établissement",
+    features: ["Créer/gérer les rôles locaux", "Dashboard école complet", "Statistiques & rapports", "Configuration établissement"],
+    badge: "Directeur",
+  },
+  {
+    icon: ClipboardList,
+    role: "Secrétaire",
+    color: "from-secondary to-emerald-600",
+    bgColor: "bg-secondary/10",
+    borderColor: "border-secondary/30",
+    textColor: "text-secondary",
+    description: "Administration quotidienne",
+    features: ["Inscriptions élèves", "Gestion paiements & factures", "Relances SMS automatiques", "Suivi des arriérés"],
+    badge: "Staff",
+  },
+  {
+    icon: BookOpen,
+    role: "Enseignant",
+    color: "from-violet-500 to-purple-600",
+    bgColor: "bg-violet-500/10",
+    borderColor: "border-violet-500/30",
+    textColor: "text-violet-600",
+    description: "Gestion pédagogique",
+    features: ["Saisie notes & évaluations", "Gestion présence/absences", "Génération bulletins PDF", "Emplois du temps"],
+    badge: "Pédagogie",
+  },
+  {
+    icon: UserCircle,
+    role: "Parent",
+    color: "from-pink-500 to-rose-500",
+    bgColor: "bg-pink-500/10",
+    borderColor: "border-pink-500/30",
+    textColor: "text-pink-600",
+    description: "Suivi de l'enfant",
+    features: ["Consulter notes & bulletins", "Historique paiements", "Notifications absences", "Communication école"],
+    badge: "Famille",
+  },
+  {
+    icon: UserCheck,
+    role: "Élève",
+    color: "from-cyan-500 to-teal-500",
+    bgColor: "bg-cyan-500/10",
+    borderColor: "border-cyan-500/30",
+    textColor: "text-cyan-600",
+    description: "Espace personnel",
+    features: ["Voir ses notes", "Emploi du temps", "Devoirs à faire", "Ressources pédagogiques"],
+    badge: "Apprenant",
+  },
+];
+
 export function FeaturesSection() {
   return (
     <section id="features" className="py-20 lg:py-32 relative overflow-hidden">
@@ -85,7 +161,7 @@ export function FeaturesSection() {
         </div>
 
         {/* Main Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-20">
           {mainFeatures.map((feature, i) => (
             <div
               key={i}
@@ -102,6 +178,68 @@ export function FeaturesSection() {
               </p>
             </div>
           ))}
+        </div>
+
+        {/* Role Access Section */}
+        <div className="mb-20">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+              <Users className="w-4 h-4" />
+              Accès par Rôle
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Chaque utilisateur a son{" "}
+              <span className="gradient-text">espace personnalisé</span>
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              Une interface adaptée aux besoins de chaque acteur de votre établissement
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {roleAccess.map((role, i) => (
+              <div
+                key={i}
+                className={`group relative bg-card rounded-2xl p-6 border ${role.borderColor} hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden`}
+              >
+                {/* Gradient overlay on hover */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${role.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
+                
+                {/* Badge */}
+                <div className={`absolute top-4 right-4 px-3 py-1 rounded-full ${role.bgColor} ${role.textColor} text-xs font-semibold`}>
+                  {role.badge}
+                </div>
+
+                {/* Icon */}
+                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${role.color} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+                  <role.icon className="w-8 h-8 text-white" />
+                </div>
+
+                {/* Content */}
+                <h3 className={`text-xl font-bold mb-2 ${role.textColor} group-hover:scale-105 transition-transform origin-left`}>
+                  {role.role}
+                </h3>
+                <p className="text-muted-foreground text-sm mb-4">
+                  {role.description}
+                </p>
+
+                {/* Features list */}
+                <ul className="space-y-2">
+                  {role.features.map((feature, j) => (
+                    <li key={j} className="flex items-start gap-2 text-sm">
+                      <div className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${role.color} mt-2 flex-shrink-0`} />
+                      <span className="text-muted-foreground group-hover:text-foreground transition-colors">
+                        {feature}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Decorative element */}
+                <div className={`absolute -bottom-10 -right-10 w-32 h-32 rounded-full bg-gradient-to-br ${role.color} opacity-10 blur-2xl group-hover:opacity-20 transition-opacity`} />
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Additional Features */}
