@@ -69,46 +69,75 @@ export function DirectorDashboard() {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatCard
-              title="Élèves inscrits"
-              value="342"
-              subtitle="Tous les niveaux confondus"
-              icon={Users}
-              iconColor="text-blue-600"
-              iconBg="bg-blue-50"
-              trend="+12 ce mois"
-              trendUp={true}
-            />
-            <StatCard
-              title="Paiements"
-              value="€80.9k"
-              subtitle="Revenus ce mois"
-              icon={CreditCard}
-              iconColor="text-green-600"
-              iconBg="bg-green-50"
-              trend="+8.2%"
-              trendUp={true}
-            />
-            <StatCard
-              title="Enseignants"
-              value="18"
-              subtitle="Personnel enseignant"
-              icon={GraduationCap}
-              iconColor="text-orange-600"
-              iconBg="bg-orange-50"
-              trend="Actifs"
-              trendUp={true}
-            />
-            <StatCard
-              title="Taux de réussite"
-              value="94%"
-              subtitle="Moyenne générale"
-              icon={TrendingUp}
-              iconColor="text-purple-600"
-              iconBg="bg-purple-50"
-              trend="+2.5%"
-              trendUp={true}
-            />
+            <div className="bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-lg transition-all">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Élèves inscrits</p>
+                  <p className="text-3xl font-bold text-gray-900">342</p>
+                  <div className="flex items-center gap-3 mt-2">
+                    <span className="text-xs text-blue-600 font-semibold">♂ 178 Garçons</span>
+                    <span className="text-xs text-pink-600 font-semibold">♀ 164 Filles</span>
+                  </div>
+                </div>
+                <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+                  <Users className="w-6 h-6 text-blue-600" />
+                </div>
+              </div>
+              <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                +12 ce mois
+              </span>
+            </div>
+            
+            <div className="bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-lg transition-all">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Paiements</p>
+                  <p className="text-3xl font-bold text-gray-900">€80.9k</p>
+                  <p className="text-xs text-gray-500 mt-1">Revenus ce mois</p>
+                </div>
+                <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
+                  <CreditCard className="w-6 h-6 text-green-600" />
+                </div>
+              </div>
+              <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                +8.2%
+              </span>
+            </div>
+            
+            <div className="bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-lg transition-all">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Enseignants</p>
+                  <p className="text-3xl font-bold text-gray-900">18</p>
+                  <div className="flex items-center gap-3 mt-2">
+                    <span className="text-xs text-blue-600 font-semibold">♂ 7 Hommes</span>
+                    <span className="text-xs text-pink-600 font-semibold">♀ 11 Femmes</span>
+                  </div>
+                </div>
+                <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center">
+                  <GraduationCap className="w-6 h-6 text-orange-600" />
+                </div>
+              </div>
+              <span className="text-xs font-semibold text-gray-600 bg-gray-50 px-2 py-1 rounded-full">
+                Actifs
+              </span>
+            </div>
+            
+            <div className="bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-lg transition-all">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Taux de réussite</p>
+                  <p className="text-3xl font-bold text-gray-900">94%</p>
+                  <p className="text-xs text-gray-500 mt-1">Moyenne générale</p>
+                </div>
+                <div className="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center">
+                  <TrendingUp className="w-6 h-6 text-purple-600" />
+                </div>
+              </div>
+              <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                +2.5%
+              </span>
+            </div>
           </div>
 
           {/* Charts and Tables */}
