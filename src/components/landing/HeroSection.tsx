@@ -81,11 +81,13 @@ export function HeroSection() {
               en toute simplicité
             </h1>
 
-            {/* Subheadline */}
-            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto lg:mx-0 font-medium leading-relaxed">
+            {/* Subheadline - Improved Typography & Contrast */}
+            <p className="text-lg sm:text-lg lg:text-xl text-gray-700 dark:text-gray-200 max-w-2xl mx-auto lg:mx-0 font-medium leading-relaxed">
               Notes, bulletins, paiements — tout en{" "}
-              <span className="font-bold text-foreground">1 clic</span>.
-              <span className="hidden sm:inline"> La solution complète pour les écoles primaires camerounaises.</span>
+              <span className="font-bold text-[#2302B3] dark:text-[#4318FF]">1 clic</span>.
+              <span className="block mt-1 text-base sm:text-lg text-gray-600 dark:text-gray-300">
+                La solution complète pour les écoles primaires camerounaises.
+              </span>
             </p>
 
             {/* Features List */}

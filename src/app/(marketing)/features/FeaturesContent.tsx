@@ -121,27 +121,26 @@ export default function FeaturesContent() {
           </div>
         </section>
 
-        {/* Feature Categories */}
         {featureCategories.map((category, i) => (
-          <section key={i} className={`py-16 lg:py-24 ${i % 2 === 1 ? 'bg-muted/30' : ''}`}>
-            <div className="container mx-auto px-4">
-              <div className={`grid lg:grid-cols-2 gap-12 items-center`}>
+          <section key={i} className={`py-16 lg:py-24 ${i % 2 === 1 ? 'bg-muted/30' : ''} overflow-hidden`}>
+            <div className="container mx-auto px-4 sm:px-6">
+              <div className={`flex flex-col lg:flex-row gap-12 lg:gap-20 items-center`}>
                 {/* Content */}
-                <div className={i % 2 === 1 ? 'lg:order-2' : ''}>
-                  <div className={`w-14 h-14 rounded-xl ${category.bgClass} flex items-center justify-center mb-6`}>
+                <div className={`flex-1 ${i % 2 === 1 ? 'lg:order-2' : ''}`}>
+                  <div className={`w-14 h-14 rounded-2xl ${category.bgClass} flex items-center justify-center mb-6 shadow-sm`}>
                     <category.icon className={`w-7 h-7 ${category.textClass}`} />
                   </div>
-                  <h2 className="text-3xl font-bold mb-4">{category.title}</h2>
-                  <p className="text-lg text-muted-foreground mb-8">{category.description}</p>
+                  <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900 tracking-tight">{category.title}</h2>
+                  <p className="text-lg text-muted-foreground mb-8 leading-relaxed">{category.description}</p>
                   <div className="grid sm:grid-cols-2 gap-4">
                     {category.features.map((feature, j) => (
-                      <div key={j} className="flex items-start gap-3 p-4 rounded-xl bg-card border border-border/50">
+                      <div key={j} className="flex items-start gap-4 p-4 rounded-xl bg-card border border-border/50 hover:shadow-md transition-shadow duration-300">
                         <div className={`w-10 h-10 rounded-lg ${category.bgClass} flex items-center justify-center shrink-0`}>
                           <feature.icon className={`w-5 h-5 ${category.textClass}`} />
                         </div>
                         <div>
-                          <p className="font-semibold">{feature.title}</p>
-                          <p className="text-sm text-muted-foreground">{feature.desc}</p>
+                          <p className="font-semibold text-gray-900">{feature.title}</p>
+                          <p className="text-sm text-gray-600 leading-snug mt-1">{feature.desc}</p>
                         </div>
                       </div>
                     ))}
@@ -149,9 +148,36 @@ export default function FeaturesContent() {
                 </div>
 
                 {/* Visual */}
-                <div className={i % 2 === 1 ? 'lg:order-1' : ''}>
-                  <div className={`aspect-square rounded-3xl bg-gradient-to-br ${category.gradientClass} flex items-center justify-center p-12`}>
-                    <category.icon className={`w-32 h-32 ${category.textClass}/30`} />
+                <div className={`flex-1 w-full ${i % 2 === 1 ? 'lg:order-1' : ''}`}>
+                  <div className="relative aspect-[4/3] lg:aspect-square rounded-3xl overflow-hidden shadow-2xl border-4 border-white/50 dark:border-white/10">
+                    {/* Using existing images that match the context */}
+                    {i === 0 && (
+                      <div
+                        className="absolute inset-0 bg-cover bg-center hover:scale-105 transition-transform duration-700"
+                        style={{ backgroundImage: `url('/teacher_grades.jpeg')` }}
+                      />
+                    )}
+                    {i === 1 && (
+                      <div
+                        className="absolute inset-0 bg-cover bg-center hover:scale-105 transition-transform duration-700"
+                        style={{ backgroundImage: `url('/student_girl.jpeg')` }}
+                      />
+                    )}
+                    {i === 2 && (
+                      <div
+                        className="absolute inset-0 bg-cover bg-center hover:scale-105 transition-transform duration-700"
+                        style={{ backgroundImage: `url('/director_signup.jpeg')` }}
+                      />
+                    )}
+                    {i === 3 && (
+                      <div
+                        className="absolute inset-0 bg-cover bg-center hover:scale-105 transition-transform duration-700"
+                        style={{ backgroundImage: `url('/parent_sms.jpeg')` }}
+                      />
+                    )}
+
+                    {/* Gradient Overlay for text readability if needed, or just polish */}
+                    <div className={`absolute inset-0 bg-gradient-to-t ${category.gradientClass} opacity-20 mix-blend-multiply`} />
                   </div>
                 </div>
               </div>
