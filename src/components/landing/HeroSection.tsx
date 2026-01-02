@@ -48,25 +48,20 @@ export function HeroSection() {
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
-            imageRendering: 'crisp-edges',
             opacity: index === currentImageIndex ? 1 : 0,
-            filter: 'contrast(1.05) saturate(1.1)',
           }}
         />
       ))}
 
-      {/* Optimized Overlay - Better contrast */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/75 via-white/70 to-white/80 dark:from-black/75 dark:via-black/70 dark:to-black/80 z-0" />
-
-      {/* Floating Elements */}
-      <div className="absolute top-1/4 right-10 w-20 h-20 rounded-2xl bg-primary/10 blur-xl animate-float z-0" />
-      <div className="absolute bottom-1/4 left-10 w-32 h-32 rounded-full bg-secondary/10 blur-2xl animate-float delay-300 z-0" />
-      <div className="absolute top-1/3 left-1/4 w-16 h-16 rounded-xl bg-accent/20 blur-lg animate-float delay-500 z-0" />
+      {/* Smart Gradient - Only on the left side to ensure text readability without hiding the image center/right */}
+      <div className="absolute inset-y-0 left-0 w-full lg:w-[60%] bg-gradient-to-r from-white/95 via-white/70 to-transparent dark:from-black/95 dark:via-black/70 dark:to-transparent z-0" />
+      {/* Mobile Bottom Gradient for better stacking */}
+      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white/90 to-transparent dark:from-black/90 lg:hidden z-0" />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 xl:gap-20 items-center">
-          {/* Content */}
-          <div className="text-center lg:text-left space-y-6 sm:space-y-8">
+          {/* Content - No longer in a box, sitting cleanly on the gradient */}
+          <div className="text-center lg:text-left space-y-6 sm:space-y-8 py-10 lg:py-0 max-w-xl mx-auto lg:mx-0">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-md text-primary text-xs sm:text-sm font-medium shadow-lg border border-primary/20 animate-fade-in">
               <span className="relative flex h-2 w-2">
@@ -105,10 +100,10 @@ export function HeroSection() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start animate-slide-up delay-300">
-              <Button 
-                variant="hero" 
-                size="xl" 
-                asChild 
+              <Button
+                variant="hero"
+                size="xl"
+                asChild
                 className="shadow-xl shadow-primary/30 hover:shadow-2xl hover:shadow-primary/40 transition-all duration-300 text-sm sm:text-base h-12 sm:h-14 px-6 sm:px-8"
               >
                 <Link href="/register" className="flex items-center justify-center">
@@ -117,10 +112,10 @@ export function HeroSection() {
                   <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
                 </Link>
               </Button>
-              <Button 
-                variant="outline" 
-                size="xl" 
-                asChild 
+              <Button
+                variant="outline"
+                size="xl"
+                asChild
                 className="bg-white/80 dark:bg-black/80 backdrop-blur-md hover:bg-white dark:hover:bg-black border-primary/30 shadow-lg text-sm sm:text-base h-12 sm:h-14 px-6 sm:px-8"
               >
                 <Link href="/demo" className="flex items-center justify-center gap-2">
