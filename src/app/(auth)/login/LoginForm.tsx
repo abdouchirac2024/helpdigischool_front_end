@@ -27,6 +27,7 @@ const slides = [
     image: '/teacher_grades.jpeg',
     badge: "L'excellence scolaire",
     title: "La plateforme tout-en-un pour les écoles modernes.",
+    position: 'bottom',
     features: [
       { icon: School, title: "Gestion centralisée", desc: "Élèves, enseignants, emplois du temps" },
       { icon: BarChart3, title: "Statistiques détaillées", desc: "Suivez la performance de votre école" },
@@ -37,6 +38,7 @@ const slides = [
     image: '/parent_notification_sms.png',
     badge: "Communication temps réel",
     title: "Gardez le lien avec les parents, simplement.",
+    position: 'top',
     features: [
       { icon: Smartphone, title: "Notifications SMS", desc: "Alertes automatiques pour les notes et absences" },
       { icon: MessageSquare, title: "Messagerie directe", desc: "Communiquez facilement avec les familles" },
@@ -207,32 +209,42 @@ export default function LoginForm() {
       </div>
 
       {/* Right Side - Carousel & Features */}
-      <div className="hidden lg:relative lg:flex lg:flex-col lg:justify-end lg:p-16 text-white overflow-hidden bg-[#2302B3]">
-        {/* Carousel Backgrounds */}
+      <div className="hidden lg:relative lg:block text-white overflow-hidden bg-[#2302B3]">
+        {/* Carousel Layers */}
         {slides.map((slide, index) => (
-          <div
-            key={index}
-            className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'
-              }`}
-            style={{ backgroundImage: `url('${slide.image}')` }}
-          />
+          <div key={index} className="absolute inset-0">
+            {/* Image */}
+            <div
+              className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'
+                }`}
+              style={{ backgroundImage: `url('${slide.image}')` }}
+            />
+            {/* Dynamic Gradient Overlay based on content position */}
+            <div
+              className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? 'opacity-90' : 'opacity-0'
+                }`}
+              style={{
+                background: slide.position === 'top'
+                  ? 'linear-gradient(to bottom, #2302B3 10%, rgba(35,2,179,0.8) 50%, transparent 100%)'
+                  : 'linear-gradient(to top, #2302B3 10%, rgba(35,2,179,0.8) 50%, transparent 100%)'
+              }}
+            />
+          </div>
         ))}
 
-        {/* Branded Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#2302B3] via-[#2302B3]/75 to-transparent opacity-90" />
-
-        {/* Decorative Circles */}
+        {/* Decorative Circles (Fixed) */}
         <div className="absolute top-10 right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
         <div className="absolute bottom-1/3 left-10 w-64 h-64 bg-[#4318FF]/30 rounded-full blur-3xl" />
 
-        <div className="relative z-10 max-w-lg">
+        <div className="relative z-10 h-full">
           {/* Carousel Content */}
           {slides.map((slide, index) => (
             <div
               key={index}
-              className={`transition-all duration-700 ease-out transform ${index === currentSlide
-                ? 'opacity-100 translate-y-0'
-                : 'opacity-0 translate-y-8 absolute bottom-0 left-0 right-0 pointer-events-none'
+              className={`absolute left-0 right-0 p-16 max-w-xl mx-auto transition-all duration-700 ease-out transform ${slide.position === 'top' ? 'top-0' : 'bottom-0'
+                } ${index === currentSlide
+                  ? 'opacity-100 translate-y-0'
+                  : `opacity-0 pointer-events-none ${slide.position === 'top' ? '-translate-y-8' : 'translate-y-8'}`
                 }`}
             >
               <div className="flex items-center gap-2 mb-6">
@@ -261,7 +273,7 @@ export default function LoginForm() {
           ))}
 
           {/* Carousel Indicators */}
-          <div className="flex gap-2 mt-8">
+          <div className="absolute bottom-8 left-16 flex gap-2 z-20">
             {slides.map((_, index) => (
               <button
                 key={index}
