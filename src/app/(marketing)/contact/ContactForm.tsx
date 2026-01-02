@@ -25,6 +25,7 @@ import {
   User
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { IdentitySection } from '@/components/landing/IdentitySection'
 
 const contactReasons = [
   'Demande de démo',
@@ -225,116 +226,138 @@ export default function ContactForm() {
                   </div>
 
                   {/* Right Panel - Form (Occupies 50%) */}
-                  <div className="p-8 lg:p-12 bg-white/50 backdrop-blur-sm">
-                    <div className="mb-10 text-center lg:text-left">
-                      <h2 className="text-3xl font-black text-gray-900 mb-2 tracking-tight">Envoyez un message</h2>
-                      <p className="text-muted-foreground text-sm font-medium">
-                        Réponse garantie dans les plus brefs délais.
-                      </p>
+                  <div className="p-8 lg:p-12 bg-white/50 backdrop-blur-sm relative overflow-hidden">
+                    {/* Geometric Pattern Overlay - Brand Personalized */}
+                    <div className="absolute inset-0 pointer-events-none opacity-[0.06] text-[#2302B3]">
+                      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                          <pattern id="help-digi-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+                            {/* Decorative geometric elements inspired by ref */}
+                            <path d="M50 0 L100 50 L50 100 L0 50 Z" fill="none" stroke="currentColor" strokeWidth="0.5" />
+                            <circle cx="50" cy="50" r="10" fill="none" stroke="currentColor" strokeWidth="0.5" />
+                            <path d="M0 0 L100 100 M100 0 L0 100" stroke="currentColor" strokeWidth="0.2" />
+                            <rect x="40" y="40" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="0.5" transform="rotate(45 50 50)" />
+                          </pattern>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#help-digi-pattern)" />
+                      </svg>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                      <div className="grid sm:grid-cols-2 gap-5">
+                    <div className="relative z-10">
+                      <div className="mb-10 text-center lg:text-left">
+                        <h2 className="text-3xl font-black text-gray-900 mb-2 tracking-tight">Envoyez un message</h2>
+                        <p className="text-muted-foreground text-sm font-medium">
+                          Réponse garantie dans les plus brefs délais.
+                        </p>
+                      </div>
+
+                      <form onSubmit={handleSubmit} className="space-y-5">
+                        <div className="grid sm:grid-cols-2 gap-5">
+                          <div className="space-y-2">
+                            <Label htmlFor="name" className="text-sm font-medium">Nom complet *</Label>
+                            <Input
+                              id="name"
+                              placeholder="Votre nom"
+                              className="bg-white/70 border-gray-200 focus:bg-white transition-all h-11"
+                              value={formData.name}
+                              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                              required
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="email" className="text-sm font-medium">Email professionnel *</Label>
+                            <Input
+                              id="email"
+                              type="email"
+                              placeholder="vous@ecole.com"
+                              className="bg-white/70 border-gray-200 focus:bg-white transition-all h-11"
+                              value={formData.email}
+                              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid sm:grid-cols-2 gap-5">
+                          <div className="space-y-2">
+                            <Label htmlFor="phone" className="text-sm font-medium">Téléphone</Label>
+                            <Input
+                              id="phone"
+                              type="tel"
+                              placeholder="+237..."
+                              className="bg-white/70 border-gray-200 focus:bg-white transition-all h-11"
+                              value={formData.phone}
+                              onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="schoolName" className="text-sm font-medium">École <span className="text-muted-foreground text-xs">(Optionnel)</span></Label>
+                            <Input
+                              id="schoolName"
+                              placeholder="Nom de l'établissement"
+                              className="bg-white/70 border-gray-200 focus:bg-white transition-all h-11"
+                              value={formData.schoolName}
+                              onChange={(e) => setFormData(prev => ({ ...prev, schoolName: e.target.value }))}
+                            />
+                          </div>
+                        </div>
+
                         <div className="space-y-2">
-                          <Label htmlFor="name" className="text-sm font-medium">Nom complet *</Label>
-                          <Input
-                            id="name"
-                            placeholder="Votre nom"
-                            className="bg-gray-50 border-gray-200 focus:bg-white transition-all h-11"
-                            value={formData.name}
-                            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                          <Label htmlFor="reason" className="text-sm font-medium">Sujet *</Label>
+                          <Select
+                            value={formData.reason}
+                            onValueChange={(value) => setFormData(prev => ({ ...prev, reason: value }))}
+                          >
+                            <SelectTrigger className="bg-white/70 border-gray-200 focus:bg-white transition-all h-11">
+                              <SelectValue placeholder="Je souhaite..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {contactReasons.map((reason) => (
+                                <SelectItem key={reason} value={reason}>
+                                  {reason}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="message" className="text-sm font-medium">Votre message *</Label>
+                          <Textarea
+                            id="message"
+                            placeholder="Dites-nous en plus sur vos besoins..."
+                            className="bg-white/70 border-gray-200 focus:bg-white transition-all min-h-[120px] resize-none"
+                            value={formData.message}
+                            onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
                             required
                           />
                         </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="email" className="text-sm font-medium">Email professionnel *</Label>
-                          <Input
-                            id="email"
-                            type="email"
-                            placeholder="vous@ecole.com"
-                            className="bg-gray-50 border-gray-200 focus:bg-white transition-all h-11"
-                            value={formData.email}
-                            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                            required
-                          />
-                        </div>
-                      </div>
 
-                      <div className="grid sm:grid-cols-2 gap-5">
-                        <div className="space-y-2">
-                          <Label htmlFor="phone" className="text-sm font-medium">Téléphone</Label>
-                          <Input
-                            id="phone"
-                            type="tel"
-                            placeholder="+237..."
-                            className="bg-gray-50 border-gray-200 focus:bg-white transition-all h-11"
-                            value={formData.phone}
-                            onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="schoolName" className="text-sm font-medium">École <span className="text-muted-foreground text-xs">(Optionnel)</span></Label>
-                          <Input
-                            id="schoolName"
-                            placeholder="Nom de l'établissement"
-                            className="bg-gray-50 border-gray-200 focus:bg-white transition-all h-11"
-                            value={formData.schoolName}
-                            onChange={(e) => setFormData(prev => ({ ...prev, schoolName: e.target.value }))}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="reason" className="text-sm font-medium">Sujet *</Label>
-                        <Select
-                          value={formData.reason}
-                          onValueChange={(value) => setFormData(prev => ({ ...prev, reason: value }))}
+                        <Button
+                          type="submit"
+                          size="lg"
+                          className="w-full bg-[#2302B3] hover:bg-[#1c0291] text-white shadow-lg shadow-blue-900/20 h-12 text-base font-bold transition-all hover:scale-[1.01]"
+                          disabled={isLoading}
                         >
-                          <SelectTrigger className="bg-gray-50 border-gray-200 focus:bg-white transition-all h-11">
-                            <SelectValue placeholder="Je souhaite..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {contactReasons.map((reason) => (
-                              <SelectItem key={reason} value={reason}>
-                                {reason}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="message" className="text-sm font-medium">Votre message *</Label>
-                        <Textarea
-                          id="message"
-                          placeholder="Dites-nous en plus sur vos besoins..."
-                          className="bg-gray-50 border-gray-200 focus:bg-white transition-all min-h-[120px] resize-none"
-                          value={formData.message}
-                          onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
-                          required
-                        />
-                      </div>
-
-                      <Button
-                        type="submit"
-                        size="lg"
-                        className="w-full bg-[#2302B3] hover:bg-[#1c0291] text-white shadow-lg shadow-blue-900/20 h-12 text-base"
-                        disabled={isLoading}
-                      >
-                        {isLoading ? 'Envoi en cours...' : (
-                          <>
-                            Envoyer le message
-                            <Send className="w-4 h-4 ml-2" />
-                          </>
-                        )}
-                      </Button>
-                    </form>
+                          {isLoading ? 'Envoi en cours...' : (
+                            <>
+                              Envoyer le message
+                              <Send className="w-4 h-4 ml-2" />
+                            </>
+                          )}
+                        </Button>
+                      </form>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
+
+        {/* New Identity Section - "Notre Mission" */}
+        <IdentitySection className="relative z-10" />
+
       </main>
 
       <Footer />
