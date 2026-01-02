@@ -154,63 +154,82 @@ export default function ContactForm() {
         <section className="py-8 lg:py-16 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <div className="bg-white rounded-3xl border border-border/50 shadow-2xl overflow-hidden">
-                <div className="grid lg:grid-cols-5 min-h-[600px]">
-                  {/* Left Panel - Info/Visual */}
-                  <div className="lg:col-span-2 bg-[#2302B3] text-white p-8 lg:p-10 flex flex-col justify-between relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50" />
-                    <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-                    <div className="absolute -top-24 -left-24 w-64 h-64 bg-blue-400/20 rounded-full blur-3xl" />
+              <div className="bg-white rounded-3xl border border-white/50 shadow-2xl overflow-hidden ring-1 ring-black/5">
+                <div className="grid lg:grid-cols-2 min-h-[600px]">
+                  {/* Left Panel - Humanized Info/Visual - Expanded to 50% */}
+                  <div className="relative text-white p-8 lg:p-12 flex flex-col justify-between overflow-hidden">
+                    {/* Background Image with Branded Overlay - Adjusted position to right to show the person better */}
+                    <div
+                      className="absolute inset-0 bg-cover bg-right transition-transform duration-700 hover:scale-105"
+                      style={{ backgroundImage: `url('/parent_sms.jpeg')` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#2302B3]/95 via-[#2302B3]/85 to-[#4318FF]/75" />
+
+                    {/* Decorative Elements */}
+                    <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-3xl opacity-50" />
+                    <div className="absolute -top-24 -left-24 w-64 h-64 bg-blue-400/20 rounded-full blur-3xl opacity-50" />
 
                     <div className="relative z-10">
-                      <h3 className="text-2xl font-bold mb-4">Informations</h3>
-                      <p className="text-blue-100 text-sm leading-relaxed mb-8">
+                      <h3 className="text-3xl font-bold mb-6">Informations</h3>
+                      <p className="text-blue-50 text-base leading-relaxed mb-10 font-medium max-w-sm">
                         Remplissez ce formulaire et nous reviendrons vers vous sous 24h ouvrées.
                       </p>
 
                       <div className="space-y-6">
-                        <div className="flex items-start gap-4">
-                          <Phone className="w-5 h-5 text-blue-300 mt-1" />
+                        <div className="flex items-start gap-4 group/item">
+                          <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shrink-0 border border-white/20 group-hover/item:bg-white/20 transition-all duration-300">
+                            <Phone className="w-6 h-6 text-blue-100" />
+                          </div>
                           <div>
-                            <p className="font-medium text-white">+237 6 00 00 00 00</p>
-                            <p className="text-xs text-blue-200">Lun-Ven, 8h-18h</p>
+                            <p className="text-xs text-blue-200 uppercase tracking-widest font-bold mb-1">Appelez-nous</p>
+                            <p className="font-semibold text-lg text-white">+237 6 00 00 00 00</p>
+                            <p className="text-xs text-blue-200/80 italic">Lun-Ven, 8h-18h</p>
                           </div>
                         </div>
-                        <div className="flex items-start gap-4">
-                          <Mail className="w-5 h-5 text-blue-300 mt-1" />
+                        <div className="flex items-start gap-4 group/item">
+                          <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shrink-0 border border-white/20 group-hover/item:bg-white/20 transition-all duration-300">
+                            <Mail className="w-6 h-6 text-blue-100" />
+                          </div>
                           <div>
-                            <p className="font-medium text-white">contact@helpdigischool.cm</p>
-                            <p className="text-xs text-blue-200">Support en ligne</p>
+                            <p className="text-xs text-blue-200 uppercase tracking-widest font-bold mb-1">Email</p>
+                            <p className="font-semibold text-lg text-white">contact@helpdigischool.cm</p>
+                            <p className="text-xs text-blue-200/80 italic">Support réactif</p>
                           </div>
                         </div>
-                        <div className="flex items-start gap-4">
-                          <MapPin className="w-5 h-5 text-blue-300 mt-1" />
+                        <div className="flex items-start gap-4 group/item">
+                          <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shrink-0 border border-white/20 group-hover/item:bg-white/20 transition-all duration-300">
+                            <MapPin className="w-6 h-6 text-blue-100" />
+                          </div>
                           <div>
-                            <p className="font-medium text-white">Douala, Cameroun</p>
-                            <p className="text-xs text-blue-200">Akwa Business Center</p>
+                            <p className="text-xs text-blue-200 uppercase tracking-widest font-bold mb-1">Siège social</p>
+                            <p className="font-semibold text-lg text-white">Douala, Cameroun</p>
+                            <p className="text-xs text-blue-200/80 italic">Akwa Business Center</p>
                           </div>
                         </div>
                       </div>
                     </div>
 
                     <div className="relative z-10 pt-8 mt-auto">
-                      <div className="p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20">
-                        <p className="text-xs font-medium text-white/90">
-                          "Un service client exceptionnel, toujours disponible pour nous aider."
+                      <div className="p-6 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl">
+                        <div className="flex gap-1.5 mb-3">
+                          {[1, 2, 3, 4, 5].map(s => <span key={s} className="text-yellow-400 text-sm">★</span>)}
+                        </div>
+                        <p className="text-base font-medium text-white italic leading-relaxed">
+                          "Help Digi School a transformé notre communication avec les parents. Un vrai gain de temps !"
                         </p>
-                        <p className="text-[10px] text-blue-200 mt-2 font-semibold">
-                          — Directeur École La Victoire
+                        <p className="text-[11px] text-blue-100 mt-4 font-black uppercase tracking-widest">
+                          — Mme. Toukam, Directrice d'école
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Right Panel - Form */}
-                  <div className="lg:col-span-3 p-8 lg:p-12">
-                    <div className="mb-8">
-                      <h2 className="text-2xl font-bold text-gray-900 mb-2">Envoyez-nous un message</h2>
-                      <p className="text-muted-foreground text-sm">
-                        Tous les champs marqués d'un astérisque (*) sont obligatoires.
+                  {/* Right Panel - Form (Occupies 50%) */}
+                  <div className="p-8 lg:p-12 bg-white/50 backdrop-blur-sm">
+                    <div className="mb-10 text-center lg:text-left">
+                      <h2 className="text-3xl font-black text-gray-900 mb-2 tracking-tight">Envoyez un message</h2>
+                      <p className="text-muted-foreground text-sm font-medium">
+                        Réponse garantie dans les plus brefs délais.
                       </p>
                     </div>
 
