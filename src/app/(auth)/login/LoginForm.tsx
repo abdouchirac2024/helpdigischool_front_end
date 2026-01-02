@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,19 +15,54 @@ import {
   EyeOff,
   CheckCircle2,
   School,
-  BarChart3
+  BarChart3,
+  MessageSquare,
+  Smartphone,
+  Clock
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+
+const slides = [
+  {
+    image: '/teacher_grades.jpeg',
+    badge: "L'excellence scolaire",
+    title: "La plateforme tout-en-un pour les écoles modernes.",
+    features: [
+      { icon: School, title: "Gestion centralisée", desc: "Élèves, enseignants, emplois du temps" },
+      { icon: BarChart3, title: "Statistiques détaillées", desc: "Suivez la performance de votre école" },
+      { icon: CheckCircle2, title: "Sans engagement", desc: "Essayez gratuitement pendant 14 jours" }
+    ]
+  },
+  {
+    image: '/parent_notification_sms.png',
+    badge: "Communication temps réel",
+    title: "Gardez le lien avec les parents, simplement.",
+    features: [
+      { icon: Smartphone, title: "Notifications SMS", desc: "Alertes automatiques pour les notes et absences" },
+      { icon: MessageSquare, title: "Messagerie directe", desc: "Communiquez facilement avec les familles" },
+      { icon: Clock, title: "Gain de temps", desc: "Automatisez vos tâches administratives" }
+    ]
+  }
+]
 
 export default function LoginForm() {
   const { toast } = useToast()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [currentSlide, setCurrentSlide] = useState(0)
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     rememberMe: false,
   })
+
+  // Auto-rotate carousel
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -171,60 +206,71 @@ export default function LoginForm() {
         </div>
       </div>
 
-      {/* Right Side - Image & Features */}
+      {/* Right Side - Carousel & Features */}
       <div className="hidden lg:relative lg:flex lg:flex-col lg:justify-end lg:p-16 text-white overflow-hidden bg-[#2302B3]">
-        {/* Background Image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url('/teacher_grades.jpeg')` }}
-        />
+        {/* Carousel Backgrounds */}
+        {slides.map((slide, index) => (
+          <div
+            key={index}
+            className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'
+              }`}
+            style={{ backgroundImage: `url('${slide.image}')` }}
+          />
+        ))}
+
         {/* Branded Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#2302B3] via-[#2302B3]/80 to-transparent opacity-90" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#2302B3] via-[#2302B3]/75 to-transparent opacity-90" />
 
         {/* Decorative Circles */}
         <div className="absolute top-10 right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
         <div className="absolute bottom-1/3 left-10 w-64 h-64 bg-[#4318FF]/30 rounded-full blur-3xl" />
 
         <div className="relative z-10 max-w-lg">
-          <div className="flex items-center gap-2 mb-6 opacity-0 animate-fade-in" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
-            <div className="h-px w-8 bg-white/50" />
-            <span className="text-white/80 uppercase tracking-widest text-xs font-bold">L'excellence scolaire</span>
-          </div>
-
-          <h2 className="text-4xl font-bold mb-6 leading-tight drop-shadow-lg opacity-0 animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
-            La plateforme tout-en-un pour les écoles modernes.
-          </h2>
-
-          <div className="space-y-4 opacity-0 animate-fade-in" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 hover:bg-white/15 transition-colors">
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-                <School className="w-5 h-5 text-white" />
+          {/* Carousel Content */}
+          {slides.map((slide, index) => (
+            <div
+              key={index}
+              className={`transition-all duration-700 ease-out transform ${index === currentSlide
+                ? 'opacity-100 translate-y-0'
+                : 'opacity-0 translate-y-8 absolute bottom-0 left-0 right-0 pointer-events-none'
+                }`}
+            >
+              <div className="flex items-center gap-2 mb-6">
+                <div className="h-px w-8 bg-white/50" />
+                <span className="text-white/80 uppercase tracking-widest text-xs font-bold">{slide.badge}</span>
               </div>
-              <div>
-                <p className="font-bold text-white">Gestion centralisée</p>
-                <p className="text-white/70 text-sm">Élèves, enseignants, emplois du temps</p>
+
+              <h2 className="text-4xl font-bold mb-6 leading-tight drop-shadow-lg">
+                {slide.title}
+              </h2>
+
+              <div className="space-y-4">
+                {slide.features.map((feature, idx) => (
+                  <div key={idx} className="flex items-center gap-4 p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 hover:bg-white/15 transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                      <feature.icon className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-white">{feature.title}</p>
+                      <p className="text-white/70 text-sm">{feature.desc}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
+          ))}
 
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 hover:bg-white/15 transition-colors">
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-                <BarChart3 className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <p className="font-bold text-white">Statistiques détaillées</p>
-                <p className="text-white/70 text-sm">Suivez la performance de votre école</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 hover:bg-white/15 transition-colors">
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-                <CheckCircle2 className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <p className="font-bold text-white">Sans engagement</p>
-                <p className="text-white/70 text-sm">Essayez gratuitement pendant 14 jours</p>
-              </div>
-            </div>
+          {/* Carousel Indicators */}
+          <div className="flex gap-2 mt-8">
+            {slides.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`h-1.5 rounded-full transition-all duration-300 ${index === currentSlide ? 'w-8 bg-white' : 'w-2 bg-white/30 hover:bg-white/50'
+                  }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
           </div>
         </div>
       </div>
