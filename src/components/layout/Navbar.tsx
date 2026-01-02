@@ -3,11 +3,11 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { 
-  GraduationCap, 
-  Home, 
-  Sparkles, 
-  CreditCard, 
+import {
+  GraduationCap,
+  Home,
+  Sparkles,
+  CreditCard,
   Mail,
   LogIn,
   UserPlus
@@ -25,115 +25,58 @@ export function Navbar() {
   const pathname = usePathname()
 
   return (
-    <>
-      {/* Desktop Navbar - Top */}
-      <nav className="hidden lg:block fixed top-4 left-4 right-4 z-50 bg-white/95 backdrop-blur-xl border border-gray-200 rounded-2xl shadow-lg">
-        <div className="container mx-auto px-6">
-          <div className="flex items-center justify-between h-18">
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#2302B3] to-[#4318FF] flex items-center justify-center shadow-md group-hover:shadow-lg transition-all group-hover:scale-105">
-                <GraduationCap className="w-6 h-6 text-white" />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-bold text-lg text-gray-900 leading-tight">
-                  Help Digi School
-                </span>
-                <span className="text-xs text-gray-600">
-                  Écoles Primaires Cameroun
-                </span>
-              </div>
-            </Link>
-
-            <div className="flex items-center gap-1">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={cn(
-                    'px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200',
-                    pathname === link.href
-                      ? 'text-[#2302B3] bg-[#2302B3]/10'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  )}
-                >
-                  {link.label}
-                </Link>
-              ))}
+    <nav className="fixed top-4 left-4 right-4 z-50 bg-white/95 backdrop-blur-xl border border-gray-200 rounded-2xl shadow-lg transition-all duration-300">
+      <div className="container mx-auto px-4 lg:px-6">
+        <div className="flex items-center justify-between h-16 lg:h-18">
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="w-10 h-10 lg:w-11 lg:h-11 rounded-2xl bg-gradient-to-br from-[#2302B3] to-[#4318FF] flex items-center justify-center shadow-md group-hover:shadow-lg transition-all group-hover:scale-105">
+              <GraduationCap className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
             </div>
-
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" size="sm" asChild className="text-gray-700 hover:text-[#2302B3] rounded-xl">
-                <Link href="/login" className="flex items-center gap-2">
-                  <LogIn className="w-4 h-4" />
-                  Connexion
-                </Link>
-              </Button>
-              <Button size="sm" asChild className="bg-[#2302B3] hover:bg-[#1a0285] text-white rounded-xl shadow-lg shadow-[#2302B3]/20">
-                <Link href="/register" className="flex items-center gap-2">
-                  <UserPlus className="w-4 h-4" />
-                  Inscrire Mon École
-                </Link>
-              </Button>
+            <div className="flex flex-col">
+              <span className="font-bold text-base lg:text-lg text-gray-900 leading-tight">
+                Help Digi School
+              </span>
+              <span className="text-[10px] lg:text-xs text-gray-600 hidden sm:block">
+                Écoles Primaires Cameroun
+              </span>
             </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Mobile Top Bar - Simplified */}
-      <nav className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-b border-gray-200 shadow-sm">
-        <div className="px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#2302B3] to-[#4318FF] flex items-center justify-center">
-              <GraduationCap className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-bold text-base text-gray-900">
-              Help Digi School
-            </span>
           </Link>
-          
-          <Button variant="ghost" size="sm" asChild className="text-gray-700 rounded-lg">
-            <Link href="/login">
-              <LogIn className="w-4 h-4" />
-            </Link>
-          </Button>
-        </div>
-      </nav>
 
-      {/* Mobile Bottom Navigation - iOS Style */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] pointer-events-none">
-        <nav className="bg-white border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] pointer-events-auto">
-          <div className="grid grid-cols-4 px-4 py-3 safe-area-inset-bottom">
-            {navLinks.map((link) => {
-              const isActive = pathname === link.href
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="flex flex-col items-center justify-center gap-1.5 py-1 transition-all duration-200 active:scale-95"
-                >
-                  <div className={cn(
-                    'w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300',
-                    isActive 
-                      ? 'bg-[#2302B3] shadow-lg shadow-[#2302B3]/30' 
-                      : 'bg-transparent'
-                  )}>
-                    <link.icon className={cn(
-                      'w-6 h-6 transition-all duration-300',
-                      isActive ? 'text-white' : 'text-gray-400'
-                    )} />
-                  </div>
-                  <span className={cn(
-                    'text-[11px] font-medium transition-all duration-300',
-                    isActive ? 'text-[#2302B3] font-semibold' : 'text-gray-400'
-                  )}>
-                    {link.label}
-                  </span>
-                </Link>
-              )
-            })}
+          {/* Desktop Links - Hidden on Mobile */}
+          <div className="hidden lg:flex items-center gap-1">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  'px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200',
+                  pathname === link.href
+                    ? 'text-[#2302B3] bg-[#2302B3]/10'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                )}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
-        </nav>
+
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" asChild className="text-gray-700 hover:text-[#2302B3] rounded-xl hidden sm:flex">
+              <Link href="/login" className="flex items-center gap-2">
+                <LogIn className="w-4 h-4" />
+                Connexion
+              </Link>
+            </Button>
+            <Button size="sm" asChild className="bg-[#2302B3] hover:bg-[#1a0285] text-white rounded-xl shadow-lg shadow-[#2302B3]/20">
+              <Link href="/register" className="flex items-center gap-2">
+                <UserPlus className="w-4 h-4" />
+                <span className="hidden sm:inline">Inscrire Mon École</span>
+                <span className="sm:hidden">S'inscrire</span>
+              </Link>
+            </Button>
+          </div>
+        </div>
       </div>
-    </>
+    </nav>
   )
 }
