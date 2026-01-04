@@ -1,0 +1,134 @@
+# ============================================
+# Help Digi School - Pre-Production
+# ============================================
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.preprod.yml up -d
+# ============================================
+
+x-logging-loki: &loki-logging
+  driver: loki
+  options:
+    loki-url: "${LOKI_URL:-http://loki:3100/loki/api/v1/push}"
+    loki-batch-size: "400"
+    loki-retries: "5"
+    loki-timeout: "10s"
+    loki-tenant-id: "helpdigischool"
+    loki-external-labels: "job=helpdigischool-frontend,environment=preprod"
+
+services:
+  frontend:
+    build:
+      target: production
+      cache_from:
+        - ${DOCKER_REGISTRY:-}helpdigischool/frontend:preprod-latest
+    image: ${DOCKER_REGISTRY:-}helpdigischool/frontend:preprod-${VERSION:-latest}
+    container_name: helpdigischool-frontend-preprod
+    restart: always
+    ports:
+      - "${FRONTEND_PORT:-32031}:3000"
+    environment:
+      - NODE_ENV=production
+      - ENVIRONMENT=preprod
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME:-Help Digi School}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+      - NEXT_PUBLIC_ENVIRONMENT=preprod
+    env_file:
+      - .env.preprod
+    networks:
+      - default
+      - monitoring
+      - traefik
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: '4'
+          memory: 4G
+        reservations:
+          cpus: '2'
+          memory: 2G
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+        order: start-first
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      # Traefik
+      - "traefik.enable=true"
+      - "traefik.http.routers.helpdigischool-preprod.rule=Host(`preprod.helpdigischool.com`)"
+      - "traefik.http.routers.helpdigischool-preprod.entrypoints=websecure"
+      - "traefik.http.routers.helpdigischool-preprod.tls=true"
+      - "traefik.http.routers.helpdigischool-preprod.tls.certresolver=letsencrypt"
+      - "traefik.http.services.helpdigischool-preprod.loadbalancer.server.port=3000"
+      - "traefik.http.services.helpdigischool-preprod.loadbalancer.healthcheck.path=/api/health"
+      - "traefik.http.services.helpdigischool-preprod.loadbalancer.healthcheck.interval=10s"
+      # Middlewares
+      - "traefik.http.routers.helpdigischool-preprod.middlewares=security-headers-preprod@docker,rate-limit-preprod@docker"
+      - "traefik.http.middlewares.security-headers-preprod.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.security-headers-preprod.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.security-headers-preprod.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.security-headers-preprod.headers.browserXssFilter=true"
+      - "traefik.http.middlewares.rate-limit-preprod.ratelimit.average=100"
+      - "traefik.http.middlewares.rate-limit-preprod.ratelimit.burst=50"
+      # Monitoring
+      - "prometheus.scrape=true"
+      - "prometheus.port=3000"
+      - "prometheus.path=/api/metrics"
+      # Info
+      - "com.helpdigischool.environment=preprod"
+    logging: *loki-logging
+
+  # Redis pour sessions/cache
+  redis:
+    image: redis:7-alpine
+    container_name: helpdigischool-redis-preprod
+    restart: always
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --requirepass ${REDIS_PASSWORD:-}
+    volumes:
+      - redis-data:/data
+    networks:
+      - default
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    profiles:
+      - with-redis
+
+networks:
+  default:
+    name: helpdigischool-network-preprod
+    driver: bridge
+  monitoring:
+    external: true
+    name: monitoring-network
+  traefik:
+    external: true
+    name: traefik
+
+volumes:
+  redis-data:
+    name: helpdigischool-redis-preprod

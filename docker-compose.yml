@@ -1,0 +1,55 @@
+# ============================================
+# Help Digi School - Configuration Docker de Base
+# ============================================
+# Ce fichier contient la configuration commune à tous les environnements
+# Utilisez les fichiers override pour les configurations spécifiques:
+#   - docker-compose.override.yml (dev - chargé automatiquement)
+#   - docker-compose.preprod.yml
+#   - docker-compose.prod.yml
+# ============================================
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+    tag: "{{.Name}}"
+
+x-healthcheck: &default-healthcheck
+  test: ["CMD", "/app/docker/scripts/healthcheck.sh"]
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 40s
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - NODE_VERSION=${NODE_VERSION:-20}
+        - BUILDKIT_INLINE_CACHE=1
+    image: ${DOCKER_REGISTRY:-}helpdigischool/frontend:${VERSION:-latest}
+    container_name: helpdigischool-frontend-${ENVIRONMENT:-dev}
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - NEXT_TELEMETRY_DISABLED=1
+      - TZ=${TZ:-Europe/Paris}
+    labels:
+      - "com.helpdigischool.project=helpdigischool"
+      - "com.helpdigischool.service=frontend"
+      - "com.helpdigischool.environment=${ENVIRONMENT:-dev}"
+      - "com.helpdigischool.version=${VERSION:-latest}"
+    logging: *default-logging
+    healthcheck: *default-healthcheck
+
+networks:
+  default:
+    name: helpdigischool-network-${ENVIRONMENT:-dev}
+    driver: bridge
+
+volumes:
+  nextjs-cache:
+    name: helpdigischool-nextjs-cache-${ENVIRONMENT:-dev}

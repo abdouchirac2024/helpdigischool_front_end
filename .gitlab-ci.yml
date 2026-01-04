@@ -1,0 +1,75 @@
+# ============================================
+# Help Digi School - Frontend Next.js
+# GitLab CI/CD - Configuration Principale
+# ============================================
+
+# Inclure les configurations spécifiques par environnement
+include:
+  - local: '.gitlab/gitlab-ci-preprod.yml'
+  - local: '.gitlab/gitlab-ci-prod.yml'
+
+# ============================================
+# Variables globales
+# ============================================
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: "/certs"
+  IMAGE_NAME: helpdigischool/frontend
+  NODE_VERSION: "20"
+
+# ============================================
+# Stages du pipeline
+# ============================================
+stages:
+  - build
+  - test
+  - deploy
+
+# ============================================
+# Templates réutilisables
+# ============================================
+.docker_template: &docker_template
+  image: docker:24-dind
+  services:
+    - docker:24-dind
+  before_script:
+    - docker info
+
+.node_template: &node_template
+  image: node:${NODE_VERSION}-alpine
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+      - .next/cache/
+  before_script:
+    - npm ci --legacy-peer-deps
+
+# ============================================
+# Stage: Test (Toutes les branches)
+# ============================================
+lint:
+  <<: *node_template
+  stage: test
+  script:
+    - npm run lint
+  only:
+    - merge_requests
+    - main
+    - preprod
+    - develop
+
+type_check:
+  <<: *node_template
+  stage: test
+  script:
+    - npm run build
+  only:
+    - merge_requests
+    - main
+    - preprod
+    - develop
+  artifacts:
+    paths:
+      - .next/
+    expire_in: 1 hour
