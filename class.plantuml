@@ -1,23 +1,45 @@
 @startuml HelpDigiSchool_v3_Final_Expert
-!theme plain
+!pragma layout smetana
+scale 1.5
+skinparam dpi 200
 skinparam classAttributeIconSize 0
-skinparam nodesep 80
-skinparam ranksep 70
+skinparam nodesep 100
+skinparam ranksep 120
+skinparam padding 10
 skinparam backgroundColor #FEFEFE
 skinparam packageStyle rectangle
 skinparam shadowing false
-skinparam linetype ortho
+skinparam defaultFontSize 12
+skinparam defaultFontName Arial
+skinparam wrapWidth 250
+skinparam maxMessageSize 150
 skinparam class {
   BackgroundColor White
   BorderColor #333333
+  BorderThickness 2
   ArrowColor #555555
-  FontSize 10
+  FontSize 12
   FontName Arial
+  FontStyle bold
+  AttributeFontSize 11
+  StereotypeFontSize 10
+}
+skinparam package {
+  BorderColor #444444
+  BorderThickness 2
+  BackgroundColor #F8F8F8
+  FontSize 14
+  FontStyle bold
+}
+skinparam enum {
+  BackgroundColor #FFF9C4
+  BorderColor #F57F17
+  FontSize 11
 }
 skinparam note {
   BackgroundColor #FFF9E6
   BorderColor #E6B800
-  FontSize 9
+  FontSize 11
 }
 
 title HelpDigiSchool - Diagramme de Classes UML v3.0\nArchitecture Multi-Tenant SaaS - Sans Redondances\nÉcoles Maternelles et Primaires - Cameroun\n\nProduction Ready - Expert Design
