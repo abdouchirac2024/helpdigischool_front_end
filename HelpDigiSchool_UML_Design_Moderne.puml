@@ -1,15 +1,100 @@
 @startuml HelpDigiSchool_Complet_Final
 
+'========================================
+' CONFIGURATION DESIGN PROFESSIONNEL
+'========================================
+
+!theme vibrant from https://raw.githubusercontent.com/plantuml/plantuml/master/themes
+
+' Layout optimisé
 skinparam linetype ortho
-skinparam nodesep 60
-skinparam ranksep 60
-skinparam backgroundColor #FFFFFF
+skinparam nodesep 70
+skinparam ranksep 80
+skinparam padding 2
+skinparam roundcorner 8
+
+' Arrière-plan et style général
+skinparam backgroundColor #F8FAFB
+skinparam shadowing true
+skinparam handwritten false
+skinparam monochrome false
+
+' Style des packages
 skinparam packageStyle rectangle
-skinparam class {
-  BackgroundColor White
-  BorderColor #333333
-  FontSize 9
+skinparam package {
+  BackgroundColor gradient #FFFFFF-#F5F7FA
+  BorderColor #2C3E50
+  BorderThickness 2.5
+  FontSize 11
+  FontStyle bold
+  FontColor #1A202C
+  Shadowing true
 }
+
+' Style des classes
+skinparam class {
+  BackgroundColor gradient #FFFFFF-#F9FAFB
+  BorderColor #4A5568
+  BorderThickness 2
+  FontSize 10
+  FontName Segoe UI
+  FontColor #2D3748
+  HeaderBackgroundColor gradient #667EEA-#764BA2
+  HeaderFontColor #FFFFFF
+  HeaderFontSize 11
+  HeaderFontStyle bold
+  AttributeFontSize 9
+  AttributeFontColor #4A5568
+  StereotypeFontSize 9
+  ArrowColor #4A5568
+  ArrowThickness 1.8
+  Shadowing true
+}
+
+' Style des classes abstraites
+skinparam class<<abstract>> {
+  BackgroundColor gradient #FFF5F5-#FED7D7
+  BorderColor #C53030
+  BorderThickness 2.5
+  FontStyle italic bold
+}
+
+' Style des enums
+skinparam enum {
+  BackgroundColor gradient #FFFAF0-#FBD38D
+  BorderColor #DD6B20
+  BorderThickness 2
+  FontSize 9
+  FontColor #744210
+  FontStyle bold
+  AttributeFontSize 8
+  Shadowing true
+}
+
+' Style des relations
+skinparam ArrowColor #718096
+skinparam ArrowThickness 1.8
+skinparam ArrowFontSize 9
+skinparam ArrowFontColor #4A5568
+
+' Style du titre
+skinparam titleFontSize 16
+skinparam titleFontStyle bold
+skinparam titleFontColor #1A202C
+skinparam titleBackgroundColor gradient #667EEA-#764BA2
+skinparam titleBorderColor #4C51BF
+skinparam titleBorderThickness 3
+skinparam titleBorderRoundCorner 10
+
+' Style des notes et légendes
+skinparam noteFontSize 9
+skinparam noteBorderColor #4A5568
+skinparam noteBackgroundColor #FFFEF7
+skinparam noteShadowing true
+
+' Style des stéréotypes
+skinparam stereotypeCBackgroundColor #EDF2F7
+skinparam stereotypeEBackgroundColor #FED7D7
 
 title HelpDigiSchool - Architecture Multi-Tenant SaaS\nÉcoles Maternelles & Primaires - Cameroun\n(Version Production Ready - Complète)
 
@@ -78,8 +163,8 @@ enum TypeAdresse {
   AUTRE
 }
 
-package "Plateforme Multi-Tenant" #E8F4F8 {
-
+package "Plateforme Multi-Tenant" <<Infrastructure>> #E3F2FD {
+  
   class Region {
     +id: UUID
     +nom: String
@@ -87,7 +172,7 @@ package "Plateforme Multi-Tenant" #E8F4F8 {
     +paysCode: String
     +ordreAffichage: Integer
   }
-
+  
   class Departement {
     +id: UUID
     +regionId: UUID
@@ -95,7 +180,7 @@ package "Plateforme Multi-Tenant" #E8F4F8 {
     +code: String
     +chefLieu: String
   }
-
+  
   class Tenant {
     +id: UUID
     +tenantId: String
@@ -125,7 +210,7 @@ package "Plateforme Multi-Tenant" #E8F4F8 {
     +calculerTauxOccupation(): Decimal
     +estDansLimites(): Boolean
   }
-
+  
   class TenantTypeEnseignement {
     +id: UUID
     +tenantId: UUID
@@ -134,7 +219,7 @@ package "Plateforme Multi-Tenant" #E8F4F8 {
     +dateFin: Date
     +estActif: Boolean
   }
-
+  
   class ForfaitAbonnement {
     +id: UUID
     +nom: String
@@ -155,7 +240,7 @@ package "Plateforme Multi-Tenant" #E8F4F8 {
     +verifierLimites(nbEleves: Integer, nbEnseignants: Integer): Boolean
     +aFonctionnalite(nom: String): Boolean
   }
-
+  
   class Paiement {
     +id: UUID
     +tenantId: UUID
@@ -180,7 +265,7 @@ package "Plateforme Multi-Tenant" #E8F4F8 {
     +annuler(): void
     +verifierStatut(): StatutPaiement
   }
-
+  
   class Facture {
     +id: UUID
     +numeroFacture: String
@@ -203,7 +288,7 @@ package "Plateforme Multi-Tenant" #E8F4F8 {
     +envoyer(): void
     +telecharger(): ByteArray
   }
-
+  
   Region "1" *-- "1..*" Departement
   Tenant "0..*" -- "1" Departement
   Tenant "1" *-- "1..*" TenantTypeEnseignement
@@ -214,8 +299,8 @@ package "Plateforme Multi-Tenant" #E8F4F8 {
   Paiement "1" -- "1" Facture
 }
 
-package "Localisation" #F0F8E8 {
-
+package "Localisation" <<Core>> #E8F5E9 {
+  
   class Adresse {
     +id: UUID
     +ligneAdresse1: String
@@ -241,13 +326,13 @@ package "Localisation" #F0F8E8 {
     +obtenirCoordonnees(): Point
     +valider(): void
   }
-
+  
   Adresse "0..*" -- "1" Departement
   Tenant "1" -- "1" Adresse
 }
 
-package "Utilisateurs (RBAC)" #FFE8E8 {
-
+package "Utilisateurs (RBAC)" <<Security>> #FFF3E0 {
+  
   abstract class Utilisateur {
     +id: UUID
     +tenantId: UUID
@@ -277,7 +362,7 @@ package "Utilisateurs (RBAC)" #FFE8E8 {
     +nomComplet(): String
     +reinitialiserMotDePasse(): String
   }
-
+  
   class AdminEcole {
     +matriculeEmploye: String
     +departement: String
@@ -293,7 +378,7 @@ package "Utilisateurs (RBAC)" #FFE8E8 {
     +validerInscriptions(): void
     +approuverPaiements(): void
   }
-
+  
   class Enseignant {
     +matriculeEmploye: String
     +numeroMatricule: String
@@ -314,7 +399,7 @@ package "Utilisateurs (RBAC)" #FFE8E8 {
     +consulterEmploiDuTemps(): List
     +obtenirClasses(): List
   }
-
+  
   class Eleve {
     +matricule: String
     +dateNaissance: Date
@@ -358,7 +443,7 @@ package "Utilisateurs (RBAC)" #FFE8E8 {
     +estDansQuartier(quartier: String): Boolean
     +calculerMoyenneGenerale(periode: Periode): Decimal
   }
-
+  
   class Parent {
     +profession: String
     +employeur: String
@@ -375,7 +460,7 @@ package "Utilisateurs (RBAC)" #FFE8E8 {
     +obtenirAdresses(): List
     +ajouterAdresse(adresse: Adresse, estPrincipale: Boolean): void
   }
-
+  
   class Secretaire {
     +matriculeEmploye: String
     +departement: String
@@ -387,7 +472,7 @@ package "Utilisateurs (RBAC)" #FFE8E8 {
     +gererScolarite(): void
     +imprimerBulletins(classe: Classe, periode: Periode): void
   }
-
+  
   class Comptable {
     +matriculeEmploye: String
     +numeroAgrement: String
@@ -400,7 +485,7 @@ package "Utilisateurs (RBAC)" #FFE8E8 {
     +genererEtatFinancier(periode: Periode): Document
     +exporterComptabilite(): ByteArray
   }
-
+  
   class AgentTransport {
     +matriculeEmploye: String
     +numeroPermis: String
@@ -416,7 +501,7 @@ package "Utilisateurs (RBAC)" #FFE8E8 {
     +commencerTrajet(): void
     +terminerTrajet(): void
   }
-
+  
   class Bibliothecaire {
     +matriculeEmploye: String
     +dateEmbauche: Date
@@ -428,7 +513,7 @@ package "Utilisateurs (RBAC)" #FFE8E8 {
     +gererStock(): void
     +genererStatistiques(): Rapport
   }
-
+  
   class EleveParent {
     +id: UUID
     +eleveId: UUID
@@ -442,7 +527,7 @@ package "Utilisateurs (RBAC)" #FFE8E8 {
     +dateFin: Date
     +estActif: Boolean
   }
-
+  
   class ParentAdresse {
     +id: UUID
     +parentId: UUID
@@ -452,7 +537,7 @@ package "Utilisateurs (RBAC)" #FFE8E8 {
     +dateDebut: Date
     +dateFin: Date
   }
-
+  
   Utilisateur <|-- AdminEcole
   Utilisateur <|-- Enseignant
   Utilisateur <|-- Eleve
@@ -461,7 +546,7 @@ package "Utilisateurs (RBAC)" #FFE8E8 {
   Utilisateur <|-- Comptable
   Utilisateur <|-- AgentTransport
   Utilisateur <|-- Bibliothecaire
-
+  
   Tenant "1" *-- "0..*" Utilisateur
   Eleve "1" -- "0..*" EleveParent
   Parent "1" -- "0..*" EleveParent
@@ -470,8 +555,8 @@ package "Utilisateurs (RBAC)" #FFE8E8 {
   ParentAdresse "0..*" -- "1" Adresse
 }
 
-package "Structure Académique" #E8F8F5 {
-
+package "Structure Académique" <<Domain>> #F3E5F5 {
+  
   class AnneeScolaire {
     +id: UUID
     +tenantId: UUID
@@ -491,7 +576,7 @@ package "Structure Académique" #E8F8F5 {
     +obtenirPeriodes(): List
     +estActive(): Boolean
   }
-
+  
   class Periode {
     +id: UUID
     +tenantId: UUID
@@ -510,7 +595,7 @@ package "Structure Académique" #E8F8F5 {
     +genererBulletins(): void
     +obtenirDureeJours(): Integer
   }
-
+  
   class Niveau {
     +id: UUID
     +nom: String
@@ -522,7 +607,7 @@ package "Structure Académique" #E8F8F5 {
     +description: String
     +abreviation: String
   }
-
+  
   class Salle {
     +id: UUID
     +tenantId: UUID
@@ -540,7 +625,7 @@ package "Structure Académique" #E8F8F5 {
     +reserver(cours: Cours, jour: String, heure: Time): void
     +liberer(): void
   }
-
+  
   class Classe {
     +id: UUID
     +tenantId: UUID
@@ -562,7 +647,7 @@ package "Structure Académique" #E8F8F5 {
     +obtenirEleves(): List
     +obtenirCours(): List
   }
-
+  
   class GroupeDiscipline {
     +id: UUID
     +tenantId: UUID
@@ -574,7 +659,7 @@ package "Structure Académique" #E8F8F5 {
     +icone: String
     +estActif: Boolean
   }
-
+  
   class Matiere {
     +id: UUID
     +tenantId: UUID
@@ -590,7 +675,7 @@ package "Structure Académique" #E8F8F5 {
     --
     +calculerNotePonderee(note: Decimal): Decimal
   }
-
+  
   class Cours {
     +id: UUID
     +tenantId: UUID
@@ -610,7 +695,7 @@ package "Structure Académique" #E8F8F5 {
     +obtenirEvaluations(): List
     +calculerProgressionProgramme(): Decimal
   }
-
+  
   class EmploiDuTemps {
     +id: UUID
     +tenantId: UUID
@@ -628,34 +713,34 @@ package "Structure Académique" #E8F8F5 {
     +calculerDuree(): Integer
     +estAujourdui(): Boolean
   }
-
+  
   Tenant "1" *-- "1..*" AnneeScolaire
   Tenant "1" *-- "0..*" Salle
   Tenant "1" *-- "0..*" GroupeDiscipline
   Tenant "1" *-- "0..*" Matiere
-
+  
   AnneeScolaire "1" *-- "1..*" Periode
   AnneeScolaire "1" *-- "0..*" Classe
-
+  
   Niveau "1" -- "0..*" Classe
   Niveau "0..*" -- "1" TypeEnseignement
-
+  
   Classe "0..*" -- "0..1" Salle
   Classe "1" -- "0..*" Eleve
   Classe "0..*" -- "0..1" Enseignant
-
+  
   GroupeDiscipline "1" -- "0..*" Matiere
-
+  
   Cours "1" -- "1" Matiere
   Cours "1" -- "1" Classe
   Cours "1" -- "1" Enseignant
   Cours "1" *-- "0..*" EmploiDuTemps
-
+  
   EmploiDuTemps "0..*" -- "0..1" Salle
 }
 
-package "Évaluations & Notes" #FFF4E6 {
-
+package "Évaluations & Notes" <<Academic>> #FCE4EC {
+  
   class Evaluation {
     +id: UUID
     +tenantId: UUID
@@ -679,7 +764,7 @@ package "Évaluations & Notes" #FFF4E6 {
     +calculerStatistiques(): Map
     +obtenirMoyenne(): Decimal
   }
-
+  
   class Note {
     +id: UUID
     +tenantId: UUID
@@ -701,7 +786,7 @@ package "Évaluations & Notes" #FFF4E6 {
     +normaliser(noteMax: Decimal): Decimal
     +calculerPourcentage(): Decimal
   }
-
+  
   class Bulletin {
     +id: UUID
     +tenantId: UUID
@@ -743,7 +828,7 @@ package "Évaluations & Notes" #FFF4E6 {
     +imprimer(): ByteArray
     +obtenirAppreciations(): List
   }
-
+  
   class AppreciationBulletin {
     +id: UUID
     +tenantId: UUID
@@ -761,25 +846,25 @@ package "Évaluations & Notes" #FFF4E6 {
     +calculerMoyenneGroupe(): Decimal
     +calculerRangGroupe(): Integer
   }
-
+  
   Cours "1" o-- "0..*" Evaluation
   Periode "1" -- "0..*" Evaluation
   Evaluation "1" o-- "0..*" Note
   Eleve "1" -- "0..*" Note
   Enseignant "1" -- "0..*" Note
-
+  
   Eleve "1" -- "0..*" Bulletin
   Periode "1" -- "0..*" Bulletin
   Classe "1" -- "0..*" Bulletin
   AnneeScolaire "1" -- "0..*" Bulletin
-
+  
   Bulletin "1" *-- "0..*" AppreciationBulletin
   GroupeDiscipline "1" -- "0..*" AppreciationBulletin
   Enseignant "1" -- "0..*" AppreciationBulletin
 }
 
-package "Présences" #E8F5E9 {
-
+package "Présences" <<Tracking>> #E0F2F1 {
+  
   class PresenceEleve {
     +id: UUID
     +tenantId: UUID
@@ -803,7 +888,7 @@ package "Présences" #E8F5E9 {
     +justifier(document: String): void
     +calculerRetard(): Integer
   }
-
+  
   class PointageEnseignant {
     +id: UUID
     +tenantId: UUID
@@ -824,7 +909,7 @@ package "Présences" #E8F5E9 {
     +estDansPerimetre(rayonMetres: Integer): Boolean
     +calculerHeuresSupplementaires(): Decimal
   }
-
+  
   class DemandePermission {
     +id: UUID
     +tenantId: UUID
@@ -847,19 +932,19 @@ package "Présences" #E8F5E9 {
     +annuler(): void
     +calculerJoursOuvrables(): Integer
   }
-
+  
   Cours "1" o-- "0..*" PresenceEleve
   Eleve "1" -- "0..*" PresenceEleve
   Enseignant "1" -- "0..*" PresenceEleve
-
+  
   Enseignant "1" -- "0..*" PointageEnseignant
-
+  
   Utilisateur "1" -- "0..*" DemandePermission
   AdminEcole "1" -- "0..*" DemandePermission
 }
 
-package "Communication" #F3E5F5 {
-
+package "Communication" <<Messaging>> #E8EAF6 {
+  
   class Conversation {
     +id: UUID
     +tenantId: UUID
@@ -878,7 +963,7 @@ package "Communication" #F3E5F5 {
     +archiver(): void
     +epingler(): void
   }
-
+  
   class ConversationParticipant {
     +id: UUID
     +conversationId: UUID
@@ -888,7 +973,7 @@ package "Communication" #F3E5F5 {
     +derniereLecture: DateTime
     +messagesNonLus: Integer
   }
-
+  
   class Message {
     +id: UUID
     +tenantId: UUID
@@ -912,7 +997,7 @@ package "Communication" #F3E5F5 {
     +modifier(nouveauContenu: String): void
     +supprimer(): void
   }
-
+  
   class Annonce {
     +id: UUID
     +tenantId: UUID
@@ -937,7 +1022,7 @@ package "Communication" #F3E5F5 {
     +estActive(): Boolean
     +obtenirDestinataires(): List
   }
-
+  
   class AppareilFirebase {
     +id: UUID
     +tenantId: UUID
@@ -957,7 +1042,7 @@ package "Communication" #F3E5F5 {
     +desactiver(): void
     +synchroniser(): void
   }
-
+  
   class Notification {
     +id: UUID
     +tenantId: UUID
@@ -980,21 +1065,21 @@ package "Communication" #F3E5F5 {
     +envoyer(): void
     +marquerCliquee(): void
   }
-
+  
   Conversation "1" *-- "0..*" Message
   Conversation "1" *-- "2..*" ConversationParticipant
   ConversationParticipant "0..*" -- "1" Utilisateur
   Utilisateur "1" -- "0..*" Message
-
+  
   Tenant "1" *-- "0..*" Annonce
   Utilisateur "1" -- "0..*" Annonce
-
+  
   Utilisateur "1" -- "0..*" AppareilFirebase
   Utilisateur "1" -- "0..*" Notification
 }
 
-package "Finance" #FFF3E0 {
-
+package "Finance" <<Business>> #FFF9C4 {
+  
   class Frais {
     +id: UUID
     +tenantId: UUID
@@ -1016,7 +1101,7 @@ package "Finance" #FFF3E0 {
     +estApplicable(eleve: Eleve): Boolean
     +calculerMontantProrate(dateInscription: Date): Decimal
   }
-
+  
   class FraisEleve {
     +id: UUID
     +tenantId: UUID
@@ -1043,7 +1128,7 @@ package "Finance" #FFF3E0 {
     +estEnRetard(): Boolean
     +genererEcheancier(): List
   }
-
+  
   class Transaction {
     +id: UUID
     +tenantId: UUID
@@ -1068,7 +1153,7 @@ package "Finance" #FFF3E0 {
     +annuler(motif: String): void
     +comptabiliser(): void
   }
-
+  
   class Recu {
     +id: UUID
     +tenantId: UUID
@@ -1093,22 +1178,22 @@ package "Finance" #FFF3E0 {
     +annuler(motif: String): void
     +envoyer(email: String): void
   }
-
+  
   Tenant "1" *-- "0..*" Frais
   Niveau "0..*" -- "0..1" Frais
   AnneeScolaire "1" -- "0..*" Frais
-
+  
   Eleve "1" -- "0..*" FraisEleve
   Frais "1" -- "0..*" FraisEleve
-
+  
   FraisEleve "1" o-- "0..*" Transaction
   Utilisateur "1" -- "0..*" Transaction
-
+  
   Transaction "1" -- "1" Recu
 }
 
-package "Transport" #E1F5FE {
-
+package "Transport" <<Logistics>> #B2EBF2 {
+  
   class Bus {
     +id: UUID
     +tenantId: UUID
@@ -1136,7 +1221,7 @@ package "Transport" #E1F5FE {
     +programmerMaintenance(date: Date): void
     +calculerAge(): Integer
   }
-
+  
   class Trajet {
     +id: UUID
     +tenantId: UUID
@@ -1158,7 +1243,7 @@ package "Transport" #E1F5FE {
     +estComplet(): Boolean
     +estAujourdui(): Boolean
   }
-
+  
   class ArretBus {
     +id: UUID
     +tenantId: UUID
@@ -1176,7 +1261,7 @@ package "Transport" #E1F5FE {
     +calculerDistance(autre: ArretBus): Decimal
     +estProche(lat: Double, lon: Double, rayonMetres: Integer): Boolean
   }
-
+  
   class TrajetEleve {
     +id: UUID
     +tenantId: UUID
@@ -1195,7 +1280,7 @@ package "Transport" #E1F5FE {
     +desactiver(): void
     +verifierPaiement(): Boolean
   }
-
+  
   class PresenceTransport {
     +id: UUID
     +tenantId: UUID
@@ -1216,7 +1301,7 @@ package "Transport" #E1F5FE {
     +estPresent(): Boolean
     +notifierParent(): void
   }
-
+  
   class PositionBus {
     +id: UUID
     +tenantId: UUID
@@ -1239,27 +1324,27 @@ package "Transport" #E1F5FE {
     +estimerArrivee(arret: ArretBus): DateTime
     +calculerVitesseMoyenne(): Decimal
   }
-
+  
   Tenant "1" *-- "0..*" Bus
   AgentTransport "0..*" -- "0..1" Bus
-
+  
   Bus "1" -- "0..*" Trajet
   Trajet "1" *-- "2..*" ArretBus
-
+  
   Eleve "1" -- "0..*" TrajetEleve
   Trajet "1" -- "0..*" TrajetEleve
   ArretBus "1" -- "0..*" TrajetEleve
-
+  
   Eleve "1" -- "0..*" PresenceTransport
   Trajet "1" -- "0..*" PresenceTransport
   AgentTransport "1" -- "0..*" PresenceTransport
-
+  
   Bus "1" -- "0..*" PositionBus
   Trajet "0..*" -- "0..1" PositionBus
 }
 
-package "Bibliothèque" #FCE4EC {
-
+package "Bibliothèque" <<Library>> #F8BBD0 {
+  
   class Livre {
     +id: UUID
     +tenantId: UUID
@@ -1289,7 +1374,7 @@ package "Bibliothèque" #FCE4EC {
     +incrementerExemplaires(nombre: Integer): void
     +decrementerExemplaires(nombre: Integer): void
   }
-
+  
   class PretLivre {
     +id: UUID
     +tenantId: UUID
@@ -1311,7 +1396,7 @@ package "Bibliothèque" #FCE4EC {
     +prolonger(joursSupplementaires: Integer): void
     +enregistrerRetour(): void
   }
-
+  
   Tenant "1" *-- "0..*" Livre
   Livre "1" -- "0..*" PretLivre
   Eleve "1" -- "0..*" PretLivre
@@ -1319,5 +1404,4 @@ package "Bibliothèque" #FCE4EC {
 }
 
 @enduml
-
 
