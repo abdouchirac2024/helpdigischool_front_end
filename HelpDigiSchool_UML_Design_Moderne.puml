@@ -1,100 +1,15 @@
 @startuml HelpDigiSchool_Complet_Final
 
-'========================================
-' CONFIGURATION DESIGN PROFESSIONNEL
-'========================================
-
-!theme vibrant from https://raw.githubusercontent.com/plantuml/plantuml/master/themes
-
-' Layout optimisé
 skinparam linetype ortho
-skinparam nodesep 70
-skinparam ranksep 80
-skinparam padding 2
-skinparam roundcorner 8
-
-' Arrière-plan et style général
-skinparam backgroundColor #F8FAFB
-skinparam shadowing true
-skinparam handwritten false
-skinparam monochrome false
-
-' Style des packages
+skinparam nodesep 60
+skinparam ranksep 60
+skinparam backgroundColor #FFFFFF
 skinparam packageStyle rectangle
-skinparam package {
-  BackgroundColor gradient #FFFFFF-#F5F7FA
-  BorderColor #2C3E50
-  BorderThickness 2.5
-  FontSize 11
-  FontStyle bold
-  FontColor #1A202C
-  Shadowing true
-}
-
-' Style des classes
 skinparam class {
-  BackgroundColor gradient #FFFFFF-#F9FAFB
-  BorderColor #4A5568
-  BorderThickness 2
-  FontSize 10
-  FontName Segoe UI
-  FontColor #2D3748
-  HeaderBackgroundColor gradient #667EEA-#764BA2
-  HeaderFontColor #FFFFFF
-  HeaderFontSize 11
-  HeaderFontStyle bold
-  AttributeFontSize 9
-  AttributeFontColor #4A5568
-  StereotypeFontSize 9
-  ArrowColor #4A5568
-  ArrowThickness 1.8
-  Shadowing true
-}
-
-' Style des classes abstraites
-skinparam class<<abstract>> {
-  BackgroundColor gradient #FFF5F5-#FED7D7
-  BorderColor #C53030
-  BorderThickness 2.5
-  FontStyle italic bold
-}
-
-' Style des enums
-skinparam enum {
-  BackgroundColor gradient #FFFAF0-#FBD38D
-  BorderColor #DD6B20
-  BorderThickness 2
+  BackgroundColor White
+  BorderColor #333333
   FontSize 9
-  FontColor #744210
-  FontStyle bold
-  AttributeFontSize 8
-  Shadowing true
 }
-
-' Style des relations
-skinparam ArrowColor #718096
-skinparam ArrowThickness 1.8
-skinparam ArrowFontSize 9
-skinparam ArrowFontColor #4A5568
-
-' Style du titre
-skinparam titleFontSize 16
-skinparam titleFontStyle bold
-skinparam titleFontColor #1A202C
-skinparam titleBackgroundColor gradient #667EEA-#764BA2
-skinparam titleBorderColor #4C51BF
-skinparam titleBorderThickness 3
-skinparam titleBorderRoundCorner 10
-
-' Style des notes et légendes
-skinparam noteFontSize 9
-skinparam noteBorderColor #4A5568
-skinparam noteBackgroundColor #FFFEF7
-skinparam noteShadowing true
-
-' Style des stéréotypes
-skinparam stereotypeCBackgroundColor #EDF2F7
-skinparam stereotypeEBackgroundColor #FED7D7
 
 title HelpDigiSchool - Architecture Multi-Tenant SaaS\nÉcoles Maternelles & Primaires - Cameroun\n(Version Production Ready - Complète)
 
@@ -163,7 +78,7 @@ enum TypeAdresse {
   AUTRE
 }
 
-package "Plateforme Multi-Tenant" <<Infrastructure>> #E3F2FD {
+package "Plateforme Multi-Tenant" #E8F4F8 {
   
   class Region {
     +id: UUID
@@ -299,7 +214,7 @@ package "Plateforme Multi-Tenant" <<Infrastructure>> #E3F2FD {
   Paiement "1" -- "1" Facture
 }
 
-package "Localisation" <<Core>> #E8F5E9 {
+package "Localisation" #F0F8E8 {
   
   class Adresse {
     +id: UUID
@@ -331,7 +246,7 @@ package "Localisation" <<Core>> #E8F5E9 {
   Tenant "1" -- "1" Adresse
 }
 
-package "Utilisateurs (RBAC)" <<Security>> #FFF3E0 {
+package "Utilisateurs (RBAC)" #FFE8E8 {
   
   abstract class Utilisateur {
     +id: UUID
@@ -555,7 +470,7 @@ package "Utilisateurs (RBAC)" <<Security>> #FFF3E0 {
   ParentAdresse "0..*" -- "1" Adresse
 }
 
-package "Structure Académique" <<Domain>> #F3E5F5 {
+package "Structure Académique" #E8F8F5 {
   
   class AnneeScolaire {
     +id: UUID
@@ -739,7 +654,7 @@ package "Structure Académique" <<Domain>> #F3E5F5 {
   EmploiDuTemps "0..*" -- "0..1" Salle
 }
 
-package "Évaluations & Notes" <<Academic>> #FCE4EC {
+package "Évaluations & Notes" #FFF4E6 {
   
   class Evaluation {
     +id: UUID
@@ -863,7 +778,7 @@ package "Évaluations & Notes" <<Academic>> #FCE4EC {
   Enseignant "1" -- "0..*" AppreciationBulletin
 }
 
-package "Présences" <<Tracking>> #E0F2F1 {
+package "Présences" #E8F5E9 {
   
   class PresenceEleve {
     +id: UUID
@@ -943,7 +858,7 @@ package "Présences" <<Tracking>> #E0F2F1 {
   AdminEcole "1" -- "0..*" DemandePermission
 }
 
-package "Communication" <<Messaging>> #E8EAF6 {
+package "Communication" #F3E5F5 {
   
   class Conversation {
     +id: UUID
@@ -1078,7 +993,7 @@ package "Communication" <<Messaging>> #E8EAF6 {
   Utilisateur "1" -- "0..*" Notification
 }
 
-package "Finance" <<Business>> #FFF9C4 {
+package "Finance" #FFF3E0 {
   
   class Frais {
     +id: UUID
@@ -1192,7 +1107,7 @@ package "Finance" <<Business>> #FFF9C4 {
   Transaction "1" -- "1" Recu
 }
 
-package "Transport" <<Logistics>> #B2EBF2 {
+package "Transport" #E1F5FE {
   
   class Bus {
     +id: UUID
@@ -1343,7 +1258,7 @@ package "Transport" <<Logistics>> #B2EBF2 {
   Trajet "0..*" -- "0..1" PositionBus
 }
 
-package "Bibliothèque" <<Library>> #F8BBD0 {
+package "Bibliothèque" #FCE4EC {
   
   class Livre {
     +id: UUID
@@ -1404,4 +1319,3 @@ package "Bibliothèque" <<Library>> #F8BBD0 {
 }
 
 @enduml
-
