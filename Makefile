@@ -68,6 +68,12 @@ help:
 	@echo "  $(GREEN)make prune$(NC)            $(ARROW) Nettoyer Docker (attention!)"
 	@echo "  $(GREEN)make version$(NC)          $(ARROW) Afficher la version"
 	@echo ""
+	@echo "$(YELLOW)Multi-Environnements:$(NC)"
+	@echo "  $(GREEN)make up-all$(NC)           $(ARROW) Démarrer tous les environnements"
+	@echo "  $(GREEN)make up-all-redis$(NC)     $(ARROW) Démarrer tous avec Redis"
+	@echo "  $(GREEN)make up-all-full$(NC)      $(ARROW) Démarrer tous (Nginx + Redis)"
+	@echo "  $(GREEN)make down-all$(NC)         $(ARROW) Arrêter tous les environnements"
+	@echo ""
 	@echo "$(CYAN)Local (sans Docker):$(NC)"
 	@echo "  $(GREEN)make install$(NC)          $(ARROW) Installer les dépendances"
 	@echo "  $(GREEN)make start$(NC)            $(ARROW) Démarrer en local"
@@ -339,17 +345,100 @@ typecheck:
 	npm run type-check 2>/dev/null || npx tsc --noEmit
 
 # ============================================
+# MULTI-ENVIRONMENT COMMANDS
+# ============================================
+up-all:
+	@echo "$(CYAN)╔════════════════════════════════════════════════════════════════╗$(NC)"
+	@echo "$(CYAN)║$(NC)  $(YELLOW)Démarrage de tous les environnements$(NC)                      $(CYAN)║$(NC)"
+	@echo "$(CYAN)╚════════════════════════════════════════════════════════════════╝$(NC)"
+	@echo ""
+	@echo "$(YELLOW)$(ARROW) Starting Development environment...$(NC)"
+	$(COMPOSE_DEV) up -d
+	@echo "$(GREEN)$(CHECK) Dev running at http://localhost:3000$(NC)"
+	@echo ""
+	@echo "$(BLUE)$(ARROW) Starting Pre-Production environment...$(NC)"
+	$(COMPOSE_PREPROD) up -d
+	@echo "$(GREEN)$(CHECK) Preprod running at http://localhost:32031$(NC)"
+	@echo ""
+	@echo "$(RED)$(ARROW) Starting Production environment...$(NC)"
+	$(COMPOSE_PROD) up -d
+	@echo "$(GREEN)$(CHECK) Prod running$(NC)"
+	@echo ""
+	@echo "$(CYAN)╔════════════════════════════════════════════════════════════════╗$(NC)"
+	@echo "$(CYAN)║$(NC)  $(GREEN)✓ Tous les environnements sont démarrés!$(NC)                  $(CYAN)║$(NC)"
+	@echo "$(CYAN)╚════════════════════════════════════════════════════════════════╝$(NC)"
+	@make status
+
+up-all-redis:
+	@echo "$(CYAN)╔════════════════════════════════════════════════════════════════╗$(NC)"
+	@echo "$(CYAN)║$(NC)  $(YELLOW)Démarrage de tous les environnements avec Redis$(NC)          $(CYAN)║$(NC)"
+	@echo "$(CYAN)╚════════════════════════════════════════════════════════════════╝$(NC)"
+	@echo ""
+	@echo "$(YELLOW)$(ARROW) Starting Development with Redis...$(NC)"
+	$(COMPOSE_DEV) --profile with-redis up -d
+	@echo "$(GREEN)$(CHECK) Dev with Redis running$(NC)"
+	@echo ""
+	@echo "$(BLUE)$(ARROW) Starting Pre-Production with Redis...$(NC)"
+	$(COMPOSE_PREPROD) --profile with-redis up -d
+	@echo "$(GREEN)$(CHECK) Preprod with Redis running$(NC)"
+	@echo ""
+	@echo "$(RED)$(ARROW) Starting Production with Redis...$(NC)"
+	$(COMPOSE_PROD) --profile with-redis up -d
+	@echo "$(GREEN)$(CHECK) Prod with Redis running$(NC)"
+	@echo ""
+	@echo "$(CYAN)╔════════════════════════════════════════════════════════════════╗$(NC)"
+	@echo "$(CYAN)║$(NC)  $(GREEN)✓ Tous les environnements avec Redis sont démarrés!$(NC)       $(CYAN)║$(NC)"
+	@echo "$(CYAN)╚════════════════════════════════════════════════════════════════╝$(NC)"
+	@make status
+
+up-all-full:
+	@echo "$(CYAN)╔════════════════════════════════════════════════════════════════╗$(NC)"
+	@echo "$(CYAN)║$(NC)  $(YELLOW)Démarrage complet (Nginx + Redis)$(NC)                         $(CYAN)║$(NC)"
+	@echo "$(CYAN)╚════════════════════════════════════════════════════════════════╝$(NC)"
+	@echo ""
+	@echo "$(YELLOW)$(ARROW) Starting Development with Redis...$(NC)"
+	$(COMPOSE_DEV) --profile with-redis up -d
+	@echo "$(GREEN)$(CHECK) Dev with Redis running$(NC)"
+	@echo ""
+	@echo "$(BLUE)$(ARROW) Starting Pre-Production with Redis...$(NC)"
+	$(COMPOSE_PREPROD) --profile with-redis up -d
+	@echo "$(GREEN)$(CHECK) Preprod with Redis running$(NC)"
+	@echo ""
+	@echo "$(RED)$(ARROW) Starting Production with Nginx + Redis...$(NC)"
+	$(COMPOSE_PROD) --profile with-nginx --profile with-redis up -d
+	@echo "$(GREEN)$(CHECK) Prod with full stack running$(NC)"
+	@echo ""
+	@echo "$(CYAN)╔════════════════════════════════════════════════════════════════╗$(NC)"
+	@echo "$(CYAN)║$(NC)  $(GREEN)✓ Stack complet démarré sur tous les environnements!$(NC)      $(CYAN)║$(NC)"
+	@echo "$(CYAN)╚════════════════════════════════════════════════════════════════╝$(NC)"
+	@make status
+
+# ============================================
 # UTILITY COMMANDS
 # ============================================
 logs-all:
 	@docker compose logs -f
 
 down-all:
-	@echo "$(YELLOW)$(ARROW) Stopping all environments...$(NC)"
+	@echo "$(CYAN)╔════════════════════════════════════════════════════════════════╗$(NC)"
+	@echo "$(CYAN)║$(NC)  $(YELLOW)Arrêt de tous les environnements$(NC)                          $(CYAN)║$(NC)"
+	@echo "$(CYAN)╚════════════════════════════════════════════════════════════════╝$(NC)"
+	@echo ""
+	@echo "$(YELLOW)$(ARROW) Stopping Development...$(NC)"
 	-$(COMPOSE_DEV) down 2>/dev/null || true
+	@echo "$(GREEN)$(CHECK) Dev stopped$(NC)"
+	@echo ""
+	@echo "$(BLUE)$(ARROW) Stopping Pre-Production...$(NC)"
 	-$(COMPOSE_PREPROD) down 2>/dev/null || true
+	@echo "$(GREEN)$(CHECK) Preprod stopped$(NC)"
+	@echo ""
+	@echo "$(RED)$(ARROW) Stopping Production...$(NC)"
 	-$(COMPOSE_PROD) down 2>/dev/null || true
-	@echo "$(GREEN)$(CHECK) All environments stopped$(NC)"
+	@echo "$(GREEN)$(CHECK) Prod stopped$(NC)"
+	@echo ""
+	@echo "$(CYAN)╔════════════════════════════════════════════════════════════════╗$(NC)"
+	@echo "$(CYAN)║$(NC)  $(GREEN)✓ Tous les environnements sont arrêtés$(NC)                    $(CYAN)║$(NC)"
+	@echo "$(CYAN)╚════════════════════════════════════════════════════════════════╝$(NC)"
 
 # SSL Certificate generation (development)
 ssl-dev:

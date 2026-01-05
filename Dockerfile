@@ -43,14 +43,12 @@ COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
 
 # Installation des dépendances avec cache optimisé
 RUN \
-    if [ -f yarn.lock ]; then \
-        corepack enable && \
-        yarn --frozen-lockfile --network-timeout 100000; \
-    elif [ -f package-lock.json ]; then \
+    if [ -f package-lock.json ]; then \
         npm ci --legacy-peer-deps; \
+    elif [ -f yarn.lock ]; then \
+        npm install --legacy-peer-deps; \
     elif [ -f pnpm-lock.yaml ]; then \
-        corepack enable pnpm && \
-        pnpm i --frozen-lockfile; \
+        npm install --legacy-peer-deps; \
     else \
         echo "Lockfile not found." && exit 1; \
     fi
