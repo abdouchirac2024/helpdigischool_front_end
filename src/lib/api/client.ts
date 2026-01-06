@@ -4,6 +4,7 @@
  */
 
 import { API_BASE_URL, API_CONFIG, buildUrl } from './config';
+import { toast } from 'sonner';
 
 // Types pour les réponses API
 export interface ApiResponse<T = unknown> {
@@ -78,6 +79,7 @@ function createHeaders(customHeaders?: HeadersInit): Headers {
   return headers;
 }
 
+
 /**
  * Gère les erreurs de réponse
  */
@@ -97,6 +99,11 @@ async function handleResponseError(response: Response): Promise<never> {
       message: response.statusText || 'Une erreur est survenue',
       status: response.status,
     };
+  }
+
+  // Notification utilisateur
+  if (response.status !== 401) {
+    toast.error(errorData.message);
   }
 
   // Redirection vers login si non autorisé
