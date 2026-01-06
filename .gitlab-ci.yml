@@ -1,75 +1,84 @@
-# ============================================
-# Help Digi School - Frontend Next.js
-# GitLab CI/CD - Configuration Principale
-# ============================================
+# Help Digi School - GitLab CI/CD Configuration
+# Stages: Quality Check, Build Environments, and Makefile Validation
 
-# Inclure les configurations spécifiques par environnement
-include:
-  - local: '.gitlab/gitlab-ci-preprod.yml'
-  - local: '.gitlab/gitlab-ci-prod.yml'
-
-# ============================================
-# Variables globales
-# ============================================
-variables:
-  DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: "/certs"
-  IMAGE_NAME: helpdigischool/frontend
-  NODE_VERSION: "20"
-
-# ============================================
-# Stages du pipeline
-# ============================================
 stages:
+  - quality
   - build
   - test
-  - deploy
+
+variables:
+  NODE_IMAGE: node:20-alpine
+  DOCKER_DRIVER: overlay2
+
+# Cache configurations for faster jobs
+cache:
+  paths:
+    - .npm/
 
 # ============================================
-# Templates réutilisables
+# QUALITY STAGE
 # ============================================
-.docker_template: &docker_template
-  image: docker:24-dind
-  services:
-    - docker:24-dind
-  before_script:
-    - docker info
 
-.node_template: &node_template
-  image: node:${NODE_VERSION}-alpine
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
-    paths:
-      - node_modules/
-      - .next/cache/
-  before_script:
-    - npm ci --legacy-peer-deps
-
-# ============================================
-# Stage: Test (Toutes les branches)
-# ============================================
 lint:
-  <<: *node_template
-  stage: test
+  image: $NODE_IMAGE
+  stage: quality
+  before_script:
+    - npm ci --cache .npm --prefer-offline --legacy-peer-deps
   script:
     - npm run lint
-  only:
-    - merge_requests
-    - main
-    - preprod
-    - develop
 
-type_check:
-  <<: *node_template
-  stage: test
+type-check:
+  image: $NODE_IMAGE
+  stage: quality
+  before_script:
+    - npm ci --cache .npm --prefer-offline --legacy-peer-deps
+  script:
+    - npx tsc --noEmit
+
+# ============================================
+# BUILD STAGE (Environment Testing)
+# ============================================
+
+.build_template:
+  image: $NODE_IMAGE
+  stage: build
+  before_script:
+    - npm ci --cache .npm --prefer-offline --legacy-peer-deps
   script:
     - npm run build
-  only:
-    - merge_requests
-    - main
-    - preprod
-    - develop
-  artifacts:
-    paths:
-      - .next/
-    expire_in: 1 hour
+
+build:dev:
+  extends: .build_template
+  variables:
+    NEXT_PUBLIC_ENVIRONMENT: development
+    NEXT_PUBLIC_API_URL: http://localhost:8080/api/v1
+
+build:preprod:
+  extends: .build_template
+  variables:
+    NEXT_PUBLIC_ENVIRONMENT: preprod
+    NEXT_PUBLIC_API_URL: https://api-preprod.helpdigischool.com/api/v1
+
+build:prod:
+  extends: .build_template
+  variables:
+    NEXT_PUBLIC_ENVIRONMENT: production
+    NEXT_PUBLIC_API_URL: https://api.helpdigischool.com/api/v1
+
+# ============================================
+# TEST STAGE (Makefile Validation)
+# ============================================
+
+test:makefile:
+  image: alpine:latest
+  stage: test
+  before_script:
+    - apk add --no-cache make bash
+  script:
+    - echo "Testing Makefile targets..."
+    - make version
+    - make help
+    - make status
+    - echo "Makefile logic validated"
+# Note: Pour tester réellement le build Docker en CI,
+# il faudrait utiliser un runner avec Docker-in-Docker.
