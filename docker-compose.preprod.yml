@@ -4,15 +4,6 @@
 # Usage: docker-compose -f docker-compose.yml -f docker-compose.preprod.yml up -d
 # ============================================
 
-x-logging-loki: &loki-logging
-  driver: loki
-  options:
-    loki-url: "${LOKI_URL:-http://loki:3100/loki/api/v1/push}"
-    loki-batch-size: "400"
-    loki-retries: "5"
-    loki-timeout: "10s"
-    loki-tenant-id: "helpdigischool"
-    loki-external-labels: "job=helpdigischool-frontend,environment=preprod"
 
 services:
   frontend:
@@ -36,7 +27,6 @@ services:
       - .env.preprod
     networks:
       - default
-      - monitoring
       - traefik
     deploy:
       mode: replicated
@@ -82,53 +72,20 @@ services:
       - "traefik.http.middlewares.security-headers-preprod.headers.browserXssFilter=true"
       - "traefik.http.middlewares.rate-limit-preprod.ratelimit.average=100"
       - "traefik.http.middlewares.rate-limit-preprod.ratelimit.burst=50"
-      # Monitoring
-      - "prometheus.scrape=true"
-      - "prometheus.port=3000"
-      - "prometheus.path=/api/metrics"
       # Info
       - "com.helpdigischool.environment=preprod"
-    logging: *loki-logging
-
-  # Redis pour sessions/cache
-  redis:
-    image: redis:7-alpine
-    container_name: helpdigischool-redis-preprod
-    restart: always
-    command: >
-      redis-server
-      --appendonly yes
-      --maxmemory 512mb
-      --maxmemory-policy allkeys-lru
-      --requirepass ${REDIS_PASSWORD:-}
-    volumes:
-      - redis-data:/data
-    networks:
-      - default
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 512M
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-    profiles:
-      - with-redis
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+        tag: "{{.Name}}"
 
 networks:
   default:
     name: helpdigischool-network-preprod
     driver: bridge
-  monitoring:
-    external: true
-    name: monitoring-network
   traefik:
     external: true
     name: traefik
 
-volumes:
-  redis-data:
-    name: helpdigischool-redis-preprod

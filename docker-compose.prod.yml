@@ -4,15 +4,6 @@
 # Usage: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 # ============================================
 
-x-logging-loki: &loki-logging
-  driver: loki
-  options:
-    loki-url: "${LOKI_URL:-http://loki:3100/loki/api/v1/push}"
-    loki-batch-size: "400"
-    loki-retries: "5"
-    loki-timeout: "10s"
-    loki-tenant-id: "helpdigischool"
-    loki-external-labels: "job=helpdigischool-frontend,environment=production"
 
 services:
   frontend:
@@ -36,7 +27,6 @@ services:
       - .env.production
     networks:
       - default
-      - monitoring
       - traefik
     deploy:
       mode: replicated
@@ -99,43 +89,14 @@ services:
       - "traefik.http.middlewares.rate-limit-prod.ratelimit.burst=100"
       - "traefik.http.middlewares.rate-limit-prod.ratelimit.period=1s"
       - "traefik.http.middlewares.compress.compress=true"
-      # Monitoring
-      - "prometheus.scrape=true"
-      - "prometheus.port=3000"
-      - "prometheus.path=/api/metrics"
       # Info
       - "com.helpdigischool.environment=production"
-    logging: *loki-logging
-
-  # Redis pour sessions/cache
-  redis:
-    image: redis:7-alpine
-    container_name: helpdigischool-redis-prod
-    restart: always
-    command: >
-      redis-server
-      --appendonly yes
-      --maxmemory 1gb
-      --maxmemory-policy allkeys-lru
-      --requirepass ${REDIS_PASSWORD}
-      --tcp-backlog 511
-      --tcp-keepalive 300
-    volumes:
-      - redis-data:/data
-    networks:
-      - default
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 1G
-    healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-    profiles:
-      - with-redis
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+        tag: "{{.Name}}"
 
   # Nginx Reverse Proxy (Alternative à Traefik)
   nginx:
@@ -171,13 +132,7 @@ networks:
   default:
     name: helpdigischool-network-prod
     driver: bridge
-  monitoring:
-    external: true
-    name: monitoring-network
   traefik:
     external: true
     name: traefik
 
-volumes:
-  redis-data:
-    name: helpdigischool-redis-prod

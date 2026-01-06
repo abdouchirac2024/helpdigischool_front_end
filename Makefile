@@ -70,8 +70,7 @@ help:
 	@echo ""
 	@echo "$(YELLOW)Multi-Environnements:$(NC)"
 	@echo "  $(GREEN)make up-all$(NC)           $(ARROW) Démarrer tous les environnements"
-	@echo "  $(GREEN)make up-all-redis$(NC)     $(ARROW) Démarrer tous avec Redis"
-	@echo "  $(GREEN)make up-all-full$(NC)      $(ARROW) Démarrer tous (Nginx + Redis)"
+	@echo "  $(GREEN)make down-all$(NC)         $(ARROW) Arrêter tous les environnements"
 	@echo "  $(GREEN)make down-all$(NC)         $(ARROW) Arrêter tous les environnements"
 	@echo ""
 	@echo "$(CYAN)Local (sans Docker):$(NC)"
@@ -104,11 +103,6 @@ up-dev:
 	@echo "$(YELLOW)$(ARROW) Starting development environment...$(NC)"
 	$(COMPOSE_DEV) up -d
 	@echo "$(GREEN)$(CHECK) Development server running at http://localhost:3000$(NC)"
-
-up-dev-redis:
-	@echo "$(YELLOW)$(ARROW) Starting development with Redis...$(NC)"
-	$(COMPOSE_DEV) --profile with-redis up -d
-	@echo "$(GREEN)$(CHECK) Development with Redis running$(NC)"
 
 down-dev:
 	@echo "$(YELLOW)$(ARROW) Stopping development environment...$(NC)"
@@ -144,11 +138,6 @@ up-preprod:
 	@echo "$(BLUE)$(ARROW) Starting pre-production environment...$(NC)"
 	$(COMPOSE_PREPROD) up -d
 	@echo "$(GREEN)$(CHECK) Pre-production server running at http://localhost:32031$(NC)"
-
-up-preprod-redis:
-	@echo "$(BLUE)$(ARROW) Starting pre-production with Redis...$(NC)"
-	$(COMPOSE_PREPROD) --profile with-redis up -d
-	@echo "$(GREEN)$(CHECK) Pre-production with Redis running$(NC)"
 
 down-preprod:
 	@echo "$(BLUE)$(ARROW) Stopping pre-production environment...$(NC)"
@@ -189,16 +178,6 @@ up-prod-nginx:
 	$(COMPOSE_PROD) --profile with-nginx up -d
 	@echo "$(GREEN)$(CHECK) Production with Nginx running$(NC)"
 
-up-prod-redis:
-	@echo "$(RED)$(ARROW) Starting production with Redis...$(NC)"
-	$(COMPOSE_PROD) --profile with-redis up -d
-	@echo "$(GREEN)$(CHECK) Production with Redis running$(NC)"
-
-up-prod-full:
-	@echo "$(RED)$(ARROW) Starting production with all services...$(NC)"
-	$(COMPOSE_PROD) --profile with-nginx --profile with-redis up -d
-	@echo "$(GREEN)$(CHECK) Production full stack running$(NC)"
-
 down-prod:
 	@echo "$(RED)$(ARROW) Stopping production environment...$(NC)"
 	$(COMPOSE_PROD) down
@@ -231,14 +210,12 @@ networks-dev:
 networks-preprod:
 	@echo "$(BLUE)$(ARROW) Creating pre-production networks...$(NC)"
 	-docker network create helpdigischool-network-preprod 2>/dev/null || true
-	-docker network create monitoring-network 2>/dev/null || true
 	-docker network create traefik 2>/dev/null || true
 	@echo "$(GREEN)$(CHECK) Pre-production networks ready$(NC)"
 
 networks-prod:
 	@echo "$(RED)$(ARROW) Creating production networks...$(NC)"
 	-docker network create helpdigischool-network-prod 2>/dev/null || true
-	-docker network create monitoring-network 2>/dev/null || true
 	-docker network create traefik 2>/dev/null || true
 	@echo "$(GREEN)$(CHECK) Production networks ready$(NC)"
 
@@ -369,50 +346,6 @@ up-all:
 	@echo "$(CYAN)╚════════════════════════════════════════════════════════════════╝$(NC)"
 	@make status
 
-up-all-redis:
-	@echo "$(CYAN)╔════════════════════════════════════════════════════════════════╗$(NC)"
-	@echo "$(CYAN)║$(NC)  $(YELLOW)Démarrage de tous les environnements avec Redis$(NC)          $(CYAN)║$(NC)"
-	@echo "$(CYAN)╚════════════════════════════════════════════════════════════════╝$(NC)"
-	@echo ""
-	@echo "$(YELLOW)$(ARROW) Starting Development with Redis...$(NC)"
-	$(COMPOSE_DEV) --profile with-redis up -d
-	@echo "$(GREEN)$(CHECK) Dev with Redis running$(NC)"
-	@echo ""
-	@echo "$(BLUE)$(ARROW) Starting Pre-Production with Redis...$(NC)"
-	$(COMPOSE_PREPROD) --profile with-redis up -d
-	@echo "$(GREEN)$(CHECK) Preprod with Redis running$(NC)"
-	@echo ""
-	@echo "$(RED)$(ARROW) Starting Production with Redis...$(NC)"
-	$(COMPOSE_PROD) --profile with-redis up -d
-	@echo "$(GREEN)$(CHECK) Prod with Redis running$(NC)"
-	@echo ""
-	@echo "$(CYAN)╔════════════════════════════════════════════════════════════════╗$(NC)"
-	@echo "$(CYAN)║$(NC)  $(GREEN)✓ Tous les environnements avec Redis sont démarrés!$(NC)       $(CYAN)║$(NC)"
-	@echo "$(CYAN)╚════════════════════════════════════════════════════════════════╝$(NC)"
-	@make status
-
-up-all-full:
-	@echo "$(CYAN)╔════════════════════════════════════════════════════════════════╗$(NC)"
-	@echo "$(CYAN)║$(NC)  $(YELLOW)Démarrage complet (Nginx + Redis)$(NC)                         $(CYAN)║$(NC)"
-	@echo "$(CYAN)╚════════════════════════════════════════════════════════════════╝$(NC)"
-	@echo ""
-	@echo "$(YELLOW)$(ARROW) Starting Development with Redis...$(NC)"
-	$(COMPOSE_DEV) --profile with-redis up -d
-	@echo "$(GREEN)$(CHECK) Dev with Redis running$(NC)"
-	@echo ""
-	@echo "$(BLUE)$(ARROW) Starting Pre-Production with Redis...$(NC)"
-	$(COMPOSE_PREPROD) --profile with-redis up -d
-	@echo "$(GREEN)$(CHECK) Preprod with Redis running$(NC)"
-	@echo ""
-	@echo "$(RED)$(ARROW) Starting Production with Nginx + Redis...$(NC)"
-	$(COMPOSE_PROD) --profile with-nginx --profile with-redis up -d
-	@echo "$(GREEN)$(CHECK) Prod with full stack running$(NC)"
-	@echo ""
-	@echo "$(CYAN)╔════════════════════════════════════════════════════════════════╗$(NC)"
-	@echo "$(CYAN)║$(NC)  $(GREEN)✓ Stack complet démarré sur tous les environnements!$(NC)      $(CYAN)║$(NC)"
-	@echo "$(CYAN)╚════════════════════════════════════════════════════════════════╝$(NC)"
-	@make status
-
 # ============================================
 # UTILITY COMMANDS
 # ============================================
@@ -450,9 +383,3 @@ ssl-dev:
 		-subj "/CN=localhost"
 	@echo "$(GREEN)$(CHECK) SSL certificate generated$(NC)"
 
-# Backup volumes
-backup:
-	@echo "$(YELLOW)$(ARROW) Backing up volumes...$(NC)"
-	@mkdir -p backups
-	docker run --rm -v helpdigischool-redis-prod:/data -v $(PWD)/backups:/backup alpine tar czf /backup/redis-$(shell date +%Y%m%d).tar.gz -C /data .
-	@echo "$(GREEN)$(CHECK) Backup complete$(NC)"
