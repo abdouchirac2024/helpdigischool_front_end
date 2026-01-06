@@ -10,6 +10,7 @@ services:
   frontend:
     build:
       target: development
+    container_name: helpdigischool-frontend-dev
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
       - "${DEBUG_PORT:-9229}:9229"  # Node.js debugger
@@ -39,25 +40,5 @@ services:
     labels:
       - "com.helpdigischool.environment=development"
 
-  # Service Redis pour le cache de session (optionnel en dev)
-  redis:
-    image: redis:7-alpine
-    container_name: helpdigischool-redis-dev
-    restart: unless-stopped
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
-    volumes:
-      - redis-data:/data
-    command: redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-    profiles:
-      - with-redis
-
 volumes:
   nextjs-cache:
-  redis-data:
-    name: helpdigischool-redis-dev

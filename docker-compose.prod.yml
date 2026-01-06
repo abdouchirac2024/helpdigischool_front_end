@@ -12,7 +12,6 @@ services:
       cache_from:
         - ${DOCKER_REGISTRY:-}helpdigischool/frontend:latest
     image: ${DOCKER_REGISTRY:-}helpdigischool/frontend:${VERSION:-latest}
-    container_name: helpdigischool-frontend-prod
     restart: always
     ports:
       - "${FRONTEND_PORT:-3000}:3000"

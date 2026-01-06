@@ -31,7 +31,6 @@ services:
         - NODE_VERSION=${NODE_VERSION:-20}
         - BUILDKIT_INLINE_CACHE=1
     image: ${DOCKER_REGISTRY:-}helpdigischool/frontend:${VERSION:-latest}
-    container_name: helpdigischool-frontend-${ENVIRONMENT:-dev}
     restart: unless-stopped
     environment:
       - NODE_ENV=${NODE_ENV:-development}
