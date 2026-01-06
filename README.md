@@ -23,6 +23,16 @@ Le projet suit une architecture modulaire et typée, prête pour l'échelle :
 - **Client HTTP**: Un `apiClient` centralisé gère l'authentification (Tokens JWT), les timeouts et la gestion globale des erreurs avec notifications.
 - **Formulaires**: Gestion robuste via `React Hook Form` et validation de schéma avec `Zod`.
 
+### Gestion des Containers (Docker)
+Pour gérer vos instances sans retenir les commandes Docker complexes, utilisez le `Makefile` :
+
+- **Démarrer** : `make up-dev` (lance en arrière-plan).
+- **Arrêter** : `make down-dev` (arrête et supprime les containers du réseau).
+- **Redémarrer** : `make restart-dev` (redémarrage rapide).
+- **Tout Nettoyer** : `make clean` (supprime tous les containers et volumes orphelins).
+- **Réinitialiser (Recréer)** : `make clean up-dev` (supprime tout et relance proprement).
+- **Statut** : `make status` (voir si ça tourne).
+
 ---
 
 ## 🛰️ Connexion au Backend Spring Boot

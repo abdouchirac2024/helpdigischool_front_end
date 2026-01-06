@@ -1,4 +1,4 @@
-  p/**
+/**
  * Types liés aux classes et niveaux
  */
 

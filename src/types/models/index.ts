@@ -1,4 +1,4 @@
-t/**
+/**
  * Export centralisé de tous les modèles
  */
 
