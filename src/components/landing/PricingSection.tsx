@@ -5,23 +5,23 @@ import { cn } from "@/lib/utils";
 
 const plans = [
   {
-    name: "Starter",
-    description: "Idéal pour les petites écoles",
-    price: "15,000",
+    name: "Gratuit",
+    description: "Parfait pour découvrir la plateforme",
+    price: "0",
     period: "/mois",
-    badge: null,
+    badge: "Essai gratuit",
     features: [
       "Jusqu'à 100 élèves",
       "2 classes maximum",
       "Bulletins PDF illimités",
       "1 compte administrateur",
-      "Support email",
+      "Support par email",
     ],
     limitations: [
       "Pas de notifications SMS",
       "Pas d'intégration paiement",
     ],
-    cta: "Démarrer",
+    cta: "Commencer gratuitement",
     variant: "outline" as const,
     popular: false,
   },
@@ -119,7 +119,7 @@ export function PricingSection() {
                 {/* Plan Header */}
                 <div className="mb-6">
                   <div className="flex items-center gap-2 mb-2">
-                    {plan.name === "Starter" && <Zap className="w-5 h-5 text-primary" />}
+                    {plan.name === "Gratuit" && <Zap className="w-5 h-5 text-primary" />}
                     {plan.name === "Pro" && <Sparkles className="w-5 h-5 text-primary" />}
                     {plan.name === "Premium" && <Crown className="w-5 h-5 text-secondary" />}
                     <h3 className="text-xl font-bold">{plan.name}</h3>

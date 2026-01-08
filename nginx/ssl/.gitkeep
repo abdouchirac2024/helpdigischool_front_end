@@ -1,9 +1,0 @@
-# Ce répertoire contient les certificats SSL
-# NE PAS commiter les vrais certificats !
-#
-# Fichiers attendus:
-# - fullchain.pem (certificat + chaîne)
-# - privkey.pem (clé privée)
-#
-# Pour Let's Encrypt, utilisez certbot:
-# certbot certonly --webroot -w /var/www/certbot -d helpdigischool.com
