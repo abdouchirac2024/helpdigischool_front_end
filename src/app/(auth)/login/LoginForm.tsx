@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -18,9 +19,12 @@ import {
   BarChart3,
   MessageSquare,
   Smartphone,
-  Clock
+  Clock,
+  AlertCircle
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { useAuth, ROLE_DASHBOARD_PATHS_EXTENDED } from '@/lib/auth'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
 const slides = [
   {
@@ -49,14 +53,29 @@ const slides = [
 
 export default function LoginForm() {
   const { toast } = useToast()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const { login, isLoading: authLoading, error: authError, clearError, isAuthenticated, user } = useAuth()
+
   const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [localError, setLocalError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     rememberMe: false,
   })
+
+  const callbackUrl = searchParams.get('callbackUrl')
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const dashboardPath = ROLE_DASHBOARD_PATHS_EXTENDED[user.role] || '/dashboard'
+      router.push(callbackUrl || dashboardPath)
+    }
+  }, [isAuthenticated, user, router, callbackUrl])
 
   // Auto-rotate carousel
   useEffect(() => {
@@ -66,8 +85,15 @@ export default function LoginForm() {
     return () => clearInterval(timer)
   }, [])
 
+  // Clear errors when form data changes
+  useEffect(() => {
+    if (localError) setLocalError(null)
+    if (authError) clearError()
+  }, [formData.email, formData.password])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setLocalError(null)
 
     if (!formData.email || !formData.password) {
       toast({
@@ -78,18 +104,38 @@ export default function LoginForm() {
       return
     }
 
-    setIsLoading(true)
+    setIsSubmitting(true)
 
-    setTimeout(() => {
-      setIsLoading(false)
+    try {
+      const response = await login({
+        email: formData.email,
+        password: formData.password,
+        rememberMe: formData.rememberMe,
+      })
+
       toast({
         title: 'Connexion réussie!',
         description: 'Redirection vers votre tableau de bord...',
       })
-      // Redirect to dashboard
-      window.location.href = '/dashboard'
-    }, 1500)
+
+      // Redirect based on user role
+      const dashboardPath = ROLE_DASHBOARD_PATHS_EXTENDED[response.user.role] || '/dashboard'
+      router.push(callbackUrl || dashboardPath)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Identifiants incorrects'
+      setLocalError(message)
+      toast({
+        title: 'Erreur de connexion',
+        description: message,
+        variant: 'destructive',
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
+
+  const isLoading = isSubmitting || authLoading
+  const displayError = localError || authError
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">

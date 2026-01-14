@@ -1,15 +1,11 @@
 import { Metadata } from 'next'
+import { StudentSettingsPage } from '@/components/dashboard/student/pages'
 
 export const metadata: Metadata = {
   title: 'Paramètres - Dashboard Élève',
-  description: 'Paramètres du compte',
+  description: 'Paramètres du compte élève',
 }
 
 export default function SettingsPage() {
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold">Paramètres</h1>
-      <p className="text-gray-600 mt-2">Page en cours de développement</p>
-    </div>
-  )
+  return <StudentSettingsPage />
 }

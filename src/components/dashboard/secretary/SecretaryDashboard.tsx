@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { 
+import {
   LayoutDashboard,
   Users,
   UserPlus,
@@ -10,7 +10,8 @@ import {
   Phone,
   Mail,
   Printer,
-  Calendar
+  Calendar,
+  Settings
 } from 'lucide-react'
 import { Sidebar, MenuItem } from '../shared/Sidebar'
 import { TopBar } from '../shared/TopBar'
@@ -26,6 +27,7 @@ const menuItems: MenuItem[] = [
   { icon: Phone, label: 'Contacts', href: '/dashboard/secretary/contacts' },
   { icon: Calendar, label: 'Rendez-vous', href: '/dashboard/secretary/appointments', badge: '3' },
   { icon: Printer, label: 'Impressions', href: '/dashboard/secretary/printing' },
+  { icon: Settings, label: 'Paramètres', href: '/dashboard/secretary/settings' },
 ]
 
 export function SecretaryDashboard() {

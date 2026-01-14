@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { 
+import {
   LayoutDashboard,
   Users,
   FileText,
@@ -9,7 +9,8 @@ import {
   Calendar,
   MessageSquare,
   Award,
-  ClipboardList
+  ClipboardList,
+  Settings
 } from 'lucide-react'
 import { Sidebar, MenuItem } from '../shared/Sidebar'
 import { TopBar } from '../shared/TopBar'
@@ -25,6 +26,7 @@ const menuItems: MenuItem[] = [
   { icon: ClipboardList, label: 'Présences', href: '/dashboard/teacher/attendance' },
   { icon: MessageSquare, label: 'Messages', href: '/dashboard/teacher/messages', badge: '3' },
   { icon: Award, label: 'Évaluations', href: '/dashboard/teacher/evaluations' },
+  { icon: Settings, label: 'Paramètres', href: '/dashboard/teacher/settings' },
 ]
 
 export function TeacherDashboard() {
