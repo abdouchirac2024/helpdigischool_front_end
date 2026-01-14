@@ -1,0 +1,7 @@
+export { SecretaryStudentsPage } from './StudentsPage'
+export { SecretaryEnrollmentsPage } from './EnrollmentsPage'
+export { SecretaryPaymentsPage } from './PaymentsPage'
+export { SecretaryDocumentsPage } from './DocumentsPage'
+export { SecretaryContactsPage } from './ContactsPage'
+export { SecretaryAppointmentsPage } from './AppointmentsPage'
+export { SecretaryPrintingPage } from './PrintingPage'

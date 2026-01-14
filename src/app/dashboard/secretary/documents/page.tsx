@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import { SecretaryDocumentsPage } from '@/components/dashboard/secretary/pages'
 
 export const metadata: Metadata = {
   title: 'Documents - Secrétariat',
@@ -6,10 +7,5 @@ export const metadata: Metadata = {
 }
 
 export default function DocumentsPage() {
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold">Documents</h1>
-      <p className="text-gray-600 mt-2">Attestations, certificats et documents administratifs</p>
-    </div>
-  )
+  return <SecretaryDocumentsPage />
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { 
+import {
   LayoutDashboard,
   User,
   FileText,
@@ -12,7 +12,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Download,
-  Clock
+  Clock,
+  Settings
 } from 'lucide-react'
 import { Sidebar, MenuItem } from '../../shared/Sidebar'
 import { TopBar } from '../../shared/TopBar'
@@ -33,6 +34,7 @@ const menuItems: MenuItem[] = [
   { icon: CreditCard, label: 'Paiements', href: '/dashboard/parent/payments' },
   { icon: Calendar, label: 'Emploi du temps', href: '/dashboard/parent/schedule' },
   { icon: MessageSquare, label: 'Messages', href: '/dashboard/parent/messages', badge: '2' },
+  { icon: Settings, label: 'Paramètres', href: '/dashboard/parent/settings' },
 ]
 
 const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi']

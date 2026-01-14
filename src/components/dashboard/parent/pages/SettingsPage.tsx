@@ -48,6 +48,7 @@ const menuItems: MenuItem[] = [
   { icon: CreditCard, label: 'Paiements', href: '/dashboard/parent/payments' },
   { icon: Calendar, label: 'Emploi du temps', href: '/dashboard/parent/schedule' },
   { icon: MessageSquare, label: 'Messages', href: '/dashboard/parent/messages', badge: '2' },
+  { icon: Settings, label: 'Paramètres', href: '/dashboard/parent/settings' },
 ]
 
 export function ParentSettingsPage() {

@@ -20,16 +20,16 @@ import { StatCard } from './shared/StatCard'
 import { Button } from '@/components/ui/button'
 
 const menuItems: MenuItem[] = [
-  { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
-  { icon: Users, label: 'Élèves', href: '/dashboard/students', badge: '342' },
-  { icon: BookOpen, label: 'Classes', href: '/dashboard/classes', badge: '12' },
-  { icon: GraduationCap, label: 'Enseignants', href: '/dashboard/teachers', badge: '18' },
-  { icon: FileText, label: 'Notes & Bulletins', href: '/dashboard/grades' },
-  { icon: CreditCard, label: 'Paiements', href: '/dashboard/payments' },
-  { icon: Calendar, label: 'Emploi du temps', href: '/dashboard/schedule' },
-  { icon: BarChart3, label: 'Statistiques', href: '/dashboard/stats' },
-  { icon: Bell, label: 'Notifications', href: '/dashboard/notifications', badge: '5' },
-  { icon: Settings, label: 'Paramètres', href: '/dashboard/settings' },
+  { icon: LayoutDashboard, label: 'Vue d\'ensemble', href: '/dashboard/director' },
+  { icon: Users, label: 'Élèves', href: '/dashboard/director/students', badge: '342' },
+  { icon: BookOpen, label: 'Classes', href: '/dashboard/director/classes', badge: '12' },
+  { icon: GraduationCap, label: 'Enseignants', href: '/dashboard/director/teachers', badge: '18' },
+  { icon: FileText, label: 'Notes & Bulletins', href: '/dashboard/director/grades' },
+  { icon: CreditCard, label: 'Paiements', href: '/dashboard/director/payments' },
+  { icon: Calendar, label: 'Emploi du temps', href: '/dashboard/director/schedule' },
+  { icon: BarChart3, label: 'Statistiques', href: '/dashboard/director/stats' },
+  { icon: Bell, label: 'Notifications', href: '/dashboard/director/notifications', badge: '5' },
+  { icon: Settings, label: 'Paramètres', href: '/dashboard/director/settings' },
 ]
 
 export function DirectorDashboard() {

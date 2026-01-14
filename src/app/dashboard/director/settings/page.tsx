@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import { DirectorSettingsPage } from '@/components/dashboard/director/pages'
 
 export const metadata: Metadata = {
   title: 'Paramètres - Dashboard Directeur',
@@ -6,10 +7,5 @@ export const metadata: Metadata = {
 }
 
 export default function SettingsPage() {
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold">Paramètres</h1>
-      <p className="text-gray-600 mt-2">Page en cours de développement</p>
-    </div>
-  )
+  return <DirectorSettingsPage />
 }
