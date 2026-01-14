@@ -1,0 +1,59 @@
+# ============================================
+# Traefik - Configuration Statique
+# ============================================
+
+# API et Dashboard
+api:
+  dashboard: true
+  insecure: false
+
+# Points d'entrée
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+  websecure:
+    address: ":443"
+    http:
+      tls:
+        certResolver: letsencrypt
+
+# Providers
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    network: traefik
+    watch: true
+  file:
+    directory: "/etc/traefik/dynamic"
+    watch: true
+
+# Certificats SSL avec Let's Encrypt
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: ${ACME_EMAIL:-admin@helpdigischool.com}
+      storage: /etc/traefik/acme/acme.json
+      httpChallenge:
+        entryPoint: web
+
+# Logging
+log:
+  level: INFO
+  format: json
+
+accessLog:
+  format: json
+  filters:
+    statusCodes:
+      - "400-599"
+
+# Ping pour healthcheck
+ping:
+  entryPoint: websecure

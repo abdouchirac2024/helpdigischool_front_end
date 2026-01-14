@@ -1,0 +1,26 @@
+# ============================================
+# Infrastructure - Traefik Development
+# ============================================
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+# ============================================
+
+services:
+  traefik:
+    container_name: traefik-dev
+    ports:
+      - "80:80"
+      - "8080:8080"  # Dashboard en dev uniquement
+    command:
+      - "--api.insecure=true"
+      - "--api.dashboard=true"
+      - "--log.level=DEBUG"
+    environment:
+      - TRAEFIK_LOG_LEVEL=DEBUG
+    labels:
+      - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.traefik-dashboard.service=api@internal"
+      - "traefik.http.routers.traefik-dashboard.entrypoints=web"
+
+networks:
+  traefik:
+    name: traefik-dev

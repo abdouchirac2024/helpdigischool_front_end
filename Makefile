@@ -5,9 +5,10 @@
 
 # Variables
 COMPOSE = docker compose
-COMPOSE_DEV = $(COMPOSE) -f docker-compose.yml -f docker-compose.override.yml
-COMPOSE_PREPROD = $(COMPOSE) -f docker-compose.yml -f docker-compose.preprod.yml
-COMPOSE_PROD = $(COMPOSE) -f docker-compose.yml -f docker-compose.prod.yml
+COMPOSE_BASE = -f docker/compose/docker-compose.yml
+COMPOSE_DEV = $(COMPOSE) $(COMPOSE_BASE) -f docker/compose/docker-compose.dev.yml
+COMPOSE_PREPROD = $(COMPOSE) $(COMPOSE_BASE) -f docker/compose/docker-compose.preprod.yml
+COMPOSE_PROD = $(COMPOSE) $(COMPOSE_BASE) -f docker/compose/docker-compose.prod.yml
 IMAGE_NAME = helpdigischool/frontend
 VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "latest")
 DOCKER_REGISTRY ?=
@@ -38,7 +39,7 @@ help:
 	@echo "$(CYAN)╚════════════════════════════════════════════════════════════════╝$(NC)"
 	@echo ""
 	@echo "$(YELLOW)Development:$(NC)"
-	@echo "  $(GREEN)make dev$(NC)              $(ARROW) Démarrer en mode développement"
+	@echo "  $(GREEN)make dev$(NC)              $(ARROW) Démarrer en mode développement (local)"
 	@echo "  $(GREEN)make build-dev$(NC)        $(ARROW) Build l'image de développement"
 	@echo "  $(GREEN)make up-dev$(NC)           $(ARROW) Démarrer le container dev"
 	@echo "  $(GREEN)make down-dev$(NC)         $(ARROW) Arrêter le container dev"
@@ -56,7 +57,6 @@ help:
 	@echo "$(RED)Production:$(NC)"
 	@echo "  $(GREEN)make build-prod$(NC)       $(ARROW) Build l'image production"
 	@echo "  $(GREEN)make up-prod$(NC)          $(ARROW) Démarrer le container prod"
-	@echo "  $(GREEN)make up-prod-nginx$(NC)    $(ARROW) Démarrer avec Nginx"
 	@echo "  $(GREEN)make down-prod$(NC)        $(ARROW) Arrêter le container prod"
 	@echo "  $(GREEN)make logs-prod$(NC)        $(ARROW) Afficher les logs prod"
 	@echo "  $(GREEN)make deploy-prod$(NC)      $(ARROW) Déploiement complet prod"
@@ -70,7 +70,6 @@ help:
 	@echo ""
 	@echo "$(YELLOW)Multi-Environnements:$(NC)"
 	@echo "  $(GREEN)make up-all$(NC)           $(ARROW) Démarrer tous les environnements"
-	@echo "  $(GREEN)make down-all$(NC)         $(ARROW) Arrêter tous les environnements"
 	@echo "  $(GREEN)make down-all$(NC)         $(ARROW) Arrêter tous les environnements"
 	@echo ""
 	@echo "$(CYAN)Local (sans Docker):$(NC)"
@@ -173,11 +172,6 @@ up-prod:
 	$(COMPOSE_PROD) up -d
 	@echo "$(GREEN)$(CHECK) Production server running$(NC)"
 
-up-prod-nginx:
-	@echo "$(RED)$(ARROW) Starting production with Nginx...$(NC)"
-	$(COMPOSE_PROD) --profile with-nginx up -d
-	@echo "$(GREEN)$(CHECK) Production with Nginx running$(NC)"
-
 down-prod:
 	@echo "$(RED)$(ARROW) Stopping production environment...$(NC)"
 	$(COMPOSE_PROD) down
@@ -198,26 +192,6 @@ shell-prod:
 deploy-prod: down-prod build-prod up-prod
 	@echo "$(GREEN)$(CHECK) Production deployment complete!$(NC)"
 	@make health-check URL=http://localhost:3000/api/health
-
-# ============================================
-# NETWORKS
-# ============================================
-networks-dev:
-	@echo "$(YELLOW)$(ARROW) Creating development network...$(NC)"
-	-docker network create helpdigischool-network-dev 2>/dev/null || true
-	@echo "$(GREEN)$(CHECK) Development network ready$(NC)"
-
-networks-preprod:
-	@echo "$(BLUE)$(ARROW) Creating pre-production networks...$(NC)"
-	-docker network create helpdigischool-network-preprod 2>/dev/null || true
-	-docker network create traefik 2>/dev/null || true
-	@echo "$(GREEN)$(CHECK) Pre-production networks ready$(NC)"
-
-networks-prod:
-	@echo "$(RED)$(ARROW) Creating production networks...$(NC)"
-	-docker network create helpdigischool-network-prod 2>/dev/null || true
-	-docker network create traefik 2>/dev/null || true
-	@echo "$(GREEN)$(CHECK) Production networks ready$(NC)"
 
 # ============================================
 # CLEANUP
@@ -346,12 +320,6 @@ up-all:
 	@echo "$(CYAN)╚════════════════════════════════════════════════════════════════╝$(NC)"
 	@make status
 
-# ============================================
-# UTILITY COMMANDS
-# ============================================
-logs-all:
-	@docker compose logs -f
-
 down-all:
 	@echo "$(CYAN)╔════════════════════════════════════════════════════════════════╗$(NC)"
 	@echo "$(CYAN)║$(NC)  $(YELLOW)Arrêt de tous les environnements$(NC)                          $(CYAN)║$(NC)"
@@ -373,13 +341,5 @@ down-all:
 	@echo "$(CYAN)║$(NC)  $(GREEN)✓ Tous les environnements sont arrêtés$(NC)                    $(CYAN)║$(NC)"
 	@echo "$(CYAN)╚════════════════════════════════════════════════════════════════╝$(NC)"
 
-# SSL Certificate generation (development)
-ssl-dev:
-	@echo "$(YELLOW)$(ARROW) Generating self-signed SSL certificate...$(NC)"
-	@mkdir -p nginx/ssl
-	openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-		-keyout nginx/ssl/privkey.pem \
-		-out nginx/ssl/fullchain.pem \
-		-subj "/CN=localhost"
-	@echo "$(GREEN)$(CHECK) SSL certificate generated$(NC)"
-
+logs-all:
+	@docker compose logs -f

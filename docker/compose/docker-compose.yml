@@ -1,0 +1,55 @@
+# ============================================
+# Help Digi School - Docker Compose Base
+# ============================================
+# Configuration commune à tous les environnements
+#
+# Usage:
+#   Dev:     docker-compose -f docker/compose/docker-compose.yml -f docker/compose/docker-compose.dev.yml up
+#   Preprod: docker-compose -f docker/compose/docker-compose.yml -f docker/compose/docker-compose.preprod.yml up
+#   Prod:    docker-compose -f docker/compose/docker-compose.yml -f docker/compose/docker-compose.prod.yml up
+# ============================================
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+    tag: "{{.Name}}"
+
+x-healthcheck: &default-healthcheck
+  test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 40s
+
+services:
+  frontend:
+    build:
+      context: ../..
+      dockerfile: docker/Dockerfile
+      args:
+        - NODE_VERSION=${NODE_VERSION:-20}
+        - BUILDKIT_INLINE_CACHE=1
+    image: ${DOCKER_REGISTRY:-}helpdigischool/frontend:${VERSION:-latest}
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - NEXT_TELEMETRY_DISABLED=1
+      - TZ=${TZ:-Europe/Paris}
+    labels:
+      - "com.helpdigischool.project=helpdigischool"
+      - "com.helpdigischool.service=frontend"
+      - "com.helpdigischool.environment=${ENVIRONMENT:-dev}"
+      - "com.helpdigischool.version=${VERSION:-latest}"
+    logging: *default-logging
+    healthcheck: *default-healthcheck
+
+networks:
+  default:
+    name: helpdigischool-network-${ENVIRONMENT:-dev}
+    driver: bridge
+
+volumes:
+  nextjs-cache:
+    name: helpdigischool-nextjs-cache-${ENVIRONMENT:-dev}

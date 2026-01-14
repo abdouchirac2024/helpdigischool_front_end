@@ -1,0 +1,51 @@
+# ============================================
+# Help Digi School - Docker Compose Development
+# ============================================
+# Usage: docker-compose -f docker/compose/docker-compose.yml -f docker/compose/docker-compose.dev.yml up
+# ============================================
+
+services:
+  frontend:
+    build:
+      target: development
+    container_name: helpdigischool-frontend-dev
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+      - "${DEBUG_PORT:-9229}:9229"
+    volumes:
+      # Code source avec hot-reload
+      - ../..:/app:cached
+      # Préserver node_modules du container
+      - /app/node_modules
+      # Cache Next.js persistant
+      - nextjs-cache:/app/.next
+    environment:
+      - NODE_ENV=development
+      - ENVIRONMENT=dev
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8080/api/v1}
+      - NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME:-Help Digi School}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      - NEXT_PUBLIC_ENVIRONMENT=development
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
+    env_file:
+      - ../../.env.local
+    healthcheck:
+      start_period: 60s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.helpdigischool-dev.rule=Host(`helpdigischool.localhost`)"
+      - "traefik.http.routers.helpdigischool-dev.entrypoints=web"
+      - "traefik.http.services.helpdigischool-dev.loadbalancer.server.port=3000"
+      - "com.helpdigischool.environment=development"
+
+networks:
+  default:
+    name: helpdigischool-network-dev
+  traefik:
+    external: true
+    name: traefik-dev
+
+volumes:
+  nextjs-cache:
+    driver: local

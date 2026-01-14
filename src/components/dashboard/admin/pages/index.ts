@@ -1,1 +1,8 @@
 export { AdminSchoolsPage } from './SchoolsPage'
+export { AdminUsersPage } from './UsersPage'
+export { AdminSubscriptionsPage } from './SubscriptionsPage'
+export { AdminRevenuePage } from './RevenuePage'
+export { AdminAnalyticsPage } from './AnalyticsPage'
+export { AdminDatabasePage } from './DatabasePage'
+export { AdminSecurityPage } from './SecurityPage'
+export { AdminSettingsPage } from './SettingsPage'

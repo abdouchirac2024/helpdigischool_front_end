@@ -1,0 +1,44 @@
+# ============================================
+# Infrastructure - Traefik Production
+# ============================================
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# ============================================
+
+services:
+  traefik:
+    container_name: traefik-prod
+    restart: always
+    command:
+      - "--log.level=WARN"
+    environment:
+      - TRAEFIK_LOG_LEVEL=WARN
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 128M
+    labels:
+      # Dashboard sécurisé en production
+      - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.helpdigischool.com`)"
+      - "traefik.http.routers.traefik-dashboard.service=api@internal"
+      - "traefik.http.routers.traefik-dashboard.entrypoints=websecure"
+      - "traefik.http.routers.traefik-dashboard.tls=true"
+      - "traefik.http.routers.traefik-dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.traefik-dashboard.middlewares=auth-dashboard@docker,ip-whitelist@docker"
+      # Basic Auth
+      - "traefik.http.middlewares.auth-dashboard.basicauth.users=${TRAEFIK_DASHBOARD_AUTH}"
+      # IP Whitelist pour plus de sécurité
+      - "traefik.http.middlewares.ip-whitelist.ipwhitelist.sourcerange=${ALLOWED_IPS:-127.0.0.1/32}"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  traefik:
+    name: traefik

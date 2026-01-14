@@ -1,0 +1,6 @@
+export { StudentGradesPage } from './GradesPage'
+export { StudentCoursesPage } from './CoursesPage'
+export { StudentSchedulePage } from './SchedulePage'
+export { StudentHomeworkPage } from './HomeworkPage'
+export { StudentMessagesPage } from './MessagesPage'
+export { StudentLibraryPage } from './LibraryPage'

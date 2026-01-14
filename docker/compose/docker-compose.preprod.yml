@@ -1,0 +1,67 @@
+# ============================================
+# Help Digi School - Docker Compose Pre-Production
+# ============================================
+# Usage: docker-compose -f docker/compose/docker-compose.yml -f docker/compose/docker-compose.preprod.yml up -d
+# ============================================
+
+services:
+  frontend:
+    build:
+      target: production
+      cache_from:
+        - ${DOCKER_REGISTRY:-}helpdigischool/frontend:preprod-latest
+    image: ${DOCKER_REGISTRY:-}helpdigischool/frontend:preprod-${VERSION:-latest}
+    container_name: helpdigischool-frontend-preprod
+    restart: always
+    ports:
+      - "${FRONTEND_PORT:-32031}:3000"
+    environment:
+      - NODE_ENV=production
+      - ENVIRONMENT=preprod
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME:-Help Digi School}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+      - NEXT_PUBLIC_ENVIRONMENT=preprod
+    env_file:
+      - ../../.env.preprod
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: '4'
+          memory: 4G
+        reservations:
+          cpus: '2'
+          memory: 2G
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+        order: start-first
+    labels:
+      # Traefik
+      - "traefik.enable=true"
+      - "traefik.http.routers.helpdigischool-preprod.rule=Host(`preprod.helpdigischool.com`)"
+      - "traefik.http.routers.helpdigischool-preprod.entrypoints=websecure"
+      - "traefik.http.routers.helpdigischool-preprod.tls=true"
+      - "traefik.http.routers.helpdigischool-preprod.tls.certresolver=letsencrypt"
+      - "traefik.http.services.helpdigischool-preprod.loadbalancer.server.port=3000"
+      - "traefik.http.services.helpdigischool-preprod.loadbalancer.healthcheck.path=/api/health"
+      - "traefik.http.services.helpdigischool-preprod.loadbalancer.healthcheck.interval=10s"
+      # Middlewares
+      - "traefik.http.routers.helpdigischool-preprod.middlewares=security-headers@file,rate-limit@file"
+      # Info
+      - "com.helpdigischool.environment=preprod"
+
+networks:
+  default:
+    name: helpdigischool-network-preprod
+  traefik:
+    external: true
+    name: traefik-preprod

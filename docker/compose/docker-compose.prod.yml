@@ -1,0 +1,79 @@
+# ============================================
+# Help Digi School - Docker Compose Production
+# ============================================
+# Usage: docker-compose -f docker/compose/docker-compose.yml -f docker/compose/docker-compose.prod.yml up -d
+# ============================================
+
+services:
+  frontend:
+    build:
+      target: production
+      cache_from:
+        - ${DOCKER_REGISTRY:-}helpdigischool/frontend:latest
+    image: ${DOCKER_REGISTRY:-}helpdigischool/frontend:${VERSION:-latest}
+    container_name: helpdigischool-frontend-prod
+    restart: always
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - ENVIRONMENT=production
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME:-Help Digi School}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+      - NEXT_PUBLIC_ENVIRONMENT=production
+    env_file:
+      - ../../.env.production
+    deploy:
+      mode: replicated
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      update_config:
+        parallelism: 1
+        delay: 30s
+        failure_action: rollback
+        order: start-first
+      rollback_config:
+        parallelism: 1
+        delay: 10s
+    labels:
+      # Traefik
+      - "traefik.enable=true"
+      - "traefik.http.routers.helpdigischool-prod.rule=Host(`helpdigischool.com`) || Host(`www.helpdigischool.com`)"
+      - "traefik.http.routers.helpdigischool-prod.entrypoints=websecure"
+      - "traefik.http.routers.helpdigischool-prod.tls=true"
+      - "traefik.http.routers.helpdigischool-prod.tls.certresolver=letsencrypt"
+      - "traefik.http.services.helpdigischool-prod.loadbalancer.server.port=3000"
+      - "traefik.http.services.helpdigischool-prod.loadbalancer.healthcheck.path=/api/health"
+      - "traefik.http.services.helpdigischool-prod.loadbalancer.healthcheck.interval=10s"
+      - "traefik.http.services.helpdigischool-prod.loadbalancer.sticky.cookie=true"
+      - "traefik.http.services.helpdigischool-prod.loadbalancer.sticky.cookie.name=helpdigischool_sticky"
+      # Redirect www to non-www
+      - "traefik.http.routers.helpdigischool-www.rule=Host(`www.helpdigischool.com`)"
+      - "traefik.http.routers.helpdigischool-www.entrypoints=websecure"
+      - "traefik.http.routers.helpdigischool-www.middlewares=www-redirect@docker"
+      - "traefik.http.middlewares.www-redirect.redirectregex.regex=^https://www\\.(.+)"
+      - "traefik.http.middlewares.www-redirect.redirectregex.replacement=https://$${1}"
+      - "traefik.http.middlewares.www-redirect.redirectregex.permanent=true"
+      # Security Middlewares
+      - "traefik.http.routers.helpdigischool-prod.middlewares=security-headers@file,rate-limit@file,compress@file"
+      # Info
+      - "com.helpdigischool.environment=production"
+
+networks:
+  default:
+    name: helpdigischool-network-prod
+  traefik:
+    external: true
+    name: traefik

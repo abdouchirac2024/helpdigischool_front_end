@@ -1,0 +1,27 @@
+# ============================================
+# Infrastructure - Traefik Pre-Production
+# ============================================
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.preprod.yml up -d
+# ============================================
+
+services:
+  traefik:
+    container_name: traefik-preprod
+    command:
+      - "--log.level=INFO"
+    environment:
+      - TRAEFIK_LOG_LEVEL=INFO
+    labels:
+      # Dashboard sécurisé
+      - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.preprod.helpdigischool.com`)"
+      - "traefik.http.routers.traefik-dashboard.service=api@internal"
+      - "traefik.http.routers.traefik-dashboard.entrypoints=websecure"
+      - "traefik.http.routers.traefik-dashboard.tls=true"
+      - "traefik.http.routers.traefik-dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.traefik-dashboard.middlewares=auth-dashboard@docker"
+      # Basic Auth pour le dashboard
+      - "traefik.http.middlewares.auth-dashboard.basicauth.users=${TRAEFIK_DASHBOARD_AUTH}"
+
+networks:
+  traefik:
+    name: traefik-preprod
