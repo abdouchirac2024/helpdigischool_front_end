@@ -1,0 +1,36 @@
+# =============================================================================
+# Grafana Data Sources Configuration
+# Help Digi School - Monitoring
+# =============================================================================
+
+apiVersion: 1
+
+datasources:
+  # ===========================================================================
+  # Loki - Log Aggregation
+  # ===========================================================================
+  - name: Loki
+    type: loki
+    uid: loki
+    access: proxy
+    url: http://loki:3100
+    isDefault: true
+    editable: false
+    jsonData:
+      maxLines: 1000
+      derivedFields:
+        - datasourceUid: loki
+          matcherRegex: "traceID=(\\w+)"
+          name: TraceID
+          url: "$${__value.raw}"
+
+  # ===========================================================================
+  # Prometheus - Metrics (if using node-exporter)
+  # ===========================================================================
+  # - name: Prometheus
+  #   type: prometheus
+  #   uid: prometheus
+  #   access: proxy
+  #   url: http://prometheus:9090
+  #   isDefault: false
+  #   editable: false

@@ -1,0 +1,118 @@
+version: '3.8'
+
+# =============================================================================
+# Help Digi School - Monitoring Stack
+# Loki + Grafana + Promtail
+# =============================================================================
+
+networks:
+  monitoring:
+    driver: bridge
+    name: helpdigischool-monitoring
+
+volumes:
+  grafana-data:
+    driver: local
+  loki-data:
+    driver: local
+
+services:
+  # ===========================================================================
+  # LOKI - Log Aggregation System
+  # ===========================================================================
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: helpdigischool-loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - loki-data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - monitoring
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "service=loki"
+      - "environment=monitoring"
+
+  # ===========================================================================
+  # PROMTAIL - Log Collector
+  # ===========================================================================
+  promtail:
+    image: grafana/promtail:2.9.0
+    container_name: helpdigischool-promtail
+    volumes:
+      - ./promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+      - ../logs:/var/log/helpdigischool:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - monitoring
+    depends_on:
+      - loki
+    restart: unless-stopped
+    labels:
+      - "service=promtail"
+      - "environment=monitoring"
+
+  # ===========================================================================
+  # GRAFANA - Visualization & Dashboards
+  # ===========================================================================
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: helpdigischool-grafana
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3001
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel
+    networks:
+      - monitoring
+    depends_on:
+      - loki
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "service=grafana"
+      - "environment=monitoring"
+
+  # ===========================================================================
+  # NODE EXPORTER - System Metrics (Optional)
+  # ===========================================================================
+  node-exporter:
+    image: prom/node-exporter:v1.6.1
+    container_name: helpdigischool-node-exporter
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - monitoring
+    restart: unless-stopped
+    labels:
+      - "service=node-exporter"
+      - "environment=monitoring"

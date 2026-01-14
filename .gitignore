@@ -38,3 +38,13 @@ next-env.d.ts
 
 # bun
 bun.lockb
+
+# logs
+/logs/*.log
+/logs/pm2/*.log
+
+# PM2
+.pm2/
+
+# Monitoring data (Docker volumes)
+monitoring/data/

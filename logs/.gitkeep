@@ -1,0 +1,2 @@
+# This directory is used for application logs
+# PM2 logs will be stored in ./pm2/

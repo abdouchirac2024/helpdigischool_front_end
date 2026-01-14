@@ -1,0 +1,19 @@
+# =============================================================================
+# Grafana Dashboard Provisioning
+# Help Digi School - Monitoring
+# =============================================================================
+
+apiVersion: 1
+
+providers:
+  - name: 'Help Digi School Dashboards'
+    orgId: 1
+    folder: 'Help Digi School'
+    folderUid: helpdigischool
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: false
