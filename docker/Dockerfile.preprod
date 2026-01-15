@@ -1,0 +1,76 @@
+# ============================================
+# Help Digi School - Dockerfile PRE-PRODUCTION
+# ============================================
+# Usage: docker build -f docker/Dockerfile.preprod -t helpdigischool/frontend:preprod .
+# ============================================
+
+ARG NODE_VERSION=20
+
+# Stage 1: Dependencies
+FROM node:${NODE_VERSION}-alpine AS deps
+
+RUN apk add --no-cache libc6-compat
+
+WORKDIR /app
+
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+
+RUN if [ -f package-lock.json ]; then \
+        npm ci --legacy-peer-deps; \
+    elif [ -f yarn.lock ]; then \
+        corepack enable && yarn install --frozen-lockfile; \
+    elif [ -f pnpm-lock.yaml ]; then \
+        corepack enable && pnpm install --frozen-lockfile; \
+    else \
+        npm install --legacy-peer-deps; \
+    fi
+
+# Stage 2: Builder
+FROM node:${NODE_VERSION}-alpine AS builder
+
+WORKDIR /app
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1
+
+RUN npm run build
+
+# Stage 3: Production
+FROM node:${NODE_VERSION}-alpine AS runner
+
+LABEL maintainer="HelpDigiSchool Team <contact@helpdigischool.cm>"
+LABEL description="Help Digi School Frontend - Pre-Production"
+LABEL environment="preprod"
+
+RUN apk add --no-cache wget tini && \
+    rm -rf /var/cache/apk/*
+
+WORKDIR /app
+
+# Utilisateur non-root
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=3000 \
+    HOSTNAME="0.0.0.0"
+
+# Copie des fichiers de build
+COPY --from=builder /app/public ./public
+RUN mkdir -p .next && chown nextjs:nodejs .next
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
+
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["node", "server.js"]

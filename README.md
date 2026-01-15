@@ -3,485 +3,515 @@
 <div align="center">
 
 ![Help Digi School](https://img.shields.io/badge/Help_Digi_School-v1.0.0-blue?style=for-the-badge)
-![Next.js](https://img.shields.io/badge/Next.js-16.1.1-black?style=for-the-badge&logo=next.js)
-![React](https://img.shields.io/badge/React-19.2.3-61DAFB?style=for-the-badge&logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-3178C6?style=for-the-badge&logo=typescript)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css)
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)
 
-**Plateforme SaaS de gestion scolaire pour les écoles primaires et secondaires**
+**Plateforme SaaS de gestion scolaire pour les écoles primaires et secondaires du Cameroun**
 
-[Demo](#demo) • [Installation](#installation) • [Documentation](#documentation) • [Contribution](#contribution)
+[Quick Start](#-quick-start) • [Architecture](#-architecture) • [Documentation](#-documentation) • [Déploiement](#-déploiement)
 
 </div>
 
 ---
 
-## Table des matières
+## 📋 Table des matières
 
-- [Apercu](#apercu)
-- [Fonctionnalites](#fonctionnalites)
-- [Architecture](#architecture)
-- [Technologies](#technologies)
-- [Prerequis](#prerequis)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Structure du projet](#structure-du-projet)
-- [Commandes Makefile](#commandes-makefile)
-- [Developpement](#developpement)
-- [Authentification Mock](#authentification-mock)
-- [API Routes](#api-routes)
-- [Deploiement](#deploiement)
-- [Monitoring](#monitoring)
-- [Tests](#tests)
-- [Contribution](#contribution)
-- [Equipe](#equipe)
-- [Licence](#licence)
+- [Aperçu](#-aperçu)
+- [Quick Start](#-quick-start)
+- [Architecture](#-architecture)
+- [Structure du projet](#-structure-du-projet)
+- [Technologies](#-technologies)
+- [Configuration](#-configuration)
+- [Commandes Makefile](#-commandes-makefile)
+- [Environnements](#-environnements)
+- [Infrastructure](#-infrastructure)
+- [Monitoring](#-monitoring)
+- [API Routes](#-api-routes)
+- [Authentification](#-authentification)
+- [Déploiement](#-déploiement)
+- [Contribution](#-contribution)
 
 ---
 
-## Apercu
+## 🎯 Aperçu
 
-Help Digi School est une plateforme complete de gestion scolaire permettant aux etablissements de :
-- Gerer les eleves, enseignants et personnel administratif
-- Suivre les notes et bulletins scolaires
-- Gerer les paiements et frais de scolarite
-- Communiquer avec les parents via SMS/email
-- Generer des rapports et statistiques
+Help Digi School est une plateforme complète de gestion scolaire permettant aux établissements de :
 
----
+- **Gérer les élèves** - Inscriptions, dossiers, suivi académique
+- **Suivre les notes** - Saisie, bulletins, moyennes automatiques
+- **Gérer les paiements** - Frais de scolarité, rapports financiers
+- **Communiquer** - Messages, notifications SMS/email
+- **Planifier** - Emploi du temps, cours, absences
 
-## Fonctionnalites
+### Multi-rôles
 
-### Multi-roles
-| Role | Fonctionnalites |
-|------|-----------------|
-| **Admin** | Gestion globale des ecoles, utilisateurs, abonnements |
-| **Directeur** | Gestion complete de l'etablissement |
-| **Enseignant** | Saisie des notes, gestion des cours, suivi des eleves |
-| **Secretaire** | Inscriptions, paiements, documents administratifs |
-| **Parent** | Suivi des enfants, bulletins, paiements |
-| **Eleve** | Notes, emploi du temps, devoirs |
-
-### Modules principaux
-- **Gestion des eleves** - Inscriptions, dossiers, suivi
-- **Gestion des notes** - Saisie, bulletins, moyennes
-- **Gestion financiere** - Paiements, frais, rapports
-- **Communication** - Messages, notifications SMS/email
-- **Emploi du temps** - Planning, cours, absences
-- **Documents** - Certificats, attestations, impressions
+| Rôle | Accès | Dashboard |
+|------|-------|-----------|
+| **Admin** | Gestion globale | `/dashboard/admin` |
+| **Directeur** | Établissement complet | `/dashboard/director` |
+| **Enseignant** | Notes, cours, élèves | `/dashboard/teacher` |
+| **Secrétaire** | Inscriptions, paiements | `/dashboard/secretary` |
+| **Parent** | Suivi enfants, bulletins | `/dashboard/parent` |
+| **Élève** | Notes, emploi du temps | `/dashboard/student` |
 
 ---
 
-## Architecture
+## 🚀 Quick Start
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    FRONTEND (Next.js)                        │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          │
-│  │   Pages     │  │ Components  │  │   Hooks     │          │
-│  └─────────────┘  └─────────────┘  └─────────────┘          │
-│                           │                                  │
-│  ┌─────────────────────────────────────────────────┐        │
-│  │              Auth Context (Mock/API)             │        │
-│  └─────────────────────────────────────────────────┘        │
-└─────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   API GATEWAY (Future)                       │
-│                   Spring Boot + JWT                          │
-└─────────────────────────────────────────────────────────────┘
-                            │
-        ┌───────────────────┼───────────────────┐
-        ▼                   ▼                   ▼
-┌───────────────┐  ┌───────────────┐  ┌───────────────┐
-│  Auth Service │  │ School Service│  │ Grade Service │
-└───────────────┘  └───────────────┘  └───────────────┘
-```
-
----
-
-## Technologies
-
-### Frontend
-| Technologie | Version | Description |
-|-------------|---------|-------------|
-| Next.js | 16.1.1 | Framework React avec SSR/SSG |
-| React | 19.2.3 | Bibliotheque UI |
-| TypeScript | 5.8.3 | Typage statique |
-| TailwindCSS | 3.4.17 | Framework CSS utility-first |
-| Radix UI | Latest | Composants accessibles |
-| React Query | 5.83.0 | Gestion du state serveur |
-| React Hook Form | 7.61.1 | Gestion des formulaires |
-| Zod | 3.25.76 | Validation de schemas |
-| Recharts | 2.15.4 | Graphiques et charts |
-| Lucide React | 0.462.0 | Icones |
-
-### Outils
-| Outil | Usage |
-|-------|-------|
-| ESLint | Linting |
-| PM2 | Process Manager |
-| Docker | Conteneurisation |
-| Traefik | Reverse Proxy |
-| Loki | Agregation de logs |
-| Grafana | Monitoring & Dashboards |
-
----
-
-## Prerequis
+### Prérequis
 
 - **Node.js** >= 18.x
-- **npm** >= 9.x ou **yarn** >= 1.22 ou **bun** >= 1.x
-- **Docker** >= 24.x (pour le deploiement)
-- **Docker Compose** >= 2.x
+- **npm** >= 9.x (ou yarn/bun)
+- **Docker** >= 20.x (optionnel)
+- **Make** (optionnel)
 
----
-
-## Installation
-
-### 1. Cloner le repository
+### Installation en 3 étapes
 
 ```bash
-git clone https://github.com/your-org/helpdigischool.git
+# 1. Cloner le repository
+git clone https://github.com/helpdigischool/frontend.git
 cd helpdigischool
-```
 
-### 2. Installer les dependances
+# 2. Installer les dépendances
+npm install --legacy-peer-deps
 
-```bash
-# Avec npm
-npm install
-
-# Avec yarn
-yarn install
-
-# Avec bun (recommande)
-bun install
-```
-
-### 3. Configurer l'environnement
-
-```bash
-# Copier le fichier d'environnement
+# 3. Configurer et lancer
 cp .env.example .env.local
-
-# Editer les variables selon votre environnement
-nano .env.local
+npm run dev
 ```
 
-### 4. Lancer le serveur de developpement
+L'application est accessible sur **http://localhost:3000**
+
+### Avec Docker
 
 ```bash
-npm run dev
-# ou
-yarn dev
-# ou
-bun dev
-```
+# Développement
+make up-dev
 
-L'application sera accessible sur [http://localhost:3000](http://localhost:3000)
-
----
-
-## Configuration
-
-### Variables d'environnement
-
-| Variable | Description | Defaut |
-|----------|-------------|--------|
-| `NEXT_PUBLIC_APP_NAME` | Nom de l'application | Help Digi School |
-| `NEXT_PUBLIC_APP_URL` | URL de l'application | http://localhost:3000 |
-| `NEXT_PUBLIC_API_URL` | URL de l'API backend | http://localhost:8080/api/v1 |
-| `NEXT_PUBLIC_API_TIMEOUT` | Timeout API (ms) | 30000 |
-| `NEXT_PUBLIC_SESSION_DURATION` | Duree de session (s) | 3600 |
-| `NEXT_PUBLIC_ENABLE_NOTIFICATIONS` | Activer notifications | true |
-| `NEXT_PUBLIC_ENABLE_DARK_MODE` | Activer mode sombre | true |
-
-### Fichiers d'environnement
-
-```
-.env.local          # Developpement local
-.env.preprod        # Pre-production
-.env.production     # Production
+# Production
+make deploy-prod
 ```
 
 ---
 
-## Structure du projet
+## 🏗 Architecture
+
+### Vue d'ensemble
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              FRONTEND (Next.js 16)                           │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
+│  │  App Router  │  │  Components  │  │    Hooks     │  │    Types     │     │
+│  │  (src/app)   │  │  (shadcn/ui) │  │  (custom)    │  │ (TypeScript) │     │
+│  └──────────────┘  └──────────────┘  └──────────────┘  └──────────────┘     │
+│                                    │                                         │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │                    Auth Context (Mock / API Client)                    │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                     │
+                              ┌──────┴──────┐
+                              │   Traefik   │  (Reverse Proxy + SSL)
+                              └──────┬──────┘
+                                     │
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         API GATEWAY (Spring Boot)                            │
+│                              (À développer)                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                     │
+         ┌───────────────────────────┼───────────────────────────┐
+         ▼                           ▼                           ▼
+┌─────────────────┐       ┌─────────────────┐       ┌─────────────────┐
+│  Auth Service   │       │ School Service  │       │ Grade Service   │
+└─────────────────┘       └─────────────────┘       └─────────────────┘
+```
+
+### Architecture Docker
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            DOCKER INFRASTRUCTURE                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐                    │
+│  │  Frontend   │     │  Frontend   │     │  Frontend   │                    │
+│  │    (Dev)    │     │  (Preprod)  │     │   (Prod)    │                    │
+│  │  Port 3000  │     │ Port 32031  │     │  Port 3000  │                    │
+│  └─────────────┘     └─────────────┘     └─────────────┘                    │
+│         │                   │                   │                            │
+│         └───────────────────┼───────────────────┘                            │
+│                             │                                                │
+│                    ┌────────┴────────┐                                       │
+│                    │     Traefik     │  (Load Balancer + SSL)                │
+│                    │   Ports 80/443  │                                       │
+│                    └────────┬────────┘                                       │
+│                             │                                                │
+│  ┌──────────────────────────┴──────────────────────────┐                    │
+│  │              MONITORING STACK                        │                    │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────────────┐   │                    │
+│  │  │  Grafana │  │   Loki   │  │     Promtail     │   │                    │
+│  │  │  :3001   │  │  :3100   │  │  (Log Collector) │   │                    │
+│  │  └──────────┘  └──────────┘  └──────────────────┘   │                    │
+│  └─────────────────────────────────────────────────────┘                    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📁 Structure du projet
 
 ```
 helpdigischool/
-├── docker/                     # Configuration Docker
-│   ├── compose/               # Docker Compose files
-│   ├── scripts/               # Scripts (entrypoint, healthcheck)
-│   └── Dockerfile
-├── infrastructure/            # Infrastructure
-│   ├── traefik/              # Reverse proxy
-│   └── monitoring/           # Stack de monitoring
-│       ├── loki/             # Loki config
-│       ├── promtail/         # Promtail config
-│       ├── grafana/          # Grafana provisioning
-│       └── docker-compose.yml
-├── public/                    # Assets statiques
-├── src/
-│   ├── app/                   # App Router (Next.js 13+)
-│   │   ├── (auth)/           # Routes authentification
+├── docker/                          # 🐳 Configuration Docker
+│   ├── Dockerfile                   # Multi-stage (legacy)
+│   ├── Dockerfile.dev               # Développement
+│   ├── Dockerfile.preprod           # Pre-production
+│   ├── Dockerfile.prod              # Production
+│   ├── compose/                     # Docker Compose files
+│   │   ├── docker-compose.yml       # Base commune
+│   │   ├── docker-compose.dev.yml   # Override dev
+│   │   ├── docker-compose.preprod.yml
+│   │   └── docker-compose.prod.yml
+│   ├── scripts/                     # Scripts utilitaires
+│   │   ├── healthcheck.sh
+│   │   ├── entrypoint.sh
+│   │   ├── wait-for-it.sh
+│   │   └── validate-infra.sh
+│   └── README.md
+│
+├── infrastructure/                  # 🏭 Infrastructure
+│   ├── traefik/                     # Reverse Proxy
+│   │   ├── docker-compose.yml
+│   │   ├── docker-compose.dev.yml
+│   │   ├── docker-compose.preprod.yml
+│   │   ├── docker-compose.prod.yml
+│   │   ├── traefik.yml              # Config statique
+│   │   └── config/
+│   │       └── dynamic/             # Config dynamique
+│   │           └── middlewares.yml
+│   ├── monitoring/                  # Stack Monitoring
+│   │   ├── docker-compose.yml
+│   │   ├── loki/
+│   │   │   └── loki-config.yml
+│   │   ├── promtail/
+│   │   │   └── promtail-config.yml
+│   │   └── grafana/
+│   │       └── provisioning/
+│   │           ├── datasources/
+│   │           └── dashboards/
+│   └── README.md
+│
+├── src/                             # 📦 Code source
+│   ├── app/                         # App Router (Next.js)
+│   │   ├── (auth)/                  # Routes authentification
 │   │   │   ├── login/
-│   │   │   └── register/
-│   │   ├── (marketing)/      # Pages marketing
-│   │   │   ├── features/
+│   │   │   ├── register/
+│   │   │   ├── forgot-password/
+│   │   │   └── reset-password/
+│   │   ├── (marketing)/             # Pages marketing
+│   │   │   ├── about/
 │   │   │   ├── pricing/
+│   │   │   ├── features/
 │   │   │   └── contact/
-│   │   ├── api/              # API Routes
+│   │   ├── api/                     # API Routes
 │   │   │   ├── auth/
 │   │   │   ├── students/
 │   │   │   ├── teachers/
-│   │   │   ├── classes/
 │   │   │   ├── grades/
-│   │   │   └── payments/
-│   │   └── dashboard/        # Dashboards par role
+│   │   │   ├── payments/
+│   │   │   └── health/
+│   │   └── dashboard/               # Dashboards par rôle
 │   │       ├── admin/
 │   │       ├── director/
 │   │       ├── teacher/
 │   │       ├── secretary/
 │   │       ├── parent/
 │   │       └── student/
-│   ├── components/
-│   │   ├── ui/               # Composants UI (shadcn/ui)
-│   │   ├── dashboard/        # Composants dashboard
-│   │   │   ├── shared/       # TopBar, Sidebar, StatCard
+│   ├── components/                  # Composants React
+│   │   ├── ui/                      # shadcn/ui
+│   │   ├── dashboard/               # Composants dashboard
+│   │   │   ├── shared/              # TopBar, Sidebar, etc.
 │   │   │   ├── admin/
 │   │   │   ├── director/
 │   │   │   ├── teacher/
 │   │   │   ├── secretary/
 │   │   │   ├── parent/
 │   │   │   └── student/
-│   │   ├── landing/          # Composants landing page
-│   │   └── layout/           # Layouts
-│   ├── hooks/                # Custom hooks
-│   ├── lib/                  # Utilitaires
-│   │   ├── api/             # Client API & config
-│   │   └── auth/            # Contexte authentification
-│   └── types/               # Types TypeScript
-│       ├── api/             # Types API
-│       └── models/          # Types modeles
-├── .env.example
-├── .env.local
-├── ecosystem.config.js        # Config PM2
+│   │   ├── landing/                 # Landing page
+│   │   └── layout/                  # Navbar, Footer
+│   ├── lib/                         # Utilitaires
+│   │   ├── api/                     # Client API
+│   │   ├── auth/                    # Contexte auth
+│   │   └── i18n/                    # Internationalisation
+│   ├── types/                       # Types TypeScript
+│   ├── constants/                   # Constantes
+│   ├── schemas/                     # Schémas Zod
+│   └── services/                    # Services
+│
+├── logs/                            # 📊 Logs (PM2/Docker)
+│   └── pm2/
+│
+├── .gitlab/                         # 🔄 CI/CD GitLab
+│   ├── gitlab-ci-preprod.yml
+│   └── gitlab-ci-prod.yml
+│
+├── .env.example                     # Variables d'environnement
+├── .env.preprod.example
+├── .env.production.example
+├── .gitlab-ci.yml                   # Pipeline CI/CD
+├── Makefile                         # Commandes DevOps
+├── ecosystem.config.js              # Config PM2
 ├── next.config.js
-├── package.json
 ├── tailwind.config.ts
-└── tsconfig.json
+├── tsconfig.json
+└── vercel.json                      # Config Vercel
 ```
 
 ---
 
-## Commandes Makefile
+## 🛠 Technologies
 
-Le projet utilise un Makefile pour simplifier les operations de developpement, deploiement et monitoring.
+### Frontend
 
-### Afficher l'aide
+| Technologie | Version | Description |
+|-------------|---------|-------------|
+| Next.js | 16.x | Framework React avec App Router |
+| React | 19.x | Bibliothèque UI |
+| TypeScript | 5.x | Typage statique |
+| TailwindCSS | 3.4.x | Framework CSS utility-first |
+| Radix UI | Latest | Composants accessibles |
+| React Query | 5.x | Gestion du state serveur |
+| React Hook Form | 7.x | Gestion des formulaires |
+| Zod | 3.x | Validation de schémas |
+| Recharts | 2.x | Graphiques |
+| Lucide React | Latest | Icônes |
 
-```bash
-make help
+### Infrastructure
+
+| Outil | Usage |
+|-------|-------|
+| Docker | Conteneurisation |
+| Docker Compose | Orchestration |
+| Traefik | Reverse Proxy + SSL |
+| Loki | Agrégation de logs |
+| Grafana | Monitoring & Dashboards |
+| Promtail | Collecte de logs |
+| PM2 | Process Manager |
+| GitLab CI | Pipeline CI/CD |
+| Vercel | Déploiement frontend |
+
+---
+
+## ⚙️ Configuration
+
+### Variables d'environnement
+
+| Variable | Description | Défaut |
+|----------|-------------|--------|
+| `NEXT_PUBLIC_APP_NAME` | Nom de l'application | Help Digi School |
+| `NEXT_PUBLIC_APP_URL` | URL de l'application | http://localhost:3000 |
+| `NEXT_PUBLIC_API_URL` | URL de l'API backend | http://localhost:8080/api/v1 |
+| `NEXT_PUBLIC_ENVIRONMENT` | Environnement | development |
+| `FRONTEND_PORT` | Port du frontend | 3000 |
+
+### Fichiers d'environnement
+
+```
+.env.example          # Template (à copier vers .env.local)
+.env.local            # Développement local
+.env.preprod          # Pre-production
+.env.production       # Production
 ```
 
-### Developpement local (sans Docker)
-
-| Commande | Description |
-|----------|-------------|
-| `make install` | Installer les dependances npm |
-| `make dev` | Demarrer le serveur de developpement |
-| `make start` | Build et demarrer en production locale |
-| `make lint` | Lancer ESLint |
-| `make lint-fix` | Lancer ESLint avec correction automatique |
-| `make test` | Lancer les tests |
-| `make typecheck` | Verifier les types TypeScript |
-
-### Developpement Docker
-
-| Commande | Description |
-|----------|-------------|
-| `make build-dev` | Build l'image de developpement |
-| `make up-dev` | Demarrer le container dev (http://localhost:3000) |
-| `make down-dev` | Arreter le container dev |
-| `make logs-dev` | Afficher les logs dev |
-| `make shell-dev` | Shell dans le container dev |
-| `make restart-dev` | Redemarrer le container dev |
-| `make lint-dev` | Lancer le linter dans le container |
-
-### Pre-Production
-
-| Commande | Description |
-|----------|-------------|
-| `make build-preprod` | Build l'image pre-production |
-| `make up-preprod` | Demarrer le container preprod (http://localhost:32031) |
-| `make down-preprod` | Arreter le container preprod |
-| `make logs-preprod` | Afficher les logs preprod |
-| `make restart-preprod` | Redemarrer le container preprod |
-| `make shell-preprod` | Shell dans le container preprod |
-| `make deploy-preprod` | Deploiement complet preprod (down + build + up + health) |
-
-### Production
-
-| Commande | Description |
-|----------|-------------|
-| `make build-prod` | Build l'image production |
-| `make up-prod` | Demarrer le container prod |
-| `make down-prod` | Arreter le container prod |
-| `make logs-prod` | Afficher les logs prod |
-| `make restart-prod` | Redemarrer le container prod |
-| `make shell-prod` | Shell dans le container prod |
-| `make deploy-prod` | Deploiement complet prod (down + build + up + health) |
-
-### Multi-Environnements
-
-| Commande | Description |
-|----------|-------------|
-| `make up-all` | Demarrer tous les environnements (dev, preprod, prod) |
-| `make down-all` | Arreter tous les environnements |
-| `make logs-all` | Afficher les logs de tous les containers |
-
-### Monitoring et Status
-
-| Commande | Description |
-|----------|-------------|
-| `make status` | Afficher l'etat des containers |
-| `make stats` | Statistiques des containers (CPU, RAM) |
-| `make health` | Verifier la sante des containers |
-| `make health-check URL=<url>` | Verifier un endpoint specifique |
-
-### Docker Registry
-
-| Commande | Description |
-|----------|-------------|
-| `make push` | Push les images vers le registry |
-| `make push-preprod` | Push l'image pre-production |
-| `make pull` | Pull la derniere image |
-| `make version` | Afficher la version actuelle |
-
-### Nettoyage
-
-| Commande | Description |
-|----------|-------------|
-| `make clean` | Nettoyer tous les containers |
-| `make clean-images` | Nettoyer les images Docker |
-| `make prune` | Nettoyer TOUTES les ressources Docker (attention!) |
-
-### Exemple de workflow complet
+### Configuration rapide
 
 ```bash
-# 1. Installation et developpement local
-make install
+# Développement
+cp .env.example .env.local
+
+# Pre-production
+cp .env.preprod.example .env.preprod
+
+# Production
+cp .env.production.example .env.production
+```
+
+---
+
+## 🎮 Commandes Makefile
+
+Le projet utilise un **Makefile** pour simplifier toutes les opérations DevOps.
+
+```bash
+make help              # Afficher toutes les commandes
+```
+
+### Développement
+
+| Commande | Description |
+|----------|-------------|
+| `make dev` | Démarrer en local (sans Docker) |
+| `make install` | Installer les dépendances |
+| `make lint` | Lancer ESLint |
+| `make typecheck` | Vérifier les types TypeScript |
+| `make test` | Lancer les tests |
+
+### Docker - Développement
+
+| Commande | Description |
+|----------|-------------|
+| `make build-dev` | Build image développement |
+| `make up-dev` | Démarrer container (http://localhost:3000) |
+| `make down-dev` | Arrêter container |
+| `make logs-dev` | Afficher les logs |
+| `make shell-dev` | Shell dans le container |
+
+### Docker - Pre-Production
+
+| Commande | Description |
+|----------|-------------|
+| `make build-preprod` | Build image preprod |
+| `make up-preprod` | Démarrer (http://localhost:32031) |
+| `make deploy-preprod` | Déploiement complet |
+
+### Docker - Production
+
+| Commande | Description |
+|----------|-------------|
+| `make build-prod` | Build image production |
+| `make up-prod` | Démarrer container |
+| `make deploy-prod` | Déploiement complet |
+
+### Validation & Monitoring
+
+| Commande | Description |
+|----------|-------------|
+| `make validate` | Valider toute la configuration |
+| `make status` | État des containers |
+| `make status-all` | État de tous les environnements |
+| `make health` | Vérifier la santé |
+
+### Infrastructure
+
+| Commande | Description |
+|----------|-------------|
+| `make infra-up` | Démarrer Traefik + Monitoring |
+| `make infra-down` | Arrêter l'infrastructure |
+| `make monitoring-up` | Démarrer Grafana/Loki |
+
+---
+
+## 🌍 Environnements
+
+| Environnement | Port | URL | Dockerfile | Traefik Host |
+|---------------|------|-----|------------|--------------|
+| **Dev** | 3000 | http://localhost:3000 | Dockerfile.dev | helpdigischool.localhost |
+| **Preprod** | 32031 | http://localhost:32031 | Dockerfile.preprod | preprod.helpdigischool.com |
+| **Prod** | 3000 | - | Dockerfile.prod | helpdigischool.com |
+
+### Workflow de déploiement
+
+```bash
+# 1. Développement local
 make dev
 
-# 2. Deploiement en pre-production
+# 2. Test avec Docker
+make up-dev
+
+# 3. Déploiement pre-production
 make deploy-preprod
 
-# 3. Verifier les logs
+# 4. Vérification
 make logs-preprod
+make health-check URL=http://localhost:32031/api/health
 
-# 4. Deploiement en production
+# 5. Déploiement production
 make deploy-prod
-
-# 5. Monitoring
-make status
-make health
 ```
 
 ---
 
-## Developpement
+## 🏭 Infrastructure
 
-### Scripts disponibles
+### Traefik (Reverse Proxy)
+
+Traefik gère :
+- Load balancing
+- SSL/TLS avec Let's Encrypt
+- Routage par domaine
+- Middlewares de sécurité
 
 ```bash
-# Developpement
-npm run dev          # Serveur de dev avec hot-reload
+# Démarrer Traefik
+cd infrastructure/traefik
+docker compose up -d
 
-# Build
-npm run build        # Build de production
-npm run start        # Demarrer le build de production
-
-# Linting
-npm run lint         # Verifier le code avec ESLint
+# Dashboard
+http://traefik.localhost:8080  (dev)
+https://traefik.helpdigischool.com  (prod)
 ```
 
-### Conventions de code
+### Configuration Traefik
 
-- **Composants** : PascalCase (`UserProfile.tsx`)
-- **Hooks** : camelCase avec prefixe `use` (`useAuth.ts`)
-- **Utilitaires** : camelCase (`formatDate.ts`)
-- **Types** : PascalCase (`User`, `LoginRequest`)
-- **CSS** : TailwindCSS utility classes
+```yaml
+# infrastructure/traefik/traefik.yml
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
 
-### Ajouter un nouveau composant
-
-```tsx
-// src/components/dashboard/shared/NewComponent.tsx
-'use client'
-
-import { useState } from 'react'
-
-interface NewComponentProps {
-  title: string
-}
-
-export function NewComponent({ title }: NewComponentProps) {
-  return (
-    <div className="p-4 bg-white rounded-xl border border-gray-100">
-      <h3 className="font-semibold">{title}</h3>
-    </div>
-  )
-}
+providers:
+  docker:
+    exposedByDefault: false
 ```
 
 ---
 
-## Authentification Mock
+## 📊 Monitoring
 
-En l'absence d'API backend, l'authentification fonctionne en mode mock.
+### Stack complète
 
-### Comptes de test disponibles
+| Service | Port | URL | Credentials |
+|---------|------|-----|-------------|
+| Grafana | 3001 | http://localhost:3001 | admin / admin |
+| Loki | 3100 | http://localhost:3100 | - |
+| Node Exporter | 9100 | http://localhost:9100 | - |
 
-| Role | Email | Mot de passe | Dashboard |
-|------|-------|--------------|-----------|
-| Admin | admin@helpdigischool.com | admin123 | /dashboard/admin |
-| Directeur | directeur@ecole.cm | directeur123 | /dashboard/director |
-| Enseignant | enseignant@ecole.cm | enseignant123 | /dashboard/teacher |
-| Secretaire | secretaire@ecole.cm | secretaire123 | /dashboard/secretary |
-| Parent | parent@email.cm | parent123 | /dashboard/parent |
-| Eleve | eleve@ecole.cm | eleve123 | /dashboard/student |
+### Démarrage
 
-### Activer l'API reelle
+```bash
+# Démarrer le monitoring
+make monitoring-up
 
-Pour connecter a un vrai backend, modifiez `src/lib/auth/auth-context.tsx` :
-
-```typescript
-// Remplacer l'authentification mock par des appels API reels
-const login = useCallback(async (credentials: LoginRequest) => {
-  const response = await apiClient.post<LoginResponse>(
-    API_ENDPOINTS.auth.login,
-    credentials
-  )
-  // ... reste du code
-}, [])
+# Ou manuellement
+cd infrastructure/monitoring
+docker compose up -d
 ```
+
+### Dashboards Grafana
+
+- **Application Logs** - Logs de l'application
+- **Performance** - Métriques de performance
+- **Error Tracking** - Suivi des erreurs
 
 ---
 
-## API Routes
+## 🔌 API Routes
 
 ### Endpoints disponibles
 
-| Methode | Endpoint | Description |
+| Méthode | Endpoint | Description |
 |---------|----------|-------------|
 | POST | `/api/auth/login` | Connexion |
-| POST | `/api/auth/register` | Inscription ecole |
-| POST | `/api/auth/logout` | Deconnexion |
+| POST | `/api/auth/register` | Inscription école |
+| POST | `/api/auth/logout` | Déconnexion |
 | GET | `/api/auth/me` | Utilisateur courant |
-| GET | `/api/students` | Liste des eleves |
+| GET | `/api/students` | Liste des élèves |
 | GET | `/api/teachers` | Liste des enseignants |
 | GET | `/api/classes` | Liste des classes |
 | GET | `/api/grades` | Liste des notes |
@@ -490,42 +520,58 @@ const login = useCallback(async (credentials: LoginRequest) => {
 
 ---
 
-## Deploiement
+## 🔐 Authentification
 
-### Avec Docker
+### Mode Mock (développement)
+
+| Rôle | Email | Mot de passe |
+|------|-------|--------------|
+| Admin | admin@helpdigischool.com | admin123 |
+| Directeur | directeur@ecole.cm | directeur123 |
+| Enseignant | enseignant@ecole.cm | enseignant123 |
+| Secrétaire | secretaire@ecole.cm | secretaire123 |
+| Parent | parent@email.cm | parent123 |
+| Élève | eleve@ecole.cm | eleve123 |
+
+### Internationalisation
+
+Le projet supporte FR/EN :
+- Changement de langue dans la navbar
+- Persistance dans localStorage
+
+---
+
+## 📦 Déploiement
+
+### Option 1: Vercel (Recommandé pour le frontend)
 
 ```bash
-# Build l'image
-docker build -f docker/Dockerfile -t helpdigischool:latest .
+# Installer Vercel CLI
+npm i -g vercel
 
-# Lancer le conteneur
-docker run -p 3000:3000 helpdigischool:latest
+# Déployer
+vercel
 ```
 
-### Avec Docker Compose
+### Option 2: Docker
 
 ```bash
-# Developpement
-docker compose -f docker/compose/docker-compose.dev.yml up -d
+# Build et déploiement production
+make deploy-prod
 
-# Production
-docker compose -f docker/compose/docker-compose.prod.yml up -d
+# Avec Traefik
+make infra-up
+make deploy-prod
 ```
 
-### Avec PM2
+### Option 3: PM2
 
 ```bash
-# Installer PM2 globalement
-npm install -g pm2
-
-# Build l'application
+# Build
 npm run build
 
-# Demarrer avec PM2
+# Démarrer avec PM2
 pm2 start ecosystem.config.js
-
-# Voir les logs
-pm2 logs helpdigischool
 
 # Monitoring
 pm2 monit
@@ -533,146 +579,46 @@ pm2 monit
 
 ---
 
-## Monitoring
-
-### Stack de monitoring (Loki + Grafana + Promtail)
-
-La stack de monitoring est situee dans `infrastructure/monitoring/`.
-
-```bash
-# Demarrer le stack de monitoring
-cd infrastructure/monitoring
-docker compose up -d
-```
-
-### Architecture du monitoring
-
-```
-infrastructure/monitoring/
-├── docker-compose.yml        # Orchestration des services
-├── loki/
-│   └── loki-config.yml      # Configuration Loki
-├── promtail/
-│   └── promtail-config.yml  # Configuration Promtail (collecte de logs)
-└── grafana/
-    └── provisioning/
-        ├── datasources/     # Sources de donnees auto-configurees
-        └── dashboards/      # Dashboards pre-configures
-```
-
-### Services inclus
-
-| Service | URL | Credentials | Description |
-|---------|-----|-------------|-------------|
-| Grafana | http://localhost:3001 | admin / admin | Visualisation et dashboards |
-| Loki | http://localhost:3100 | - | Agregation des logs |
-| Promtail | - | - | Collecte des logs (PM2, Docker) |
-| Node Exporter | http://localhost:9100 | - | Metriques systeme |
-
-### Dashboards Grafana disponibles
-
-- **Application Logs** - Logs de l'application Next.js
-- **Performance Metrics** - Metriques de performance
-- **Error Tracking** - Suivi des erreurs
-
-### Configuration des logs PM2
-
-Les logs PM2 sont automatiquement collectes par Promtail depuis:
-- `logs/pm2/out-*.log` - Logs standard
-- `logs/pm2/error-*.log` - Logs d'erreur
-
-### Commandes utiles
-
-```bash
-# Demarrer le monitoring
-cd infrastructure/monitoring && docker compose up -d
-
-# Voir les logs du stack
-cd infrastructure/monitoring && docker compose logs -f
-
-# Arreter le monitoring
-cd infrastructure/monitoring && docker compose down
-
-# Redemarrer un service specifique
-cd infrastructure/monitoring && docker compose restart grafana
-```
-
----
-
-## Tests
-
-```bash
-# Lancer les tests (a configurer)
-npm run test
-
-# Tests avec couverture
-npm run test:coverage
-```
-
----
-
-## Contribution
+## 🤝 Contribution
 
 ### Workflow Git
 
-1. Creer une branche feature
 ```bash
-git checkout -b feature/ma-nouvelle-feature
-```
+# 1. Créer une branche
+git checkout -b feature/ma-feature
 
-2. Commiter les changements
-```bash
-git add .
-git commit -m "feat: description de la feature"
-```
+# 2. Commiter
+git commit -m "feat: description"
 
-3. Pousser et creer une MR
-```bash
-git push origin feature/ma-nouvelle-feature
+# 3. Push et MR
+git push origin feature/ma-feature
 ```
 
 ### Convention de commits
 
-```
-feat:     Nouvelle fonctionnalite
-fix:      Correction de bug
-docs:     Documentation
-style:    Formatage (pas de changement de code)
-refactor: Refactorisation
-test:     Ajout de tests
-chore:    Maintenance
-```
+| Préfixe | Description |
+|---------|-------------|
+| `feat:` | Nouvelle fonctionnalité |
+| `fix:` | Correction de bug |
+| `docs:` | Documentation |
+| `style:` | Formatage |
+| `refactor:` | Refactorisation |
+| `test:` | Tests |
+| `chore:` | Maintenance |
 
 ---
 
-## Equipe
+## 👥 Équipe
 
-### Developpement Frontend
-
-| Nom | Role | Contact |
-|-----|------|---------|
-| **IVANA YOH** | Lead Developer Frontend | - |
-
-### Stack technique
-
-- **Frontend** : Next.js, React, TypeScript, TailwindCSS
-- **Backend** : Spring Boot (API - a developper)
-- **Infrastructure** : Docker, Traefik, PM2
-- **Monitoring** : Loki, Grafana, Promtail
+| Nom | Rôle |
+|-----|------|
+| **IVANA YOH** | Lead Developer Frontend |
 
 ---
 
-## Licence
+## 📄 Licence
 
-Ce projet est proprietaire. Tous droits reserves.
-
----
-
-## Support
-
-Pour toute question ou support :
-- Creer une issue sur le repository
-- Contacter l'equipe de developpement
+Ce projet est propriétaire. Tous droits réservés.
 
 ---
 
@@ -680,6 +626,6 @@ Pour toute question ou support :
 
 **Help Digi School** - Plateforme de gestion scolaire moderne
 
-Made with love by **IVANA YOH**
+Made with ❤️ au Cameroun
 
 </div>

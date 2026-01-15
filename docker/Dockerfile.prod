@@ -1,0 +1,123 @@
+# ============================================
+# Help Digi School - Dockerfile PRODUCTION
+# ============================================
+# Usage: docker build -f docker/Dockerfile.prod -t helpdigischool/frontend:latest .
+#
+# Build avec arguments:
+#   docker build -f docker/Dockerfile.prod \
+#     --build-arg BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
+#     --build-arg VCS_REF=$(git rev-parse --short HEAD) \
+#     --build-arg VERSION=1.0.0 \
+#     -t helpdigischool/frontend:1.0.0 .
+# ============================================
+
+ARG NODE_VERSION=20
+
+# ============================================
+# Stage 1: Dependencies
+# ============================================
+FROM node:${NODE_VERSION}-alpine AS deps
+
+RUN apk add --no-cache libc6-compat
+
+WORKDIR /app
+
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+
+RUN --mount=type=cache,target=/root/.npm \
+    if [ -f package-lock.json ]; then \
+        npm ci --legacy-peer-deps --prefer-offline; \
+    elif [ -f yarn.lock ]; then \
+        corepack enable && yarn install --frozen-lockfile; \
+    elif [ -f pnpm-lock.yaml ]; then \
+        corepack enable && pnpm install --frozen-lockfile; \
+    else \
+        npm install --legacy-peer-deps; \
+    fi
+
+# ============================================
+# Stage 2: Builder
+# ============================================
+FROM node:${NODE_VERSION}-alpine AS builder
+
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_APP_URL
+ARG NEXT_PUBLIC_APP_NAME
+
+WORKDIR /app
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \
+    NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL} \
+    NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME}
+
+RUN --mount=type=cache,target=/app/.next/cache \
+    npm run build
+
+# ============================================
+# Stage 3: Production Runner
+# ============================================
+FROM node:${NODE_VERSION}-alpine AS runner
+
+# Build arguments pour les labels
+ARG BUILD_DATE
+ARG VCS_REF
+ARG VERSION=latest
+
+# Labels OCI
+LABEL maintainer="HelpDigiSchool Team <contact@helpdigischool.cm>" \
+      description="Help Digi School Frontend - Production" \
+      environment="production" \
+      org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.revision="${VCS_REF}" \
+      org.opencontainers.image.version="${VERSION}" \
+      org.opencontainers.image.title="Help Digi School Frontend" \
+      org.opencontainers.image.vendor="HelpDigiSchool"
+
+# Installation minimale
+RUN apk update && apk upgrade && \
+    apk add --no-cache wget tini ca-certificates tzdata && \
+    rm -rf /var/cache/apk/* /tmp/*
+
+WORKDIR /app
+
+# Utilisateur non-root
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Variables d'environnement
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=3000 \
+    HOSTNAME="0.0.0.0" \
+    TZ=Africa/Douala
+
+# Copie des fichiers publics
+COPY --from=builder /app/public ./public
+
+# Création du cache Next.js
+RUN mkdir -p .next && chown nextjs:nodejs .next
+
+# Copie du build standalone
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Passage à l'utilisateur non-root
+USER nextjs
+
+# Port
+EXPOSE 3000
+
+# Healthcheck strict
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
+
+# Tini comme init process
+ENTRYPOINT ["/sbin/tini", "--"]
+
+# Commande de démarrage
+CMD ["node", "server.js"]

@@ -7,7 +7,8 @@
 services:
   frontend:
     build:
-      target: development
+      context: ../..
+      dockerfile: docker/Dockerfile.dev
     container_name: helpdigischool-frontend-dev
     ports:
       - "${FRONTEND_PORT:-3000}:3000"

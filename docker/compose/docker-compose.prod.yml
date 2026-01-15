@@ -7,11 +7,12 @@
 services:
   frontend:
     build:
-      target: production
+      context: ../..
+      dockerfile: docker/Dockerfile.prod
       cache_from:
         - ${DOCKER_REGISTRY:-}helpdigischool/frontend:latest
     image: ${DOCKER_REGISTRY:-}helpdigischool/frontend:${VERSION:-latest}
-    container_name: helpdigischool-frontend-prod
+    # Note: container_name removed to allow replicas in swarm mode
     restart: always
     ports:
       - "${FRONTEND_PORT:-3000}:3000"

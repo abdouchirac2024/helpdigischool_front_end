@@ -7,7 +7,8 @@
 services:
   frontend:
     build:
-      target: production
+      context: ../..
+      dockerfile: docker/Dockerfile.preprod
       cache_from:
         - ${DOCKER_REGISTRY:-}helpdigischool/frontend:preprod-latest
     image: ${DOCKER_REGISTRY:-}helpdigischool/frontend:preprod-${VERSION:-latest}
