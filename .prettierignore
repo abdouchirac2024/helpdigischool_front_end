@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+out/
+build/
+dist/
+
+# Cache
+.cache/
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+
+# Environment
+.env*
+
+# Lock files
+package-lock.json
+yarn.lock
+bun.lockb
+pnpm-lock.yaml
+
+# Generated files
+next-env.d.ts
+coverage/
+
+# IDE
+.idea/
+.vscode/
+
+# Docker
+monitoring/data/
+
+# Other
+*.svg
+*.png
+*.jpg
+*.ico
+*.md

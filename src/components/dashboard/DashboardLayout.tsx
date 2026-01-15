@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { 
+import { usePathname, useRouter } from 'next/navigation'
+import {
   LayoutDashboard,
   Users,
   FileText,
@@ -16,10 +16,21 @@ import {
   GraduationCap,
   BarChart3,
   Calendar,
-  BookOpen
+  BookOpen,
+  Home,
+  ChevronDown,
+  User
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard', badge: null },
@@ -40,6 +51,20 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
+
+  // Mock user data - In real app, this would come from auth context
+  const user = {
+    name: 'Jean Dupont',
+    email: 'jean.dupont@ecole.cm',
+    role: 'Directeur',
+    school: 'École Primaire La Victoire'
+  }
+
+  const handleLogout = () => {
+    // In real app, clear auth tokens/session
+    router.push('/login')
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -53,21 +78,69 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             >
               {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
-            
-            <Link href="/dashboard" className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#2302B3] to-[#4318FF] flex items-center justify-center">
+
+            {/* Logo - Links to Home */}
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#2302B3] to-[#4318FF] flex items-center justify-center group-hover:scale-105 transition-transform">
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
-              <span className="font-bold text-lg hidden sm:block">DigiSchool</span>
+              <span className="font-bold text-lg hidden sm:block text-[#2302B3]">Help Digi School</span>
             </Link>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-600 hidden md:block">École Primaire La Victoire</span>
-            <Button variant="ghost" size="sm" className="gap-2">
-              <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline">Déconnexion</span>
-            </Button>
+            {/* School Name */}
+            <span className="text-sm text-gray-500 hidden lg:block">{user.school}</span>
+
+            {/* User Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-2 px-2 sm:px-3">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] flex items-center justify-center">
+                    <span className="text-white text-sm font-semibold">
+                      {user.name.split(' ').map(n => n[0]).join('')}
+                    </span>
+                  </div>
+                  <div className="hidden md:block text-left">
+                    <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                    <p className="text-xs text-gray-500">{user.role}</p>
+                  </div>
+                  <ChevronDown className="w-4 h-4 text-gray-400 hidden sm:block" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col">
+                    <span className="font-medium">{user.name}</span>
+                    <span className="text-xs text-gray-500 font-normal">{user.email}</span>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/" className="flex items-center gap-2 cursor-pointer">
+                    <Home className="w-4 h-4" />
+                    Accueil
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard" className="flex items-center gap-2 cursor-pointer">
+                    <LayoutDashboard className="w-4 h-4" />
+                    Mon Dashboard
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/settings" className="flex items-center gap-2 cursor-pointer">
+                    <User className="w-4 h-4" />
+                    Mon Profil
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600 cursor-pointer">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Déconnexion
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>

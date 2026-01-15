@@ -46,6 +46,9 @@ export interface RegisterResponse {
   userId: string
 }
 
+// Alias pour compatibilite avec les services
+export type RegisterRequest = RegisterSchoolRequest
+
 // Requête de réinitialisation de mot de passe
 export interface ForgotPasswordRequest {
   email: string

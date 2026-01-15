@@ -1,27 +1,32 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Check, Sparkles, Zap, Crown, ArrowRight } from "lucide-react";
+import { Check, Sparkles, Zap, Crown, ArrowRight, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const plans = [
   {
-    name: "Gratuit",
-    description: "Parfait pour découvrir la plateforme",
+    name: "1 An Offert",
+    description: "1 an complet offert, upgrade PRO ensuite (35 000 FCFA/mois)",
     price: "0",
-    period: "/mois",
-    badge: "Essai gratuit",
+    period: " FCFA",
+    priceSubtext: "1ère année offerte",
+    badge: "Offre spéciale",
     features: [
-      "Jusqu'à 100 élèves",
-      "2 classes maximum",
-      "Bulletins PDF illimités",
-      "1 compte administrateur",
-      "Support par email",
+      "Étudiants illimités",
+      "Classes illimitées",
+      "Utilisateurs illimités",
+      "Matières illimitées",
+      "Import/Export Excel complet",
+      "Tableau de bord simple",
+      "Gestion complète des paiements",
+      "Gestion des notes",
+      "Support email (72h)",
     ],
     limitations: [
       "Pas de notifications SMS",
       "Pas d'intégration paiement",
     ],
-    cta: "Commencer gratuitement",
+    cta: "Profiter de l'offre",
     variant: "outline" as const,
     popular: false,
   },
@@ -29,7 +34,7 @@ const plans = [
     name: "Pro",
     description: "Pour les écoles en croissance",
     price: "35,000",
-    period: "/mois",
+    period: " FCFA/mois",
     badge: "Plus populaire",
     features: [
       "Élèves illimités",
@@ -50,7 +55,7 @@ const plans = [
     name: "Premium",
     description: "Solution complète enterprise",
     price: "75,000",
-    period: "/mois",
+    period: " FCFA/mois",
     badge: "Tout inclus",
     features: [
       "Tout du plan Pro",
@@ -87,7 +92,7 @@ export function PricingSection() {
             <span className="gradient-text">chaque école</span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            Pas de frais cachés, pas d'engagement. Commencez gratuitement pendant 14 jours.
+            Pas de frais cachés, pas d'engagement. <strong className="text-primary">1ère année offerte</strong> pour toutes les nouvelles écoles!
           </p>
         </div>
 
@@ -119,7 +124,7 @@ export function PricingSection() {
                 {/* Plan Header */}
                 <div className="mb-6">
                   <div className="flex items-center gap-2 mb-2">
-                    {plan.name === "Gratuit" && <Zap className="w-5 h-5 text-primary" />}
+                    {plan.name === "1 An Offert" && <Gift className="w-5 h-5 text-primary" />}
                     {plan.name === "Pro" && <Sparkles className="w-5 h-5 text-primary" />}
                     {plan.name === "Premium" && <Crown className="w-5 h-5 text-secondary" />}
                     <h3 className="text-xl font-bold">{plan.name}</h3>
@@ -131,8 +136,11 @@ export function PricingSection() {
                 <div className="mb-8">
                   <div className="flex items-baseline gap-1">
                     <span className="text-4xl font-bold">{plan.price}</span>
-                    <span className="text-muted-foreground">FCFA{plan.period}</span>
+                    <span className="text-muted-foreground">{plan.period}</span>
                   </div>
+                  {plan.priceSubtext && (
+                    <p className="text-sm text-primary font-medium mt-1">{plan.priceSubtext}</p>
+                  )}
                 </div>
 
                 {/* Features */}
@@ -171,7 +179,7 @@ export function PricingSection() {
         {/* Trust Note */}
         <div className="text-center mt-12">
           <p className="text-muted-foreground">
-            ✓ Essai gratuit 14 jours · ✓ Annulation à tout moment · ✓ Paiement sécurisé
+            ✓ 1ère année offerte · ✓ Sans engagement · ✓ Annulation à tout moment · ✓ Paiement sécurisé
           </p>
         </div>
       </div>

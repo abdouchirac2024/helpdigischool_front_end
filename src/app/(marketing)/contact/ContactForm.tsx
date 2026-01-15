@@ -25,7 +25,6 @@ import {
   User
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
-import { IdentitySection } from '@/components/landing/IdentitySection'
 
 const contactReasons = [
   'Demande de démo',
@@ -354,10 +353,6 @@ export default function ContactForm() {
             </div>
           </div>
         </section>
-
-        {/* New Identity Section - "Notre Mission" */}
-        <IdentitySection className="relative z-10" />
-
       </main>
 
       <Footer />

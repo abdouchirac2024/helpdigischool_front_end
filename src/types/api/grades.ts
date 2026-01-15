@@ -161,3 +161,47 @@ export interface GradeStatsResponse {
     }
   }
 }
+
+// Creation de note (simplifie pour services)
+export interface CreateGradeRequest {
+  studentId: string
+  subjectId: string
+  evaluationType: 'exam' | 'test' | 'homework' | 'oral' | 'practical'
+  score: number
+  maxScore?: number
+  coefficient?: number
+  trimester: number
+  date: string
+  comment?: string
+}
+
+// Response de bulletin (API)
+export interface BulletinResponse {
+  studentId: string
+  studentName: string
+  className: string
+  schoolYear: string
+  trimester: number
+  subjects: {
+    subjectId: string
+    subjectName: string
+    grades: {
+      type: string
+      score: number
+      maxScore: number
+      date: string
+    }[]
+    average: number
+    coefficient: number
+    appreciation: string
+  }[]
+  generalAverage: number
+  rank: number
+  totalStudents: number
+  appreciation: string
+  teacherComment?: string
+  directorComment?: string
+  absences: number
+  delays: number
+  generatedAt: string
+}

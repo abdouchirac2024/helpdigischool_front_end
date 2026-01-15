@@ -57,7 +57,7 @@ const settingsSections = [
 export function AdminSettingsPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('general')
-  const [platformName, setPlatformName] = useState('HelpiDigiSchool')
+  const [platformName, setPlatformName] = useState('Help Digi School')
   const [supportEmail, setSupportEmail] = useState('support@helpdigischool.com')
   const [language, setLanguage] = useState('fr')
   const [timezone, setTimezone] = useState('Africa/Douala')
