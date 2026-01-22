@@ -2,7 +2,6 @@ import { Metadata } from 'next'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { PricingSection } from '@/components/landing/PricingSection'
-import { FAQSection } from '@/components/landing/FAQSection'
 import { CTASection } from '@/components/landing/CTASection'
 
 export const metadata: Metadata = {
@@ -16,7 +15,6 @@ export default function PricingPage() {
       <Navbar />
       <main className="pt-24">
         <PricingSection />
-        <FAQSection />
         <CTASection />
       </main>
       <Footer />
