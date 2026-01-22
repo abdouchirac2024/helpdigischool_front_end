@@ -42,10 +42,10 @@ export default function RegisterForm() {
   const [isAnimating, setIsAnimating] = useState(false)
   const [currentSlide, setCurrentSlide] = useState(0)
 
-  // Auto-slide carousel (3 slides)
+  // Auto-slide carousel (2 slides)
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % 3)
+      setCurrentSlide((prev) => (prev + 1) % 2)
     }, 5000) // Change every 5 seconds
     return () => clearInterval(interval)
   }, [])
@@ -142,7 +142,7 @@ export default function RegisterForm() {
         {/* Slide 2: Register Image */}
         <div
           className={`absolute inset-0 transition-all duration-700 ease-in-out ${
-            currentSlide === 1 ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'
+            currentSlide === 0 ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'
           }`}
         >
           <Image
@@ -196,7 +196,7 @@ export default function RegisterForm() {
         {/* Slide 3: Register2 Image */}
         <div
           className={`absolute inset-0 transition-all duration-700 ease-in-out ${
-            currentSlide === 2 ? 'opacity-100 translate-x-0' : currentSlide < 2 ? 'opacity-0 translate-x-full' : 'opacity-0 -translate-x-full'
+            currentSlide === 1 ? 'opacity-100 translate-x-0' : currentSlide < 1 ? 'opacity-0 translate-x-full' : 'opacity-0 -translate-x-full'
           }`}
         >
           <Image
@@ -248,7 +248,7 @@ export default function RegisterForm() {
 
         {/* Carousel Indicators */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-          {[0, 1, 2].map((index) => (
+          {[0, 1].map((index) => (
             <button
               key={index}
               onClick={() => setCurrentSlide(index)}
