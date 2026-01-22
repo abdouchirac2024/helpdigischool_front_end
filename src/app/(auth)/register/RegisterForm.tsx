@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -27,6 +28,7 @@ import {
   CheckCircle2
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { SchoolChildIllustration } from '@/components/ui/school-child-illustration'
 
 const regions = [
   'Adamaoua', 'Centre', 'Est', 'Extrême-Nord', 'Littoral',
@@ -38,6 +40,15 @@ export default function RegisterForm() {
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
+  const [currentSlide, setCurrentSlide] = useState(0)
+
+  // Auto-slide carousel (3 slides)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % 3)
+    }, 5000) // Change every 5 seconds
+    return () => clearInterval(interval)
+  }, [])
 
   const [formData, setFormData] = useState({
     schoolName: '',
@@ -121,48 +132,134 @@ export default function RegisterForm() {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
-      {/* Left Side - Story & Testimonial */}
-      <div className="relative hidden lg:flex flex-col justify-end p-12 bg-[#2302B3] text-white overflow-hidden">
-        {/* Background Image with Parallax Feel */}
+      {/* Left Side - Carousel */}
+      <div className="relative hidden lg:flex flex-col overflow-hidden">
+        {/* Slide 1: Child Illustration - MASQUÉ */}
+        <div className="hidden">
+          {/* Contenu masqué */}
+        </div>
+
+        {/* Slide 2: Register Image */}
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-overlay scale-110"
-          style={{ backgroundImage: `url('/director_signup.png')` }}
-        />
-        {/* Deep Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#2302B3] via-[#2302B3]/60 to-transparent" />
+          className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+            currentSlide === 1 ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'
+          }`}
+        >
+          <Image
+            src="/register.jpeg"
+            alt="École camerounaise"
+            fill
+            className="object-cover"
+            priority
+          />
+          {/* Overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-        {/* Abstract Geometric Shapes */}
-        <div className="absolute top-20 left-20 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-40 right-10 w-40 h-40 bg-[#4318FF]/40 rounded-full blur-2xl" />
-
-        {/* Content */}
-        <div className="relative z-10 max-w-lg mb-12">
-          <div className="mb-8 p-6 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl hover:bg-white/15 transition-all">
-            <Quote className="w-10 h-10 text-white/50 mb-4" />
-            <p className="text-xl font-medium leading-relaxed mb-6">
-              "Depuis que nous utilisons Help Digi School, la gestion des bulletins est passée de 3 semaines à 3 jours. C'est une révolution pour notre administration."
-            </p>
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center font-bold text-lg">
-                JD
-              </div>
+          {/* Content on image */}
+          <div className="absolute inset-0 flex flex-col justify-between p-12">
+            {/* Top branding */}
+            <Link href="/" className="relative z-10 flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <Image
+                src="/hel.jpeg"
+                alt="Help Digi School Logo"
+                width={50}
+                height={50}
+                className="rounded-xl"
+              />
               <div>
-                <p className="font-bold">Jean Dupont</p>
-                <p className="text-sm text-white/70">Directeur, École Les Champions</p>
+                <h2 className="text-2xl font-bold text-[#2302B3]">Help Digi School</h2>
+                <p className="text-black text-sm">L'éducation digitale pour tous</p>
+              </div>
+            </Link>
+
+            {/* Bottom testimonial */}
+            <div className="relative z-10">
+              <div className="p-6 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-lg">
+                <Quote className="w-8 h-8 text-white/30 mb-3" />
+                <p className="text-white font-medium leading-relaxed mb-4">
+                  "Depuis que nous utilisons Help Digi School, la gestion des bulletins est passée de 3 semaines à 3 jours. C'est une révolution!"
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm">
+                    JD
+                  </div>
+                  <div>
+                    <p className="font-bold text-white text-sm">Jean Dupont</p>
+                    <p className="text-xs text-white/70">Directeur, École Les Champions</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+        </div>
 
-          <div className="flex items-center gap-8 text-sm font-medium text-white/60">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-white" />
-              <span>Support 24/7</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-white" />
-              <span>Données sécurisées</span>
+        {/* Slide 3: Register2 Image */}
+        <div
+          className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+            currentSlide === 2 ? 'opacity-100 translate-x-0' : currentSlide < 2 ? 'opacity-0 translate-x-full' : 'opacity-0 -translate-x-full'
+          }`}
+        >
+          <Image
+            src="/register2.jpeg"
+            alt="Enfants à l'école"
+            fill
+            className="object-cover"
+          />
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#2302B3]/90 via-[#2302B3]/40 to-transparent" />
+
+          {/* Content on image */}
+          <div className="absolute inset-0 flex flex-col justify-between p-12">
+            {/* Top branding */}
+            <Link href="/" className="relative z-10 flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <Image
+                src="/hel.jpeg"
+                alt="Help Digi School Logo"
+                width={50}
+                height={50}
+                className="rounded-xl"
+              />
+              <div>
+                <h2 className="text-2xl font-bold text-[#2302B3]">Help Digi School</h2>
+                <p className="text-black text-sm">L'éducation digitale pour tous</p>
+              </div>
+            </Link>
+
+            {/* Bottom testimonial */}
+            <div className="relative z-10">
+              <div className="p-6 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-lg">
+                <Quote className="w-8 h-8 text-white/30 mb-3" />
+                <p className="text-white font-medium leading-relaxed mb-4">
+                  "Grâce à Help Digi School, nous avons réduit nos coûts administratifs de 40% et amélioré la satisfaction des parents."
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm">
+                    PN
+                  </div>
+                  <div>
+                    <p className="font-bold text-white text-sm">Paul Nkoulou</p>
+                    <p className="text-xs text-white/70">Directeur, Complexe Scolaire La Réussite</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+        </div>
+
+        {/* Carousel Indicators */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+          {[0, 1, 2].map((index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                currentSlide === index
+                  ? 'w-8 bg-white shadow-lg'
+                  : 'w-2 bg-white/40 hover:bg-white/60'
+              }`}
+              aria-label={`Slide ${index + 1}`}
+            />
+          ))}
         </div>
       </div>
 
@@ -193,25 +290,44 @@ export default function RegisterForm() {
           </div>
         </div>
 
-        <div className="max-w-md mx-auto w-full pt-16 lg:pt-0">
+        <div className="max-w-md mx-auto w-full pt-8 lg:pt-0">
+          {/* Logo for mobile */}
+          <Link href="/" className="flex items-center gap-3 mb-8 lg:hidden hover:opacity-80 transition-opacity">
+            <Image
+              src="/hel.jpeg"
+              alt="Help Digi School Logo"
+              width={45}
+              height={45}
+              className="rounded-xl shadow-md"
+            />
+            <div>
+              <h2 className="text-xl font-bold text-[#2302B3]">Help Digi School</h2>
+              <p className="text-black text-xs">L'éducation digitale pour tous</p>
+            </div>
+          </Link>
+
           {/* Header & Progress */}
-          <div className="mb-10">
-            <Link href="/" className="inline-block text-[#2302B3] font-bold text-lg mb-6 hover:opacity-80 transition-opacity">
-              Typeform Style? Non, HelpDigi Style.
-            </Link>
-            <div className="flex items-end justify-between mb-4">
-              <h1 className="text-3xl font-black text-gray-900 tracking-tight">
-                {step === 1 ? 'Créons votre école' : 'Sécurisons votre compte'}
-              </h1>
-              <span className="text-4xl font-black text-gray-200">{step}/2</span>
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-[#2302B3]">Étape {step} sur 2</p>
+              <Link href="/" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+                Retour à l'accueil
+              </Link>
             </div>
 
-            {/* Custom Progress Line */}
-            <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+            {/* Progress Bar */}
+            <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden mb-6">
               <div
-                className={`h-full bg-[#2302B3] transition-all duration-500 ease-out ${step === 1 ? 'w-1/2' : 'w-full'}`}
+                className={`h-full bg-gradient-to-r from-[#2302B3] to-[#4318FF] transition-all duration-500 ease-out rounded-full ${step === 1 ? 'w-1/2' : 'w-full'}`}
               />
             </div>
+
+            <h1 className="text-3xl font-black text-gray-900 tracking-tight mb-2">
+              {step === 1 ? 'Créons votre école' : 'Créez votre compte'}
+            </h1>
+            <p className="text-gray-500">
+              {step === 1 ? 'Commencez par les informations de votre établissement' : 'Finalisez votre inscription en quelques secondes'}
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="relative">
