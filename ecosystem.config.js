@@ -8,7 +8,7 @@
  *   pm2 start ecosystem.config.js --env preprod
  */
 
-module.exports = {
+export default {
   apps: [
     {
       // Application name
