@@ -317,6 +317,7 @@ helpdigischool/
 | `NEXT_PUBLIC_API_URL` | URL de l'API backend | http://localhost:8080/api/v1 |
 | `NEXT_PUBLIC_ENVIRONMENT` | Environnement | development |
 | `FRONTEND_PORT` | Port du frontend | 3000 |
+| `DEBUG_PORT` | Port de debug Node.js | 9229 |
 
 ### Fichiers d'environnement
 

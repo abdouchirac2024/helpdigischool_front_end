@@ -503,17 +503,17 @@ infra-down: traefik-down monitoring-down
 
 traefik-up:
 	@echo "$(CYAN)$(ARROW) Starting Traefik...$(NC)"
-	@if [ -f infrastructure/traefik/docker-compose.yml ]; then \
-		cd infrastructure/traefik && docker compose up -d; \
-		echo "$(GREEN)$(CHECK) Traefik running at http://traefik.localhost:8080$(NC)"; \
+	@if [ -f infrastructure/traefik/docker-compose.dev.yml ]; then \
+		cd infrastructure/traefik && docker compose -f docker-compose.dev.yml up -d; \
+		echo "$(GREEN)$(CHECK) Traefik running - Dashboard: http://localhost:8083$(NC)"; \
 	else \
 		echo "$(YELLOW)$(WARN) Traefik config not found$(NC)"; \
 	fi
 
 traefik-down:
 	@echo "$(CYAN)$(ARROW) Stopping Traefik...$(NC)"
-	@if [ -f infrastructure/traefik/docker-compose.yml ]; then \
-		cd infrastructure/traefik && docker compose down; \
+	@if [ -f infrastructure/traefik/docker-compose.dev.yml ]; then \
+		cd infrastructure/traefik && docker compose -f docker-compose.dev.yml down; \
 	fi
 	@echo "$(GREEN)$(CHECK) Traefik stopped$(NC)"
 

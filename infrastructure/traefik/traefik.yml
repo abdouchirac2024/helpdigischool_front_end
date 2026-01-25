@@ -30,6 +30,8 @@ providers:
     exposedByDefault: false
     network: traefik
     watch: true
+    # Fix for Docker API version compatibility
+    # See: https://doc.traefik.io/traefik/providers/docker/
   file:
     directory: "/etc/traefik/dynamic"
     watch: true

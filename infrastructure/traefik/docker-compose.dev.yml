@@ -1,22 +1,35 @@
 # ============================================
-# Infrastructure - Traefik Development
+# Infrastructure - Traefik Development (Standalone)
 # ============================================
-# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+# Usage: docker-compose -f docker-compose.dev.yml up -d
 # ============================================
 
 services:
   traefik:
+    image: traefik:v3.2
     container_name: traefik-dev
+    restart: unless-stopped
     ports:
-      - "80:80"
-      - "8080:8080"  # Dashboard en dev uniquement
+      - "8180:80"      # HTTP
+      - "8443:443"     # HTTPS
+      - "8083:8080"    # Dashboard
     command:
       - "--api.insecure=true"
       - "--api.dashboard=true"
       - "--log.level=DEBUG"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=traefik-dev"
     environment:
-      - TRAEFIK_LOG_LEVEL=DEBUG
+      - TZ=Europe/Paris
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - traefik
     labels:
+      - "traefik.enable=true"
       - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.localhost`)"
       - "traefik.http.routers.traefik-dashboard.service=api@internal"
       - "traefik.http.routers.traefik-dashboard.entrypoints=web"
@@ -24,3 +37,4 @@ services:
 networks:
   traefik:
     name: traefik-dev
+    driver: bridge
