@@ -264,12 +264,42 @@ Ajouter le résultat dans `.env` sous `TRAEFIK_DASHBOARD_AUTH`.
 
 ### Services
 
-| Service | Port | URL | Credentials |
-|---------|------|-----|-------------|
-| **Grafana** | 3001 | http://localhost:3001 | admin / admin |
-| **Loki** | 3100 | http://localhost:3100 | - |
-| **Promtail** | - | - | - |
-| **Node Exporter** | 9100 | http://localhost:9100 | - |
+| Service | Version | Port | URL | Credentials |
+|---------|---------|------|-----|-------------|
+| **Grafana** | 10.2.0 | 3001 | http://localhost:3001 | admin / admin |
+| **Loki** | 3.3.2 | 3100 | http://localhost:3100 | - |
+| **Promtail** | 3.3.2 | - | - | - |
+| **Node Exporter** | 1.6.1 | 9100 | http://localhost:9100 | - |
+
+### Architecture Monitoring
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    MONITORING STACK                          │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  ┌─────────────────┐     ┌─────────────────┐                │
+│  │   PROMTAIL      │────▶│      LOKI       │                │
+│  │ (Log Collector) │     │ (Log Storage)   │                │
+│  │                 │     │   :3100         │                │
+│  └─────────────────┘     └────────┬────────┘                │
+│          │                        │                          │
+│          │ Collecte:              │                          │
+│          │ - Docker logs          │                          │
+│          │ - PM2 logs             ▼                          │
+│          │               ┌─────────────────┐                │
+│          │               │    GRAFANA      │                │
+│          │               │  (Dashboards)   │                │
+│          │               │    :3001        │                │
+│          │               └─────────────────┘                │
+│          │                        ▲                          │
+│          │               ┌────────┴────────┐                │
+│          └──────────────▶│  NODE EXPORTER  │                │
+│                          │ (System Metrics)│                │
+│                          │    :9100        │                │
+│                          └─────────────────┘                │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ### Commandes Monitoring
 
@@ -284,6 +314,9 @@ make monitoring-up
 # Arrêter le monitoring
 make monitoring-down
 
+# Démarrer toute l'infrastructure (Traefik + Monitoring)
+make infra-up
+
 # ═══════════════════════════════════════════════════════════════
 # VIA DOCKER COMPOSE (depuis /infrastructure/monitoring/)
 # ═══════════════════════════════════════════════════════════════
@@ -293,51 +326,75 @@ cd infrastructure/monitoring
 # Démarrer tous les services
 docker compose up -d
 
-# Démarrer un service spécifique
-docker compose up -d grafana
-docker compose up -d loki
-docker compose up -d promtail
-
 # Arrêter tous les services
 docker compose down
-
-# Arrêter un service spécifique
-docker compose stop grafana
 
 # Voir les logs
 docker compose logs -f
 
-# Voir les logs d'un service
-docker compose logs -f grafana
-docker compose logs -f loki
-
-# Redémarrer
-docker compose restart
-
-# Redémarrer un service
-docker compose restart grafana
-
 # Status
 docker compose ps
-
-# Supprimer (avec volumes et données)
-docker compose down -v
-
-# Supprimer uniquement les containers (garder les données)
-docker compose down
 ```
+
+### Utilisation de Grafana
+
+#### Accès
+1. Ouvrir http://localhost:3001
+2. Login: `admin` / `admin`
+
+#### Voir les logs (Explore)
+1. Aller dans **Explore** (icône boussole à gauche)
+2. Sélectionner **Loki** comme datasource
+3. Utiliser le **Label browser** ou écrire une requête LogQL
+
+#### Requêtes LogQL utiles
+
+```logql
+# Tous les logs
+{container=~".+"}
+
+# Logs du frontend
+{container="helpdigischool-frontend-dev"}
+
+# Logs par niveau (error, warn, info)
+{container=~".+"} |= "error"
+{container=~".+"} |= "warn"
+
+# Logs Loki
+{service="loki"}
+
+# Logs Grafana
+{service="grafana"}
+
+# Recherche de texte
+{container=~".+"} |~ "(?i)error|exception|failed"
+
+# Logs des 5 dernières minutes avec comptage
+count_over_time({container=~".+"}[5m])
+```
+
+#### Créer un Dashboard
+
+1. Aller dans **Dashboards** → **New** → **New Dashboard**
+2. Ajouter un panneau **Logs**
+3. Datasource: **Loki**
+4. Query: `{container="helpdigischool-frontend-dev"}`
+5. Sauvegarder
 
 ### Logs collectés
 
-Promtail collecte automatiquement:
-- Logs PM2 (`logs/pm2/*.log`)
-- Logs Docker containers
+Promtail collecte automatiquement :
 
-### Dashboards pré-configurés
+| Source | Labels | Description |
+|--------|--------|-------------|
+| Docker containers | `container`, `service` | Tous les containers avec label `service` |
+| PM2 logs | `job=helpdigischool` | Logs stdout/stderr de l'app Next.js |
+| System logs | `job=system` | Syslog (optionnel) |
 
-- **Help Digi School - Logs**: Dashboard principal pour les logs applicatifs
-- Filtrage par niveau (info, warn, error)
-- Recherche full-text
+### Rétention des logs
+
+- **Durée** : 30 jours (configurable dans `loki-config.yml`)
+- **Compaction** : Toutes les 10 minutes
 
 ---
 

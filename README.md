@@ -476,11 +476,12 @@ providers:
 
 ### Stack complète
 
-| Service | Port | URL | Credentials |
-|---------|------|-----|-------------|
-| Grafana | 3001 | http://localhost:3001 | admin / admin |
-| Loki | 3100 | http://localhost:3100 | - |
-| Node Exporter | 9100 | http://localhost:9100 | - |
+| Service | Version | Port | URL | Credentials |
+|---------|---------|------|-----|-------------|
+| Grafana | 10.2.0 | 3001 | http://localhost:3001 | admin / admin |
+| Loki | 3.3.2 | 3100 | http://localhost:3100 | - |
+| Promtail | 3.3.2 | - | - | - |
+| Node Exporter | 1.6.1 | 9100 | http://localhost:9100 | - |
 
 ### Démarrage
 
@@ -488,16 +489,44 @@ providers:
 # Démarrer le monitoring
 make monitoring-up
 
-# Ou manuellement
-cd infrastructure/monitoring
-docker compose up -d
+# Démarrer toute l'infrastructure (Traefik + Monitoring)
+make infra-up
 ```
 
-### Dashboards Grafana
+### Utilisation de Grafana
 
-- **Application Logs** - Logs de l'application
-- **Performance** - Métriques de performance
-- **Error Tracking** - Suivi des erreurs
+1. Ouvrir http://localhost:3001
+2. Login: `admin` / `admin`
+3. Aller dans **Explore** → Sélectionner **Loki**
+4. Utiliser les requêtes LogQL ci-dessous
+
+### Requêtes LogQL utiles
+
+```logql
+# Tous les logs
+{container=~".+"}
+
+# Logs du frontend
+{container="helpdigischool-frontend-dev"}
+
+# Recherche d'erreurs
+{container=~".+"} |= "error"
+
+# Logs par service
+{service="loki"}
+{service="grafana"}
+```
+
+### Logs collectés
+
+Promtail collecte automatiquement :
+- **Docker containers** : Tous les containers avec label `service`
+- **PM2 logs** : Logs stdout/stderr de l'app Next.js
+
+### Rétention
+
+- **Durée** : 30 jours
+- **Compaction** : Toutes les 10 minutes
 
 ---
 
