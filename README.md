@@ -28,6 +28,7 @@
 - [Environnements](#-environnements)
 - [Infrastructure](#-infrastructure)
 - [Monitoring](#-monitoring)
+- [PM2 (Process Manager)](#-pm2-process-manager)
 - [API Routes](#-api-routes)
 - [Authentification](#-authentification)
 - [Déploiement](#-déploiement)
@@ -264,7 +265,7 @@ helpdigischool/
 ├── .env.production.example
 ├── .gitlab-ci.yml                   # Pipeline CI/CD
 ├── Makefile                         # Commandes DevOps
-├── ecosystem.config.js              # Config PM2
+├── ecosystem.config.cjs             # Config PM2 (CommonJS)
 ├── next.config.js
 ├── tailwind.config.ts
 ├── tsconfig.json
@@ -282,7 +283,7 @@ helpdigischool/
 | **tsconfig.json** | Configure TypeScript : chemins d'import (`@/`), options de compilation, fichiers à inclure |
 | **eslint.config.js** | Configure ESLint : règles de linting, plugins (React, TypeScript), fichiers à ignorer |
 | **postcss.config.js** | Configure PostCSS : TailwindCSS et Autoprefixer pour la compatibilité navigateurs |
-| **ecosystem.config.js** | Configure PM2 : nom de l'app, mode cluster, variables d'environnement, logs |
+| **ecosystem.config.cjs** | Configure PM2 : nom de l'app, mode cluster, variables d'environnement, logs (CommonJS car PM2 ne supporte pas ES modules) |
 | **vercel.json** | Configure Vercel : redirections, headers de sécurité, régions de déploiement |
 | **.lintstagedrc.mjs** | Configure lint-staged : quels fichiers linter avant chaque commit |
 | **.gitignore** | Liste les fichiers à ignorer par Git (node_modules, .env.local, .next) |
@@ -566,6 +567,218 @@ Promtail collecte automatiquement :
 
 ---
 
+## 🔄 PM2 (Process Manager)
+
+### Qu'est-ce que PM2 ?
+
+**PM2** (Process Manager 2) est un gestionnaire de processus pour applications Node.js en production. Il permet de :
+
+- **Garder l'application en vie** : Redémarre automatiquement en cas de crash
+- **Load balancing** : Distribue la charge sur plusieurs CPU (mode cluster)
+- **Zero-downtime reload** : Mise à jour sans interruption de service
+- **Gestion des logs** : Centralise stdout/stderr avec rotation automatique
+- **Monitoring** : CPU, mémoire, restarts en temps réel
+- **Startup scripts** : Démarre automatiquement au boot du serveur
+
+### Pourquoi utiliser PM2 ?
+
+| Cas d'usage | Solution |
+|-------------|----------|
+| **Développement local** | `npm run dev` (hot reload) |
+| **Production sans Docker** | **PM2** (recommandé) |
+| **Production avec Docker** | Docker + Traefik |
+| **Serverless** | Vercel |
+
+PM2 est idéal pour un déploiement sur un VPS ou serveur dédié sans Docker.
+
+### Installation
+
+```bash
+# Installation globale
+npm install -g pm2
+
+# Vérifier l'installation
+pm2 --version
+```
+
+### Configuration
+
+Le fichier `ecosystem.config.cjs` configure PM2 :
+
+```javascript
+// ecosystem.config.cjs
+module.exports = {
+  apps: [{
+    name: 'helpdigischool',           // Nom de l'app
+    script: 'node_modules/next/dist/bin/next',
+    args: 'start',                     // Commande: next start
+    instances: 'max',                  // Utilise tous les CPUs
+    exec_mode: 'cluster',              // Mode cluster
+    autorestart: true,                 // Redémarre si crash
+    max_memory_restart: '1G',          // Redémarre si > 1GB RAM
+    env_production: {
+      NODE_ENV: 'production',
+      PORT: 3000
+    }
+  }]
+};
+```
+
+### Commandes essentielles
+
+```bash
+# ═══════════════════════════════════════════════════════════════
+# DÉMARRAGE
+# ═══════════════════════════════════════════════════════════════
+
+# Prérequis : builder l'application
+npm run build
+
+# Démarrer avec PM2 (développement)
+pm2 start ecosystem.config.cjs
+
+# Démarrer en mode production
+pm2 start ecosystem.config.cjs --env production
+
+# ═══════════════════════════════════════════════════════════════
+# GESTION DES PROCESSUS
+# ═══════════════════════════════════════════════════════════════
+
+# Voir le statut
+pm2 status
+
+# Arrêter l'application
+pm2 stop helpdigischool
+
+# Redémarrer
+pm2 restart helpdigischool
+
+# Recharger sans downtime (zero-downtime reload)
+pm2 reload helpdigischool
+
+# Supprimer du gestionnaire PM2
+pm2 delete helpdigischool
+
+# Arrêter tous les processus
+pm2 stop all
+
+# ═══════════════════════════════════════════════════════════════
+# LOGS
+# ═══════════════════════════════════════════════════════════════
+
+# Voir les logs en temps réel
+pm2 logs helpdigischool
+
+# Voir les 100 dernières lignes
+pm2 logs helpdigischool --lines 100
+
+# Vider les logs
+pm2 flush
+
+# ═══════════════════════════════════════════════════════════════
+# MONITORING
+# ═══════════════════════════════════════════════════════════════
+
+# Dashboard interactif (CPU, RAM, etc.)
+pm2 monit
+
+# Infos détaillées
+pm2 show helpdigischool
+
+# Métriques JSON
+pm2 jlist
+
+# ═══════════════════════════════════════════════════════════════
+# DÉMARRAGE AUTOMATIQUE
+# ═══════════════════════════════════════════════════════════════
+
+# Sauvegarder la liste des processus actifs
+pm2 save
+
+# Générer le script de démarrage automatique
+pm2 startup
+
+# Suivre les instructions affichées (sudo ...)
+```
+
+### Workflow de déploiement avec PM2
+
+```bash
+# 1. Build de l'application
+npm run build
+
+# 2. Démarrer avec PM2
+pm2 start ecosystem.config.cjs --env production
+
+# 3. Vérifier que tout fonctionne
+pm2 status
+curl http://localhost:3000
+
+# 4. Sauvegarder pour le redémarrage automatique
+pm2 save
+pm2 startup
+```
+
+### Mise à jour de l'application (Zero-downtime)
+
+```bash
+# 1. Récupérer les changements
+git pull origin main
+
+# 2. Installer les dépendances (si changées)
+npm install --legacy-peer-deps
+
+# 3. Rebuilder
+npm run build
+
+# 4. Recharger sans interruption
+pm2 reload helpdigischool
+```
+
+### Logs PM2
+
+Les logs sont stockés dans `./logs/pm2/` :
+
+| Fichier | Contenu |
+|---------|---------|
+| `out.log` | Sortie standard (console.log) |
+| `error.log` | Erreurs (console.error, exceptions) |
+
+### Dépannage PM2
+
+```bash
+# L'app crash en boucle ?
+pm2 logs helpdigischool --err --lines 50
+
+# Port 3000 déjà utilisé ?
+lsof -i :3000
+# Tuer le processus
+kill -9 <PID>
+
+# Problème de mémoire ?
+pm2 show helpdigischool
+# Vérifier "heap size" et "memory"
+
+# Reset complet
+pm2 delete all
+pm2 start ecosystem.config.cjs --env production
+```
+
+### PM2 vs Docker
+
+| Critère | PM2 | Docker |
+|---------|-----|--------|
+| **Complexité** | Simple | Plus complexe |
+| **Isolation** | Processus Node.js | Container complet |
+| **Ressources** | Léger | Plus lourd |
+| **Portabilité** | Dépend du serveur | Identique partout |
+| **Scaling** | Cluster sur 1 serveur | Multi-serveurs |
+| **Cas d'usage** | VPS simple | Production avancée |
+
+**Recommandation** : Utilisez PM2 pour un déploiement simple sur VPS, Docker + Traefik pour une infrastructure plus complexe.
+
+---
+
 ## 🔌 API Routes
 
 ### Endpoints disponibles
@@ -636,11 +849,13 @@ make deploy-prod
 npm run build
 
 # Démarrer avec PM2
-pm2 start ecosystem.config.js
+pm2 start ecosystem.config.cjs --env production
 
 # Monitoring
 pm2 monit
 ```
+
+Voir la [section PM2](#-pm2-process-manager) pour plus de détails.
 
 ---
 
