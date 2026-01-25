@@ -782,15 +782,31 @@ pm2 start ecosystem.config.cjs --env production
 
 ## 🧪 Tests (Vitest)
 
+### Qu'est-ce que Vitest ?
+
+**Vitest** est un framework de test moderne pour JavaScript/TypeScript, conçu pour être rapide et compatible avec Vite. C'est l'alternative recommandée à Jest pour les projets modernes.
+
+### Pourquoi Vitest ?
+
+| Avantage | Description |
+|----------|-------------|
+| **Rapide** | Exécution instantanée grâce au HMR de Vite |
+| **Compatible Jest** | Même API (describe, it, expect) - migration facile |
+| **TypeScript natif** | Pas de configuration supplémentaire |
+| **Interface UI** | Visualisation des tests dans le navigateur |
+| **Watch mode** | Relance automatique des tests modifiés |
+| **Coverage intégré** | Rapport de couverture avec v8 |
+
 ### Stack de tests
 
-| Outil | Version | Description |
-|-------|---------|-------------|
-| **Vitest** | 3.x | Framework de test rapide, compatible Vite, alternative moderne à Jest |
-| **React Testing Library** | 16.x | Teste les composants React du point de vue utilisateur |
-| **jsdom** | 26.x | Simule un environnement DOM pour les tests |
-| **@vitest/coverage-v8** | 3.x | Génère des rapports de couverture de code |
-| **@vitest/ui** | 3.x | Interface graphique pour visualiser les tests |
+| Outil | Version | À quoi ça sert ? |
+|-------|---------|------------------|
+| **Vitest** | 3.x | Framework de test principal - exécute les tests, assertions, mocks |
+| **React Testing Library** | 16.x | Teste les composants React comme un utilisateur (clics, saisie, etc.) |
+| **jsdom** | 26.x | Simule un navigateur (DOM, window, document) pour les tests |
+| **@vitest/coverage-v8** | 3.x | Mesure quelle partie du code est testée (% de couverture) |
+| **@vitest/ui** | 3.x | Interface web pour voir les tests en temps réel |
+| **@testing-library/jest-dom** | 6.x | Matchers personnalisés (toBeInTheDocument, toHaveClass, etc.) |
 
 ### Structure des tests
 
