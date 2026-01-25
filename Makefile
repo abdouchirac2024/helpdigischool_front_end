@@ -6,7 +6,7 @@
 # Variables
 COMPOSE = docker compose
 COMPOSE_BASE = -f docker/compose/docker-compose.yml
-COMPOSE_DEV = $(COMPOSE) $(COMPOSE_BASE) -f docker/compose/docker-compose.dev.yml
+COMPOSE_DEV = $(COMPOSE) --env-file .env.local $(COMPOSE_BASE) -f docker/compose/docker-compose.dev.yml
 COMPOSE_PREPROD = $(COMPOSE) $(COMPOSE_BASE) -f docker/compose/docker-compose.preprod.yml
 COMPOSE_PROD = $(COMPOSE) $(COMPOSE_BASE) -f docker/compose/docker-compose.prod.yml
 IMAGE_NAME = helpdigischool/frontend

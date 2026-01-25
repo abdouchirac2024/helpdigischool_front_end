@@ -1,80 +1,84 @@
+'use client'
+
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Check, Sparkles, Zap, Crown, ArrowRight, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const plans = [
-  {
-    name: "1 An Offert",
-    description: "1 an complet offert, upgrade PRO ensuite (35 000 FCFA/mois)",
-    price: "0",
-    period: " FCFA",
-    priceSubtext: "1ère année offerte",
-    badge: "Offre spéciale",
-    features: [
-      "Étudiants illimités",
-      "Classes illimitées",
-      "Utilisateurs illimités",
-      "Matières illimitées",
-      "Import/Export Excel complet",
-      "Tableau de bord simple",
-      "Gestion complète des paiements",
-      "Gestion des notes",
-      "Support email (72h)",
-    ],
-    limitations: [
-      "Pas de notifications SMS",
-      "Pas d'intégration paiement",
-    ],
-    cta: "Profiter de l'offre",
-    variant: "outline" as const,
-    popular: false,
-  },
-  {
-    name: "Pro",
-    description: "Pour les écoles en croissance",
-    price: "35,000",
-    period: " FCFA/mois",
-    badge: "Plus populaire",
-    features: [
-      "Élèves illimités",
-      "Classes illimitées",
-      "Bulletins PDF illimités",
-      "5 comptes utilisateurs",
-      "Notifications push PWA",
-      "Tableaux de bord avancés",
-      "Export Excel/CSV",
-      "Support prioritaire",
-    ],
-    limitations: [],
-    cta: "Choisir Pro",
-    variant: "hero" as const,
-    popular: true,
-  },
-  {
-    name: "Premium",
-    description: "Solution complète enterprise",
-    price: "75,000",
-    period: " FCFA/mois",
-    badge: "Tout inclus",
-    features: [
-      "Tout du plan Pro",
-      "Utilisateurs illimités",
-      "SMS illimités (MTN/Orange)",
-      "Intégration Mobile Money",
-      "Sous-domaine personnalisé",
-      "API accès",
-      "Formation sur site",
-      "Account manager dédié",
-    ],
-    limitations: [],
-    cta: "Contacter les ventes",
-    variant: "secondary" as const,
-    popular: false,
-  },
-];
+import { useLanguage, t } from "@/lib/i18n";
 
 export function PricingSection() {
+  const { language } = useLanguage();
+
+  const plans = [
+    {
+      name: t('pricing.plan1.name', language),
+      description: t('pricing.plan1.description', language),
+      price: "0",
+      period: " FCFA",
+      priceSubtext: t('pricing.plan1.priceSubtext', language),
+      badge: t('pricing.plan1.badge', language),
+      features: [
+        t('pricing.plan1.features.students', language),
+        t('pricing.plan1.features.classes', language),
+        t('pricing.plan1.features.users', language),
+        t('pricing.plan1.features.subjects', language),
+        t('pricing.plan1.features.excel', language),
+        t('pricing.plan1.features.dashboard', language),
+        t('pricing.plan1.features.payments', language),
+        t('pricing.plan1.features.grades', language),
+        t('pricing.plan1.features.support', language),
+      ],
+      limitations: [
+        t('pricing.plan1.limitations.sms', language),
+        t('pricing.plan1.limitations.integration', language),
+      ],
+      cta: t('pricing.plan1.cta', language),
+      variant: "outline" as const,
+      popular: false,
+    },
+    {
+      name: t('pricing.plan2.name', language),
+      description: t('pricing.plan2.description', language),
+      price: "35,000",
+      period: " FCFA/" + (language === 'fr' ? 'mois' : 'month'),
+      badge: t('pricing.plan2.badge', language),
+      features: [
+        t('pricing.plan2.features.students', language),
+        t('pricing.plan2.features.classes', language),
+        t('pricing.plan2.features.bulletins', language),
+        t('pricing.plan2.features.users', language),
+        t('pricing.plan2.features.notifications', language),
+        t('pricing.plan2.features.dashboards', language),
+        t('pricing.plan2.features.export', language),
+        t('pricing.plan2.features.support', language),
+      ],
+      limitations: [],
+      cta: t('pricing.plan2.cta', language),
+      variant: "hero" as const,
+      popular: true,
+    },
+    {
+      name: t('pricing.plan3.name', language),
+      description: t('pricing.plan3.description', language),
+      price: "75,000",
+      period: " FCFA/" + (language === 'fr' ? 'mois' : 'month'),
+      badge: t('pricing.plan3.badge', language),
+      features: [
+        t('pricing.plan3.features.allPro', language),
+        t('pricing.plan3.features.users', language),
+        t('pricing.plan3.features.sms', language),
+        t('pricing.plan3.features.mobileMoney', language),
+        t('pricing.plan3.features.subdomain', language),
+        t('pricing.plan3.features.api', language),
+        t('pricing.plan3.features.training', language),
+        t('pricing.plan3.features.manager', language),
+      ],
+      limitations: [],
+      cta: t('pricing.plan3.cta', language),
+      variant: "secondary" as const,
+      popular: false,
+    },
+  ];
   return (
     <section id="pricing" className="py-20 lg:py-32 bg-muted/30 relative overflow-hidden">
       {/* Background */}
@@ -85,14 +89,14 @@ export function PricingSection() {
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/20 text-accent-foreground text-sm font-medium mb-6">
             <Sparkles className="w-4 h-4" />
-            Tarifs transparents
+            {t('pricing.badge', language)}
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
-            Des prix adaptés à{" "}
-            <span className="gradient-text">chaque école</span>
+            {t('pricing.title', language)}{" "}
+            <span className="gradient-text">{t('pricing.titleHighlight', language)}</span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            Pas de frais cachés, pas d'engagement. <strong className="text-primary">1ère année offerte</strong> pour toutes les nouvelles écoles!
+            {t('pricing.subtitle', language)} <strong className="text-primary">{t('pricing.subtitleHighlight', language)}</strong> {t('pricing.subtitleEnd', language)}
           </p>
         </div>
 
