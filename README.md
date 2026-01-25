@@ -318,6 +318,7 @@ helpdigischool/
 | **TailwindCSS** | 3.4.x | Framework CSS utility-first pour styliser rapidement sans écrire de CSS personnalisé |
 | **Radix UI** | Latest | Composants UI accessibles (modals, dropdowns, etc.) sans style par défaut, personnalisables |
 | **shadcn/ui** | Latest | Collection de composants React basés sur Radix UI, pré-stylisés avec TailwindCSS |
+| **Axios** | 1.x | Client HTTP avec intercepteurs, retry automatique, et gestion centralisée des erreurs |
 | **React Query** | 5.x | Gère les requêtes API, le cache, la synchronisation et les états de chargement automatiquement |
 | **React Hook Form** | 7.x | Gère les formulaires avec validation, sans re-render inutiles, performant |
 | **Zod** | 3.x | Valide les données (formulaires, API) avec des schémas TypeScript-first |
@@ -978,39 +979,51 @@ Après `make test-coverage`, le rapport est généré dans `./coverage/` :
 
 ### Client API (`src/lib/api/client.ts`)
 
-Le projet utilise un **client HTTP personnalisé** basé sur Fetch API avec des fonctionnalités avancées.
+Le projet utilise **Axios** comme client HTTP avec des intercepteurs pour gérer automatiquement l'authentification et les erreurs.
+
+#### Pourquoi Axios ?
+
+| Avantage | Description |
+|----------|-------------|
+| **Intercepteurs natifs** | Request et Response interceptors intégrés |
+| **Transformation automatique** | JSON parsing/stringify automatique |
+| **Annulation des requêtes** | Support natif d'AbortController |
+| **Configuration globale** | Instance Axios partagée avec baseURL et headers |
+| **Meilleure gestion erreurs** | Différencie erreurs réseau vs HTTP |
 
 #### Fonctionnalités
 
 | Fonctionnalité | Description |
 |----------------|-------------|
-| **Injection automatique du token** | Ajoute `Authorization: Bearer <token>` à chaque requête |
-| **Retry automatique** | Retente les requêtes en cas d'erreur réseau ou serveur |
+| **Injection automatique du token** | Intercepteur request ajoute `Authorization: Bearer <token>` |
+| **Retry automatique** | Intercepteur response retente sur erreurs récupérables |
 | **Backoff exponentiel** | Délai croissant entre les retries (1s, 2s, 4s...) |
 | **Timeout configurable** | 30 secondes par défaut |
 | **Gestion des erreurs** | Toast notifications + redirection sur 401 |
 | **Upload/Download** | Support des fichiers (FormData, Blob) |
 
-#### Architecture des intercepteurs
+#### Architecture des intercepteurs Axios
 
 ```
 FLUX DE REQUÊTE:
 ┌─────────────────────────────────────────────────────────────┐
 │  1. Appel API (get, post, put, patch, delete)               │
 │                     ↓                                        │
-│  2. Intercepteur Headers                                    │
-│     → Ajoute Content-Type: application/json                 │
-│     → Ajoute Authorization: Bearer <token>                  │
+│  2. INTERCEPTEUR REQUEST (axios.interceptors.request)       │
+│     → Injecte Authorization: Bearer <token>                 │
 │                     ↓                                        │
-│  3. fetchWithRetry (jusqu'à 3 tentatives)                   │
-│     → Retry sur erreurs réseau                              │
-│     → Retry sur 429, 500, 502, 503, 504                     │
-│     → Backoff: 1s → 2s → 4s (+ jitter ±25%)                │
+│  3. Instance Axios (baseURL + timeout + headers)            │
 │                     ↓                                        │
-│  4. Intercepteur Erreurs                                    │
-│     → Parse la réponse JSON                                 │
-│     → Affiche toast notification                            │
-│     → 401: déconnexion + redirection /login                 │
+│  4. INTERCEPTEUR RESPONSE (axios.interceptors.response)     │
+│     ├─ Succès: retourne response.data                       │
+│     └─ Erreur:                                              │
+│        ├─ Retry automatique (jusqu'à 3 tentatives)          │
+│        │  → Retry sur erreurs réseau                        │
+│        │  → Retry sur 429, 500, 502, 503, 504               │
+│        │  → Backoff: 1s → 2s → 4s (+ jitter ±25%)          │
+│        ├─ Parse l'erreur API                                │
+│        ├─ Affiche toast notification                        │
+│        └─ 401: déconnexion + redirection /login             │
 │                     ↓                                        │
 │  5. Retourne les données JSON                               │
 └─────────────────────────────────────────────────────────────┘

@@ -1,16 +1,23 @@
 /**
- * Client HTTP pour les appels API
+ * Client HTTP pour les appels API avec Axios
  * Help Digi School - Frontend Next.js
  *
  * Fonctionnalités:
- * - Injection automatique du token Authorization
- * - Retry automatique avec backoff exponentiel
+ * - Injection automatique du token Authorization (intercepteur request)
+ * - Retry automatique avec backoff exponentiel (intercepteur response)
  * - Gestion des erreurs avec toast notifications
  * - Timeout configurable
  * - Auto-déconnexion sur 401
  */
 
-import { API_CONFIG, buildUrl } from './config'
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from 'axios'
+import { API_BASE_URL, API_CONFIG } from './config'
 import { toast } from 'sonner'
 
 // Types pour les réponses API
@@ -41,6 +48,9 @@ export interface PaginatedResponse<T> {
 const TOKEN_KEY = 'auth_token'
 const REFRESH_TOKEN_KEY = 'refresh_token'
 
+// Clé pour le compteur de retry (stocké dans la config de la requête)
+const RETRY_COUNT_KEY = '__retryCount'
+
 /**
  * Récupère le token d'authentification
  */
@@ -69,36 +79,18 @@ export function removeAuthToken(): void {
 }
 
 /**
- * Crée les headers par défaut
- */
-function createHeaders(customHeaders?: HeadersInit): Headers {
-  const headers = new Headers({
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
-    ...customHeaders,
-  })
-
-  const token = getAuthToken()
-  if (token) {
-    headers.set('Authorization', `Bearer ${token}`)
-  }
-
-  return headers
-}
-
-/**
  * Vérifie si une erreur est récupérable (retry possible)
- * - Erreurs réseau (fetch échoue)
+ * - Erreurs réseau (pas de réponse)
  * - Erreurs serveur 5xx
  * - Rate limiting 429
  */
-function isRetryableError(error: unknown, response?: Response): boolean {
+function isRetryableError(error: AxiosError): boolean {
   // Erreur réseau (pas de réponse)
-  if (!response) return true
+  if (!error.response) return true
 
   // Erreurs serveur (5xx) ou rate limiting (429)
   const retryableStatuses = [429, 500, 502, 503, 504]
-  return retryableStatuses.includes(response.status)
+  return retryableStatuses.includes(error.response.status)
 }
 
 /**
@@ -121,202 +113,136 @@ function sleep(ms: number): Promise<void> {
 }
 
 /**
- * Fetch avec retry automatique
- * Retente la requête en cas d'erreur réseau ou serveur (5xx)
+ * Création de l'instance Axios avec configuration de base
  */
-async function fetchWithRetry(
-  url: string,
-  options: RequestInit,
-  maxRetries: number = API_CONFIG.retries
-): Promise<Response> {
-  let lastError: Error | null = null
-  let lastResponse: Response | null = null
-
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      const response = await fetch(url, {
-        ...options,
-        signal: AbortSignal.timeout(API_CONFIG.timeout),
-      })
-
-      // Si succès ou erreur client (4xx sauf 429), retourner directement
-      if (
-        response.ok ||
-        (response.status >= 400 && response.status < 500 && response.status !== 429)
-      ) {
-        return response
-      }
-
-      // Erreur récupérable, préparer retry
-      lastResponse = response
-
-      if (attempt < maxRetries && isRetryableError(null, response)) {
-        const delay = calculateRetryDelay(attempt)
-        console.warn(
-          `[API] Requête échouée (${response.status}), retry ${attempt + 1}/${maxRetries} dans ${Math.round(delay)}ms...`
-        )
-        await sleep(delay)
-        continue
-      }
-
-      return response
-    } catch (error) {
-      lastError = error as Error
-
-      // Si c'est un timeout ou abort, ne pas retenter
-      if (error instanceof DOMException && error.name === 'AbortError') {
-        throw error
-      }
-
-      // Erreur réseau, préparer retry
-      if (attempt < maxRetries) {
-        const delay = calculateRetryDelay(attempt)
-        console.warn(
-          `[API] Erreur réseau, retry ${attempt + 1}/${maxRetries} dans ${Math.round(delay)}ms...`,
-          error
-        )
-        await sleep(delay)
-        continue
-      }
-    }
-  }
-
-  // Toutes les tentatives ont échoué
-  if (lastResponse) {
-    return lastResponse
-  }
-
-  throw lastError || new Error('Échec de la requête après plusieurs tentatives')
-}
+const axiosInstance: AxiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: API_CONFIG.timeout,
+  headers: {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  },
+})
 
 /**
- * Gère les erreurs de réponse
+ * Intercepteur de requête - Injection du token Authorization
  */
-async function handleResponseError(response: Response): Promise<never> {
-  let errorData: ApiError
-
-  try {
-    const data = await response.json()
-    errorData = {
-      message: data.message || 'Une erreur est survenue',
-      code: data.code,
-      status: response.status,
-      errors: data.errors,
+axiosInstance.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    const token = getAuthToken()
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
     }
-  } catch {
-    errorData = {
-      message: response.statusText || 'Une erreur est survenue',
-      status: response.status,
-    }
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
   }
-
-  // Notification utilisateur
-  if (response.status !== 401) {
-    toast.error(errorData.message)
-  }
-
-  // Redirection vers login si non autorisé
-  if (response.status === 401) {
-    removeAuthToken()
-    if (typeof window !== 'undefined') {
-      window.location.href = '/login'
-    }
-  }
-
-  throw errorData
-}
+)
 
 /**
- * Client API principal
- * Toutes les méthodes utilisent fetchWithRetry pour la résilience
+ * Intercepteur de réponse - Gestion des erreurs et retry automatique
+ */
+axiosInstance.interceptors.response.use(
+  (response: AxiosResponse) => {
+    return response
+  },
+  async (error: AxiosError) => {
+    const config = error.config as InternalAxiosRequestConfig & { [RETRY_COUNT_KEY]?: number }
+
+    if (!config) {
+      return Promise.reject(error)
+    }
+
+    // Initialiser le compteur de retry
+    config[RETRY_COUNT_KEY] = config[RETRY_COUNT_KEY] ?? 0
+
+    // Vérifier si on peut retenter
+    if (isRetryableError(error) && config[RETRY_COUNT_KEY] < API_CONFIG.retries) {
+      config[RETRY_COUNT_KEY] += 1
+
+      const delay = calculateRetryDelay(config[RETRY_COUNT_KEY] - 1)
+      console.warn(
+        `[API] Requête échouée (${error.response?.status || 'Network Error'}), retry ${config[RETRY_COUNT_KEY]}/${API_CONFIG.retries} dans ${Math.round(delay)}ms...`
+      )
+
+      await sleep(delay)
+      return axiosInstance(config)
+    }
+
+    // Gestion des erreurs finales
+    const status = error.response?.status || 0
+    const responseData = error.response?.data as
+      | { message?: string; code?: string; errors?: Record<string, string[]> }
+      | undefined
+
+    const apiError: ApiError = {
+      message: responseData?.message || error.message || 'Une erreur est survenue',
+      code: responseData?.code,
+      status,
+      errors: responseData?.errors,
+    }
+
+    // Notification utilisateur (sauf pour 401)
+    if (status !== 401) {
+      toast.error(apiError.message)
+    }
+
+    // Redirection vers login si non autorisé
+    if (status === 401) {
+      removeAuthToken()
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login'
+      }
+    }
+
+    return Promise.reject(apiError)
+  }
+)
+
+/**
+ * Client API principal utilisant Axios
+ * Interface identique à l'ancienne implémentation pour compatibilité
  */
 export const apiClient = {
   /**
    * GET request avec retry automatique
    */
-  async get<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    const response = await fetchWithRetry(buildUrl(endpoint), {
-      method: 'GET',
-      headers: createHeaders(options?.headers),
-      ...options,
-    })
-
-    if (!response.ok) {
-      await handleResponseError(response)
-    }
-
-    return response.json()
+  async get<T>(endpoint: string, options?: AxiosRequestConfig): Promise<T> {
+    const response = await axiosInstance.get<T>(endpoint, options)
+    return response.data
   },
 
   /**
    * POST request avec retry automatique
    */
-  async post<T>(endpoint: string, data?: unknown, options?: RequestInit): Promise<T> {
-    const response = await fetchWithRetry(buildUrl(endpoint), {
-      method: 'POST',
-      headers: createHeaders(options?.headers),
-      body: data ? JSON.stringify(data) : undefined,
-      ...options,
-    })
-
-    if (!response.ok) {
-      await handleResponseError(response)
-    }
-
-    return response.json()
+  async post<T>(endpoint: string, data?: unknown, options?: AxiosRequestConfig): Promise<T> {
+    const response = await axiosInstance.post<T>(endpoint, data, options)
+    return response.data
   },
 
   /**
    * PUT request avec retry automatique
    */
-  async put<T>(endpoint: string, data?: unknown, options?: RequestInit): Promise<T> {
-    const response = await fetchWithRetry(buildUrl(endpoint), {
-      method: 'PUT',
-      headers: createHeaders(options?.headers),
-      body: data ? JSON.stringify(data) : undefined,
-      ...options,
-    })
-
-    if (!response.ok) {
-      await handleResponseError(response)
-    }
-
-    return response.json()
+  async put<T>(endpoint: string, data?: unknown, options?: AxiosRequestConfig): Promise<T> {
+    const response = await axiosInstance.put<T>(endpoint, data, options)
+    return response.data
   },
 
   /**
    * PATCH request avec retry automatique
    */
-  async patch<T>(endpoint: string, data?: unknown, options?: RequestInit): Promise<T> {
-    const response = await fetchWithRetry(buildUrl(endpoint), {
-      method: 'PATCH',
-      headers: createHeaders(options?.headers),
-      body: data ? JSON.stringify(data) : undefined,
-      ...options,
-    })
-
-    if (!response.ok) {
-      await handleResponseError(response)
-    }
-
-    return response.json()
+  async patch<T>(endpoint: string, data?: unknown, options?: AxiosRequestConfig): Promise<T> {
+    const response = await axiosInstance.patch<T>(endpoint, data, options)
+    return response.data
   },
 
   /**
    * DELETE request avec retry automatique
    */
-  async delete<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    const response = await fetchWithRetry(buildUrl(endpoint), {
-      method: 'DELETE',
-      headers: createHeaders(options?.headers),
-      ...options,
-    })
-
-    if (!response.ok) {
-      await handleResponseError(response)
-    }
-
-    return response.json()
+  async delete<T>(endpoint: string, options?: AxiosRequestConfig): Promise<T> {
+    const response = await axiosInstance.delete<T>(endpoint, options)
+    return response.data
   },
 
   /**
@@ -326,39 +252,23 @@ export const apiClient = {
     const formData = new FormData()
     formData.append(fieldName, file)
 
-    const headers = new Headers()
-    const token = getAuthToken()
-    if (token) {
-      headers.set('Authorization', `Bearer ${token}`)
-    }
-
-    const response = await fetchWithRetry(buildUrl(endpoint), {
-      method: 'POST',
-      headers,
-      body: formData,
+    const response = await axiosInstance.post<T>(endpoint, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     })
-
-    if (!response.ok) {
-      await handleResponseError(response)
-    }
-
-    return response.json()
+    return response.data
   },
 
   /**
    * Téléchargement de fichier avec retry automatique
    */
   async download(endpoint: string, filename: string): Promise<void> {
-    const response = await fetchWithRetry(buildUrl(endpoint), {
-      method: 'GET',
-      headers: createHeaders(),
+    const response = await axiosInstance.get(endpoint, {
+      responseType: 'blob',
     })
 
-    if (!response.ok) {
-      await handleResponseError(response)
-    }
-
-    const blob = await response.blob()
+    const blob = new Blob([response.data])
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
@@ -368,6 +278,11 @@ export const apiClient = {
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
   },
+
+  /**
+   * Accès direct à l'instance Axios pour cas spéciaux
+   */
+  instance: axiosInstance,
 }
 
 export default apiClient
