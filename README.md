@@ -448,11 +448,10 @@ Traefik gère :
 
 ```bash
 # Démarrer Traefik
-cd infrastructure/traefik
-docker compose up -d
+make traefik-up
 
 # Dashboard
-http://traefik.localhost:8080  (dev)
+http://localhost:8083  (dev)
 https://traefik.helpdigischool.com  (prod)
 ```
 

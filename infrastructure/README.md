@@ -193,16 +193,16 @@ make status-all
 | Propriété | Valeur |
 |-----------|--------|
 | **Dossier** | `/infrastructure/traefik/` |
-| **Port HTTP** | 80 |
-| **Port HTTPS** | 443 |
-| **Dashboard** | 8080 |
-| **Image** | `traefik:v3.0` |
+| **Port HTTP** | 8180 |
+| **Port HTTPS** | 8443 |
+| **Dashboard** | 8083 |
+| **Image** | `traefik:v3.2` |
 
 ### URLs Traefik
 
 | Environnement | URL Dashboard |
 |---------------|---------------|
-| Dev | http://traefik.localhost:8080 |
+| Dev | http://localhost:8083 |
 | Preprod | https://traefik.preprod.helpdigischool.com |
 | Prod | https://traefik.helpdigischool.com |
 
@@ -349,7 +349,7 @@ Promtail collecte automatiquement:
 |---------|-----|------|
 | **Frontend Dev** | http://localhost:3000 | 3000 |
 | **Frontend Preprod** | http://localhost:32031 | 32031 |
-| **Traefik Dashboard** | http://localhost:8080 | 8080 |
+| **Traefik Dashboard** | http://localhost:8083 | 8083 |
 | **Grafana** | http://localhost:3001 | 3001 |
 | **Loki** | http://localhost:3100 | 3100 |
 | **Node Exporter** | http://localhost:9100 | 9100 |
@@ -364,8 +364,8 @@ Ajouter dans `/etc/hosts` :
 
 | Service | URL |
 |---------|-----|
-| **Frontend** | http://helpdigischool.localhost |
-| **Traefik** | http://traefik.localhost:8080 |
+| **Frontend** | http://helpdigischool.localhost:8180 |
+| **Traefik** | http://localhost:8083 |
 
 ### Production
 
