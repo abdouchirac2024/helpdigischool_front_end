@@ -1,5 +1,3 @@
-version: '3.8'
-
 # =============================================================================
 # Help Digi School - Monitoring Stack
 # Loki + Grafana + Promtail
@@ -21,7 +19,7 @@ services:
   # LOKI - Log Aggregation System
   # ===========================================================================
   loki:
-    image: grafana/loki:2.9.0
+    image: grafana/loki:3.3.2
     container_name: helpdigischool-loki
     ports:
       - "3100:3100"
@@ -45,7 +43,7 @@ services:
   # PROMTAIL - Log Collector
   # ===========================================================================
   promtail:
-    image: grafana/promtail:2.9.0
+    image: grafana/promtail:3.3.2
     container_name: helpdigischool-promtail
     volumes:
       - ./promtail/promtail-config.yml:/etc/promtail/config.yml:ro
