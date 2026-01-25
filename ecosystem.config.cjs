@@ -3,12 +3,12 @@
  * Help Digi School - Frontend Next.js
  *
  * Usage:
- *   pm2 start ecosystem.config.js
- *   pm2 start ecosystem.config.js --env production
- *   pm2 start ecosystem.config.js --env preprod
+ *   pm2 start ecosystem.config.cjs
+ *   pm2 start ecosystem.config.cjs --env production
+ *   pm2 start ecosystem.config.cjs --env preprod
  */
 
-export default {
+module.exports = {
   apps: [
     {
       // Application name
