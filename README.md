@@ -29,6 +29,7 @@
 - [Infrastructure](#-infrastructure)
 - [Monitoring](#-monitoring)
 - [PM2 (Process Manager)](#-pm2-process-manager)
+- [Tests (Vitest)](#-tests-vitest)
 - [API Routes](#-api-routes)
 - [Authentification](#-authentification)
 - [Déploiement](#-déploiement)
@@ -776,6 +777,169 @@ pm2 start ecosystem.config.cjs --env production
 | **Cas d'usage** | VPS simple | Production avancée |
 
 **Recommandation** : Utilisez PM2 pour un déploiement simple sur VPS, Docker + Traefik pour une infrastructure plus complexe.
+
+---
+
+## 🧪 Tests (Vitest)
+
+### Stack de tests
+
+| Outil | Version | Description |
+|-------|---------|-------------|
+| **Vitest** | 3.x | Framework de test rapide, compatible Vite, alternative moderne à Jest |
+| **React Testing Library** | 16.x | Teste les composants React du point de vue utilisateur |
+| **jsdom** | 26.x | Simule un environnement DOM pour les tests |
+| **@vitest/coverage-v8** | 3.x | Génère des rapports de couverture de code |
+| **@vitest/ui** | 3.x | Interface graphique pour visualiser les tests |
+
+### Structure des tests
+
+```
+src/__tests__/
+├── setup.ts                    # Configuration globale (mocks)
+├── utils/
+│   └── test-utils.tsx          # Render personnalisé avec providers
+├── components/
+│   └── Button.test.tsx         # Tests de composants UI
+└── schemas/
+    └── auth.schema.test.ts     # Tests de validation Zod
+```
+
+### Commandes Make
+
+| Commande | Description |
+|----------|-------------|
+| `make test` | Lancer les tests en mode watch (développement) |
+| `make test-run` | Lancer les tests une seule fois |
+| `make test-coverage` | Lancer les tests avec rapport de couverture |
+| `make test-ui` | Ouvrir l'interface graphique Vitest |
+
+### Commandes npm
+
+```bash
+# Mode watch (développement)
+npm run test
+
+# Exécuter une fois
+npm run test:run
+
+# Avec couverture
+npm run test:coverage
+
+# Interface graphique
+npm run test:ui
+```
+
+### Écrire un test
+
+#### Test de composant
+
+```typescript
+// src/__tests__/components/MyComponent.test.tsx
+import { describe, it, expect, vi } from 'vitest'
+import { screen, fireEvent } from '@testing-library/react'
+import { render } from '../utils/test-utils'
+import { MyComponent } from '@/components/MyComponent'
+
+describe('MyComponent', () => {
+  it('renders correctly', () => {
+    render(<MyComponent>Hello</MyComponent>)
+    expect(screen.getByText('Hello')).toBeInTheDocument()
+  })
+
+  it('handles click events', () => {
+    const handleClick = vi.fn()
+    render(<MyComponent onClick={handleClick}>Click me</MyComponent>)
+
+    fireEvent.click(screen.getByText('Click me'))
+    expect(handleClick).toHaveBeenCalledTimes(1)
+  })
+})
+```
+
+#### Test de schéma Zod
+
+```typescript
+// src/__tests__/schemas/user.schema.test.ts
+import { describe, it, expect } from 'vitest'
+import { userSchema } from '@/schemas/user.schema'
+
+describe('userSchema', () => {
+  it('validates correct data', () => {
+    const validData = {
+      email: 'test@example.com',
+      name: 'John Doe'
+    }
+
+    const result = userSchema.safeParse(validData)
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects invalid email', () => {
+    const invalidData = {
+      email: 'invalid-email',
+      name: 'John Doe'
+    }
+
+    const result = userSchema.safeParse(invalidData)
+    expect(result.success).toBe(false)
+  })
+})
+```
+
+### Configuration
+
+Le fichier `vitest.config.ts` configure Vitest :
+
+```typescript
+import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
+import path from 'path'
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    environment: 'jsdom',           // Simule le navigateur
+    globals: true,                   // describe, it, expect globaux
+    setupFiles: ['./src/__tests__/setup.ts'],
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+    },
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+})
+```
+
+### Mocks configurés
+
+Le fichier `setup.ts` configure les mocks globaux :
+
+- **Next.js Router** : `useRouter`, `usePathname`, `useSearchParams`
+- **next/image** : Composant Image mockée
+- **localStorage / sessionStorage** : Storage mockés
+- **matchMedia** : Pour les tests de responsive design
+- **ResizeObserver / IntersectionObserver** : Pour les animations et lazy loading
+
+### Bonnes pratiques
+
+1. **Nommer les fichiers** : `*.test.ts` ou `*.test.tsx`
+2. **Placer les tests** : Dans `src/__tests__/` organisés par type
+3. **Utiliser `render`** : Du fichier `test-utils.tsx` (inclut les providers)
+4. **Tester le comportement** : Pas l'implémentation
+5. **Éviter les snapshots** : Préférer les assertions explicites
+
+### Couverture de code
+
+Après `make test-coverage`, le rapport est généré dans `./coverage/` :
+
+- `coverage/index.html` : Rapport HTML interactif
+- `coverage/lcov.info` : Pour intégration CI/CD
 
 ---
 

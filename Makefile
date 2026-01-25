@@ -92,8 +92,13 @@ help:
 	@echo "  $(GREEN)make install$(NC)           $(ARROW) Installer les dépendances"
 	@echo "  $(GREEN)make start$(NC)             $(ARROW) Démarrer en local"
 	@echo "  $(GREEN)make lint$(NC)              $(ARROW) Lancer ESLint"
-	@echo "  $(GREEN)make test$(NC)              $(ARROW) Lancer les tests"
 	@echo "  $(GREEN)make typecheck$(NC)         $(ARROW) Vérification TypeScript"
+	@echo ""
+	@echo "$(MAGENTA)🧪 Tests (Vitest):$(NC)"
+	@echo "  $(GREEN)make test$(NC)              $(ARROW) Lancer les tests (watch mode)"
+	@echo "  $(GREEN)make test-run$(NC)          $(ARROW) Lancer les tests une fois"
+	@echo "  $(GREEN)make test-coverage$(NC)     $(ARROW) Tests avec rapport de couverture"
+	@echo "  $(GREEN)make test-ui$(NC)           $(ARROW) Ouvrir l'interface Vitest UI"
 	@echo ""
 	@echo "$(CYAN)📊 Infrastructure:$(NC)"
 	@echo "  $(GREEN)make infra-up$(NC)          $(ARROW) Démarrer Traefik + Monitoring"
@@ -429,12 +434,21 @@ format:
 	npm run format 2>/dev/null || npx prettier --write "src/**/*.{ts,tsx,js,jsx}"
 
 test:
-	@echo "$(YELLOW)$(ARROW) Running tests...$(NC)"
-	npm run test 2>/dev/null || echo "$(YELLOW)No test script configured$(NC)"
+	@echo "$(YELLOW)$(ARROW) Running tests in watch mode...$(NC)"
+	npm run test
+
+test-run:
+	@echo "$(YELLOW)$(ARROW) Running tests once...$(NC)"
+	npm run test:run
 
 test-coverage:
 	@echo "$(YELLOW)$(ARROW) Running tests with coverage...$(NC)"
-	npm run test:coverage 2>/dev/null || npm run test -- --coverage 2>/dev/null || echo "$(YELLOW)Coverage not configured$(NC)"
+	npm run test:coverage
+	@echo "$(GREEN)$(CHECK) Coverage report generated in ./coverage/$(NC)"
+
+test-ui:
+	@echo "$(YELLOW)$(ARROW) Opening Vitest UI...$(NC)"
+	npm run test:ui
 
 typecheck:
 	@echo "$(YELLOW)$(ARROW) Running TypeScript check...$(NC)"
