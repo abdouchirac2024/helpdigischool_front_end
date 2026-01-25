@@ -14,8 +14,10 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       exclude: [
-        'node_modules/',
-        'src/__tests__/setup.ts',
+        'node_modules/**',
+        '.next/**',
+        'dist/**',
+        'src/__tests__/**',
         '**/*.d.ts',
         '**/*.config.*',
         '**/index.ts',
