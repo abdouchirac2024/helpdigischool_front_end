@@ -271,38 +271,74 @@ helpdigischool/
 └── vercel.json                      # Config Vercel
 ```
 
+### Fichiers de configuration (racine)
+
+| Fichier | À quoi ça sert ? |
+|---------|------------------|
+| **Makefile** | Centralise toutes les commandes DevOps (build, deploy, logs, etc.) en raccourcis simples (`make up-dev`) |
+| **package.json** | Liste les dépendances npm, scripts de build/dev, et métadonnées du projet |
+| **next.config.js** | Configure Next.js : redirections, rewrites, optimisation images, variables d'environnement |
+| **tailwind.config.ts** | Configure TailwindCSS : couleurs personnalisées, breakpoints, plugins |
+| **tsconfig.json** | Configure TypeScript : chemins d'import (`@/`), options de compilation, fichiers à inclure |
+| **eslint.config.js** | Configure ESLint : règles de linting, plugins (React, TypeScript), fichiers à ignorer |
+| **postcss.config.js** | Configure PostCSS : TailwindCSS et Autoprefixer pour la compatibilité navigateurs |
+| **ecosystem.config.js** | Configure PM2 : nom de l'app, mode cluster, variables d'environnement, logs |
+| **vercel.json** | Configure Vercel : redirections, headers de sécurité, régions de déploiement |
+| **.lintstagedrc.mjs** | Configure lint-staged : quels fichiers linter avant chaque commit |
+| **.gitignore** | Liste les fichiers à ignorer par Git (node_modules, .env.local, .next) |
+
+### Dossiers principaux
+
+| Dossier | À quoi ça sert ? |
+|---------|------------------|
+| **src/app/** | Pages et routes de l'application (Next.js App Router). Chaque dossier = une route |
+| **src/components/** | Composants React réutilisables (UI, dashboard, landing, layout) |
+| **src/lib/** | Utilitaires partagés : client API, contexte auth, fonctions i18n |
+| **src/types/** | Types TypeScript pour typer les données (User, Student, Grade, etc.) |
+| **src/schemas/** | Schémas Zod pour valider les formulaires et données API |
+| **src/constants/** | Constantes : rôles utilisateur, statuts, configurations fixes |
+| **docker/** | Dockerfiles et docker-compose pour conteneuriser l'application |
+| **infrastructure/** | Configuration Traefik (reverse proxy) et Monitoring (Grafana/Loki) |
+| **logs/** | Stockage des logs PM2 (stdout, stderr) pour le debugging |
+| **.husky/** | Hooks Git : scripts exécutés avant commit (lint, format) |
+
 ---
 
 ## 🛠 Technologies
 
 ### Frontend
 
-| Technologie | Version | Description |
-|-------------|---------|-------------|
-| Next.js | 16.x | Framework React avec App Router |
-| React | 19.x | Bibliothèque UI |
-| TypeScript | 5.x | Typage statique |
-| TailwindCSS | 3.4.x | Framework CSS utility-first |
-| Radix UI | Latest | Composants accessibles |
-| React Query | 5.x | Gestion du state serveur |
-| React Hook Form | 7.x | Gestion des formulaires |
-| Zod | 3.x | Validation de schémas |
-| Recharts | 2.x | Graphiques |
-| Lucide React | Latest | Icônes |
+| Technologie | Version | À quoi ça sert ? |
+|-------------|---------|------------------|
+| **Next.js** | 16.x | Framework React full-stack. Gère le routing, le SSR (Server-Side Rendering), les API routes, et l'optimisation automatique des performances |
+| **React** | 19.x | Bibliothèque pour créer des interfaces utilisateur avec des composants réutilisables |
+| **TypeScript** | 5.x | Ajoute le typage statique à JavaScript pour détecter les erreurs à la compilation et améliorer l'autocomplétion |
+| **TailwindCSS** | 3.4.x | Framework CSS utility-first pour styliser rapidement sans écrire de CSS personnalisé |
+| **Radix UI** | Latest | Composants UI accessibles (modals, dropdowns, etc.) sans style par défaut, personnalisables |
+| **shadcn/ui** | Latest | Collection de composants React basés sur Radix UI, pré-stylisés avec TailwindCSS |
+| **React Query** | 5.x | Gère les requêtes API, le cache, la synchronisation et les états de chargement automatiquement |
+| **React Hook Form** | 7.x | Gère les formulaires avec validation, sans re-render inutiles, performant |
+| **Zod** | 3.x | Valide les données (formulaires, API) avec des schémas TypeScript-first |
+| **Recharts** | 2.x | Crée des graphiques (barres, lignes, camemberts) pour les dashboards |
+| **Lucide React** | Latest | Bibliothèque d'icônes SVG légères et personnalisables |
 
 ### Infrastructure
 
-| Outil | Usage |
-|-------|-------|
-| Docker | Conteneurisation |
-| Docker Compose | Orchestration |
-| Traefik | Reverse Proxy + SSL |
-| Loki | Agrégation de logs |
-| Grafana | Monitoring & Dashboards |
-| Promtail | Collecte de logs |
-| PM2 | Process Manager |
-| GitLab CI | Pipeline CI/CD |
-| Vercel | Déploiement frontend |
+| Outil | À quoi ça sert ? |
+|-------|------------------|
+| **Docker** | Conteneurise l'application pour qu'elle fonctionne de manière identique partout (dev, prod, CI) |
+| **Docker Compose** | Orchestre plusieurs containers (frontend, monitoring) avec une seule commande |
+| **Traefik** | Reverse proxy qui route le trafic, gère le HTTPS automatique avec Let's Encrypt, et load balance |
+| **Loki** | Stocke et indexe les logs de tous les containers pour les rechercher facilement |
+| **Grafana** | Interface web pour visualiser les logs (Loki) et créer des dashboards de monitoring |
+| **Promtail** | Agent qui collecte les logs des containers Docker et les envoie à Loki |
+| **Node Exporter** | Expose les métriques système (CPU, RAM, disque) pour le monitoring |
+| **PM2** | Process manager Node.js pour garder l'app en vie, gérer les logs et le clustering |
+| **GitLab CI** | Pipeline CI/CD pour automatiser les tests, builds et déploiements |
+| **Vercel** | Plateforme de déploiement optimisée pour Next.js avec CDN global |
+| **Husky** | Exécute des scripts avant les commits Git (lint, tests) pour garantir la qualité du code |
+| **ESLint** | Analyse le code JavaScript/TypeScript pour détecter les erreurs et appliquer des conventions |
+| **Prettier** | Formate automatiquement le code pour un style cohérent dans tout le projet |
 
 ---
 
