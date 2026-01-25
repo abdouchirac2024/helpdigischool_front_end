@@ -976,6 +976,104 @@ Après `make test-coverage`, le rapport est généré dans `./coverage/` :
 | GET | `/api/payments` | Liste des paiements |
 | GET | `/api/health` | Health check |
 
+### Client API (`src/lib/api/client.ts`)
+
+Le projet utilise un **client HTTP personnalisé** basé sur Fetch API avec des fonctionnalités avancées.
+
+#### Fonctionnalités
+
+| Fonctionnalité | Description |
+|----------------|-------------|
+| **Injection automatique du token** | Ajoute `Authorization: Bearer <token>` à chaque requête |
+| **Retry automatique** | Retente les requêtes en cas d'erreur réseau ou serveur |
+| **Backoff exponentiel** | Délai croissant entre les retries (1s, 2s, 4s...) |
+| **Timeout configurable** | 30 secondes par défaut |
+| **Gestion des erreurs** | Toast notifications + redirection sur 401 |
+| **Upload/Download** | Support des fichiers (FormData, Blob) |
+
+#### Architecture des intercepteurs
+
+```
+FLUX DE REQUÊTE:
+┌─────────────────────────────────────────────────────────────┐
+│  1. Appel API (get, post, put, patch, delete)               │
+│                     ↓                                        │
+│  2. Intercepteur Headers                                    │
+│     → Ajoute Content-Type: application/json                 │
+│     → Ajoute Authorization: Bearer <token>                  │
+│                     ↓                                        │
+│  3. fetchWithRetry (jusqu'à 3 tentatives)                   │
+│     → Retry sur erreurs réseau                              │
+│     → Retry sur 429, 500, 502, 503, 504                     │
+│     → Backoff: 1s → 2s → 4s (+ jitter ±25%)                │
+│                     ↓                                        │
+│  4. Intercepteur Erreurs                                    │
+│     → Parse la réponse JSON                                 │
+│     → Affiche toast notification                            │
+│     → 401: déconnexion + redirection /login                 │
+│                     ↓                                        │
+│  5. Retourne les données JSON                               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### Configuration du retry
+
+| Paramètre | Valeur | Description |
+|-----------|--------|-------------|
+| `retries` | 3 | Nombre maximum de tentatives |
+| `retryDelay` | 1000ms | Délai de base entre les retries |
+| `timeout` | 30000ms | Timeout par requête |
+
+#### Codes HTTP avec retry automatique
+
+| Code | Retry | Raison |
+|------|-------|--------|
+| 429 | ✓ | Rate limiting (trop de requêtes) |
+| 500 | ✓ | Internal Server Error |
+| 502 | ✓ | Bad Gateway |
+| 503 | ✓ | Service Unavailable |
+| 504 | ✓ | Gateway Timeout |
+| 4xx | ✗ | Erreurs client (non récupérables) |
+
+#### Utilisation
+
+```typescript
+import { apiClient } from '@/lib/api/client';
+
+// GET
+const users = await apiClient.get<User[]>('/users');
+
+// POST
+const newUser = await apiClient.post<User>('/users', { name: 'John' });
+
+// PUT
+const updated = await apiClient.put<User>('/users/1', { name: 'Jane' });
+
+// PATCH
+const patched = await apiClient.patch<User>('/users/1', { name: 'Jane' });
+
+// DELETE
+await apiClient.delete('/users/1');
+
+// Upload fichier
+const result = await apiClient.upload<FileResponse>('/files/upload', file);
+
+// Download fichier
+await apiClient.download('/files/1/download', 'document.pdf');
+```
+
+#### Gestion des erreurs
+
+```typescript
+try {
+  const data = await apiClient.get('/protected-resource');
+} catch (error) {
+  // error.status: 401, 404, 500, etc.
+  // error.message: Message d'erreur du serveur
+  // error.errors: Erreurs de validation (optionnel)
+}
+```
+
 ---
 
 ## 🔐 Authentification
