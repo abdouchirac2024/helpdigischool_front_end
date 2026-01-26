@@ -3,10 +3,31 @@
 <div align="center">
 
 ![Help Digi School](https://img.shields.io/badge/Help_Digi_School-v1.0.0-blue?style=for-the-badge)
+
+### Frontend Stack
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-06B6D4?style=for-the-badge&logo=tailwindcss)
+
+### API & Data
+![Axios](https://img.shields.io/badge/Axios-1.x-5A29E4?style=for-the-badge&logo=axios)
+![React Query](https://img.shields.io/badge/React_Query-5-FF4154?style=for-the-badge&logo=reactquery)
+![Zod](https://img.shields.io/badge/Zod-3-3E67B1?style=for-the-badge&logo=zod)
+
+### Testing
+![Vitest](https://img.shields.io/badge/Vitest-3-6E9F18?style=for-the-badge&logo=vitest)
+![Testing Library](https://img.shields.io/badge/Testing_Library-16-E33332?style=for-the-badge&logo=testinglibrary)
+
+### Infrastructure & DevOps
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)
+![Traefik](https://img.shields.io/badge/Traefik-3.x-24A1C1?style=for-the-badge&logo=traefikproxy)
+![PM2](https://img.shields.io/badge/PM2-5.x-2B037A?style=for-the-badge&logo=pm2)
+
+### Monitoring
+![Grafana](https://img.shields.io/badge/Grafana-10.2-F46800?style=for-the-badge&logo=grafana)
+![Loki](https://img.shields.io/badge/Loki-3.3-F46800?style=for-the-badge&logo=grafana)
+![Promtail](https://img.shields.io/badge/Promtail-3.3-F46800?style=for-the-badge&logo=grafana)
 
 **Plateforme SaaS de gestion scolaire pour les écoles primaires et secondaires du Cameroun**
 
@@ -134,32 +155,109 @@ make deploy-prod
 ### Architecture Docker
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                            DOCKER INFRASTRUCTURE                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐                    │
-│  │  Frontend   │     │  Frontend   │     │  Frontend   │                    │
-│  │    (Dev)    │     │  (Preprod)  │     │   (Prod)    │                    │
-│  │  Port 3000  │     │ Port 32031  │     │  Port 3000  │                    │
-│  └─────────────┘     └─────────────┘     └─────────────┘                    │
-│         │                   │                   │                            │
-│         └───────────────────┼───────────────────┘                            │
-│                             │                                                │
-│                    ┌────────┴────────┐                                       │
-│                    │     Traefik     │  (Load Balancer + SSL)                │
-│                    │   Ports 80/443  │                                       │
-│                    └────────┬────────┘                                       │
-│                             │                                                │
-│  ┌──────────────────────────┴──────────────────────────┐                    │
-│  │              MONITORING STACK                        │                    │
-│  │  ┌──────────┐  ┌──────────┐  ┌──────────────────┐   │                    │
-│  │  │  Grafana │  │   Loki   │  │     Promtail     │   │                    │
-│  │  │  :3001   │  │  :3100   │  │  (Log Collector) │   │                    │
-│  │  └──────────┘  └──────────┘  └──────────────────┘   │                    │
-│  └─────────────────────────────────────────────────────┘                    │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                              DOCKER INFRASTRUCTURE                                   │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                      │
+│  ┌───────────────────────────────────────────────────────────────────────────────┐  │
+│  │                            🌐 TRAEFIK (Reverse Proxy)                          │  │
+│  │                         Ports: 80 (HTTP) / 443 (HTTPS)                         │  │
+│  │                         Dashboard: 8083 (dev) / 8080 (prod)                    │  │
+│  │   • Load Balancing    • SSL/TLS Let's Encrypt    • Routage par domaine        │  │
+│  └───────────────────────────────────────────────────────────────────────────────┘  │
+│                                         │                                            │
+│            ┌────────────────────────────┼────────────────────────────┐              │
+│            ▼                            ▼                            ▼              │
+│  ┌─────────────────┐       ┌─────────────────┐       ┌─────────────────┐           │
+│  │  🖥️ Frontend    │       │  🖥️ Frontend    │       │  🖥️ Frontend    │           │
+│  │     (Dev)       │       │   (Preprod)     │       │    (Prod)       │           │
+│  ├─────────────────┤       ├─────────────────┤       ├─────────────────┤           │
+│  │ Port: 3000      │       │ Port: 32031     │       │ Port: 3000      │           │
+│  │ PM2: cluster    │       │ PM2: cluster    │       │ PM2: cluster    │           │
+│  │ Debug: 9229     │       │                 │       │                 │           │
+│  └─────────────────┘       └─────────────────┘       └─────────────────┘           │
+│                                                                                      │
+│  ┌───────────────────────────────────────────────────────────────────────────────┐  │
+│  │                          📊 MONITORING STACK                                   │  │
+│  │                                                                                │  │
+│  │  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐             │  │
+│  │  │  📈 Grafana      │  │  📝 Loki         │  │  🔍 Promtail     │             │  │
+│  │  │  Port: 3001      │  │  Port: 3100      │  │  (Agent)         │             │  │
+│  │  │  Dashboards      │  │  Log Storage     │  │  Log Collector   │             │  │
+│  │  │  admin/admin     │  │  LogQL Queries   │  │  Docker → Loki   │             │  │
+│  │  └──────────────────┘  └──────────────────┘  └──────────────────┘             │  │
+│  │                                                                                │  │
+│  │  ┌──────────────────┐                                                         │  │
+│  │  │  💻 Node Export. │                                                         │  │
+│  │  │  Port: 9100      │                                                         │  │
+│  │  │  System Metrics  │                                                         │  │
+│  │  └──────────────────┘                                                         │  │
+│  └───────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                      │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Ports & URLs de référence
+
+| Service | Port | URL Dev | URL Prod | Description |
+|---------|------|---------|----------|-------------|
+| **Frontend (Dev)** | 3000 | http://localhost:3000 | - | Application Next.js (dev) |
+| **Frontend (Preprod)** | 32031 | http://localhost:32031 | preprod.helpdigischool.com | Pre-production |
+| **Frontend (Prod)** | 3000 | - | helpdigischool.com | Production |
+| **Traefik Dashboard** | 8083 | http://localhost:8083 | traefik.helpdigischool.com | Admin Traefik |
+| **Traefik HTTP** | 80 | - | - | Entrée HTTP |
+| **Traefik HTTPS** | 443 | - | - | Entrée HTTPS + SSL |
+| **Grafana** | 3001 | http://localhost:3001 | grafana.helpdigischool.com | Monitoring UI |
+| **Loki** | 3100 | http://localhost:3100 | - | Log aggregator |
+| **Node Exporter** | 9100 | http://localhost:9100 | - | System metrics |
+| **Debug Node.js** | 9229 | localhost:9229 | - | Node.js debugger |
+
+### Stack Technologique Docker
+
+| Composant | Image | Version | Rôle |
+|-----------|-------|---------|------|
+| ![Traefik](https://img.shields.io/badge/Traefik-24A1C1?style=flat-square&logo=traefikproxy&logoColor=white) | `traefik` | 3.x | Reverse proxy, SSL, Load balancer |
+| ![Next.js](https://img.shields.io/badge/Next.js-black?style=flat-square&logo=next.js&logoColor=white) | `node:20-alpine` | 16.x | Application frontend |
+| ![PM2](https://img.shields.io/badge/PM2-2B037A?style=flat-square&logo=pm2&logoColor=white) | - | 5.x | Process manager (dans container) |
+| ![Grafana](https://img.shields.io/badge/Grafana-F46800?style=flat-square&logo=grafana&logoColor=white) | `grafana/grafana` | 10.2.0 | Visualisation des métriques |
+| ![Loki](https://img.shields.io/badge/Loki-F46800?style=flat-square&logo=grafana&logoColor=white) | `grafana/loki` | 3.3.2 | Stockage et indexation des logs |
+| ![Promtail](https://img.shields.io/badge/Promtail-F46800?style=flat-square&logo=grafana&logoColor=white) | `grafana/promtail` | 3.3.2 | Collecteur de logs |
+| ![Node Exporter](https://img.shields.io/badge/Node_Exporter-E6522C?style=flat-square&logo=prometheus&logoColor=white) | `prom/node-exporter` | 1.6.1 | Métriques système |
+
+### Flux de données
+
+```
+┌──────────────────────────────────────────────────────────────────────────┐
+│                           FLUX DES REQUÊTES                              │
+├──────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  Client (Browser)                                                        │
+│       │                                                                  │
+│       ▼                                                                  │
+│  ┌─────────────────────────────────────────────────────────────┐        │
+│  │  TRAEFIK                                                     │        │
+│  │  • Reçoit requête sur :80 ou :443                           │        │
+│  │  • Applique middlewares (rate-limit, headers, compression)   │        │
+│  │  • Route vers le bon container (par Host header)            │        │
+│  └─────────────────────────────────────────────────────────────┘        │
+│       │                                                                  │
+│       ▼                                                                  │
+│  ┌─────────────────────────────────────────────────────────────┐        │
+│  │  FRONTEND CONTAINER                                          │        │
+│  │  • PM2 reçoit la requête (mode cluster)                     │        │
+│  │  • Next.js traite (SSR ou Static)                           │        │
+│  │  • Axios appelle l'API backend si nécessaire                │        │
+│  └─────────────────────────────────────────────────────────────┘        │
+│       │                                                                  │
+│       ▼                                                                  │
+│  ┌─────────────────────────────────────────────────────────────┐        │
+│  │  LOGGING PIPELINE                                            │        │
+│  │  • Container stdout/stderr → Promtail                       │        │
+│  │  • Promtail → Loki (storage)                                │        │
+│  │  • Loki → Grafana (visualisation)                           │        │
+│  └─────────────────────────────────────────────────────────────┘        │
+│                                                                          │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -312,36 +410,54 @@ helpdigischool/
 
 | Technologie | Version | À quoi ça sert ? |
 |-------------|---------|------------------|
-| **Next.js** | 16.x | Framework React full-stack. Gère le routing, le SSR (Server-Side Rendering), les API routes, et l'optimisation automatique des performances |
-| **React** | 19.x | Bibliothèque pour créer des interfaces utilisateur avec des composants réutilisables |
-| **TypeScript** | 5.x | Ajoute le typage statique à JavaScript pour détecter les erreurs à la compilation et améliorer l'autocomplétion |
-| **TailwindCSS** | 3.4.x | Framework CSS utility-first pour styliser rapidement sans écrire de CSS personnalisé |
-| **Radix UI** | Latest | Composants UI accessibles (modals, dropdowns, etc.) sans style par défaut, personnalisables |
-| **shadcn/ui** | Latest | Collection de composants React basés sur Radix UI, pré-stylisés avec TailwindCSS |
-| **Axios** | 1.x | Client HTTP avec intercepteurs, retry automatique, et gestion centralisée des erreurs |
-| **React Query** | 5.x | Gère les requêtes API, le cache, la synchronisation et les états de chargement automatiquement |
-| **React Hook Form** | 7.x | Gère les formulaires avec validation, sans re-render inutiles, performant |
-| **Zod** | 3.x | Valide les données (formulaires, API) avec des schémas TypeScript-first |
-| **Recharts** | 2.x | Crée des graphiques (barres, lignes, camemberts) pour les dashboards |
-| **Lucide React** | Latest | Bibliothèque d'icônes SVG légères et personnalisables |
+| ![Next.js](https://img.shields.io/badge/Next.js-black?style=flat-square&logo=next.js) **Next.js** | 16.x | Framework React full-stack. Gère le routing, le SSR (Server-Side Rendering), les API routes, et l'optimisation automatique des performances |
+| ![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black) **React** | 19.x | Bibliothèque pour créer des interfaces utilisateur avec des composants réutilisables |
+| ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white) **TypeScript** | 5.x | Ajoute le typage statique à JavaScript pour détecter les erreurs à la compilation et améliorer l'autocomplétion |
+| ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white) **TailwindCSS** | 3.4.x | Framework CSS utility-first pour styliser rapidement sans écrire de CSS personnalisé |
+| ![Radix UI](https://img.shields.io/badge/Radix_UI-161618?style=flat-square&logo=radixui&logoColor=white) **Radix UI** | Latest | Composants UI accessibles (modals, dropdowns, etc.) sans style par défaut, personnalisables |
+| ![shadcn/ui](https://img.shields.io/badge/shadcn/ui-000000?style=flat-square&logo=shadcnui&logoColor=white) **shadcn/ui** | Latest | Collection de composants React basés sur Radix UI, pré-stylisés avec TailwindCSS |
+| ![Axios](https://img.shields.io/badge/Axios-5A29E4?style=flat-square&logo=axios&logoColor=white) **Axios** | 1.x | Client HTTP avec intercepteurs, retry automatique, et gestion centralisée des erreurs |
+| ![React Query](https://img.shields.io/badge/React_Query-FF4154?style=flat-square&logo=reactquery&logoColor=white) **React Query** | 5.x | Gère les requêtes API, le cache, la synchronisation et les états de chargement automatiquement |
+| ![React Hook Form](https://img.shields.io/badge/React_Hook_Form-EC5990?style=flat-square&logo=reacthookform&logoColor=white) **React Hook Form** | 7.x | Gère les formulaires avec validation, sans re-render inutiles, performant |
+| ![Zod](https://img.shields.io/badge/Zod-3E67B1?style=flat-square&logo=zod&logoColor=white) **Zod** | 3.x | Valide les données (formulaires, API) avec des schémas TypeScript-first |
+| ![Recharts](https://img.shields.io/badge/Recharts-22B5BF?style=flat-square) **Recharts** | 2.x | Crée des graphiques (barres, lignes, camemberts) pour les dashboards |
+| ![Lucide](https://img.shields.io/badge/Lucide-F56565?style=flat-square) **Lucide React** | Latest | Bibliothèque d'icônes SVG légères et personnalisables |
 
-### Infrastructure
+### Tests
+
+| Outil | Version | À quoi ça sert ? |
+|-------|---------|------------------|
+| ![Vitest](https://img.shields.io/badge/Vitest-6E9F18?style=flat-square&logo=vitest&logoColor=white) **Vitest** | 3.x | Framework de test rapide et moderne, compatible avec l'API Jest |
+| ![Testing Library](https://img.shields.io/badge/Testing_Library-E33332?style=flat-square&logo=testinglibrary&logoColor=white) **React Testing Library** | 16.x | Teste les composants React comme un utilisateur réel |
+| ![jsdom](https://img.shields.io/badge/jsdom-F7DF1E?style=flat-square&logo=javascript&logoColor=black) **jsdom** | 26.x | Simule un navigateur pour les tests (DOM, window, document) |
+
+### Infrastructure & DevOps
 
 | Outil | À quoi ça sert ? |
 |-------|------------------|
-| **Docker** | Conteneurise l'application pour qu'elle fonctionne de manière identique partout (dev, prod, CI) |
-| **Docker Compose** | Orchestre plusieurs containers (frontend, monitoring) avec une seule commande |
-| **Traefik** | Reverse proxy qui route le trafic, gère le HTTPS automatique avec Let's Encrypt, et load balance |
-| **Loki** | Stocke et indexe les logs de tous les containers pour les rechercher facilement |
-| **Grafana** | Interface web pour visualiser les logs (Loki) et créer des dashboards de monitoring |
-| **Promtail** | Agent qui collecte les logs des containers Docker et les envoie à Loki |
-| **Node Exporter** | Expose les métriques système (CPU, RAM, disque) pour le monitoring |
-| **PM2** | Process manager Node.js pour garder l'app en vie, gérer les logs et le clustering |
-| **GitLab CI** | Pipeline CI/CD pour automatiser les tests, builds et déploiements |
-| **Vercel** | Plateforme de déploiement optimisée pour Next.js avec CDN global |
-| **Husky** | Exécute des scripts avant les commits Git (lint, tests) pour garantir la qualité du code |
-| **ESLint** | Analyse le code JavaScript/TypeScript pour détecter les erreurs et appliquer des conventions |
-| **Prettier** | Formate automatiquement le code pour un style cohérent dans tout le projet |
+| ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white) **Docker** | Conteneurise l'application pour qu'elle fonctionne de manière identique partout (dev, prod, CI) |
+| ![Docker Compose](https://img.shields.io/badge/Docker_Compose-2496ED?style=flat-square&logo=docker&logoColor=white) **Docker Compose** | Orchestre plusieurs containers (frontend, monitoring) avec une seule commande |
+| ![Traefik](https://img.shields.io/badge/Traefik-24A1C1?style=flat-square&logo=traefikproxy&logoColor=white) **Traefik** | Reverse proxy qui route le trafic, gère le HTTPS automatique avec Let's Encrypt, et load balance |
+| ![PM2](https://img.shields.io/badge/PM2-2B037A?style=flat-square&logo=pm2&logoColor=white) **PM2** | Process manager Node.js pour garder l'app en vie, gérer les logs et le clustering |
+| ![GitLab CI](https://img.shields.io/badge/GitLab_CI-FC6D26?style=flat-square&logo=gitlab&logoColor=white) **GitLab CI** | Pipeline CI/CD pour automatiser les tests, builds et déploiements |
+| ![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white) **Vercel** | Plateforme de déploiement optimisée pour Next.js avec CDN global |
+
+### Monitoring
+
+| Outil | À quoi ça sert ? |
+|-------|------------------|
+| ![Grafana](https://img.shields.io/badge/Grafana-F46800?style=flat-square&logo=grafana&logoColor=white) **Grafana** | Interface web pour visualiser les logs (Loki) et créer des dashboards de monitoring |
+| ![Loki](https://img.shields.io/badge/Loki-F46800?style=flat-square&logo=grafana&logoColor=white) **Loki** | Stocke et indexe les logs de tous les containers pour les rechercher facilement |
+| ![Promtail](https://img.shields.io/badge/Promtail-F46800?style=flat-square&logo=grafana&logoColor=white) **Promtail** | Agent qui collecte les logs des containers Docker et les envoie à Loki |
+| ![Node Exporter](https://img.shields.io/badge/Node_Exporter-E6522C?style=flat-square&logo=prometheus&logoColor=white) **Node Exporter** | Expose les métriques système (CPU, RAM, disque) pour le monitoring |
+
+### Qualité du code
+
+| Outil | À quoi ça sert ? |
+|-------|------------------|
+| ![ESLint](https://img.shields.io/badge/ESLint-4B32C3?style=flat-square&logo=eslint&logoColor=white) **ESLint** | Analyse le code JavaScript/TypeScript pour détecter les erreurs et appliquer des conventions |
+| ![Prettier](https://img.shields.io/badge/Prettier-F7B93E?style=flat-square&logo=prettier&logoColor=black) **Prettier** | Formate automatiquement le code pour un style cohérent dans tout le projet |
+| ![Husky](https://img.shields.io/badge/Husky-42B983?style=flat-square&logo=git&logoColor=white) **Husky** | Exécute des scripts avant les commits Git (lint, tests) pour garantir la qualité du code |
 
 ---
 
