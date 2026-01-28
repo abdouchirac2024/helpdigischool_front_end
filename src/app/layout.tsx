@@ -40,6 +40,11 @@ export const metadata: Metadata = {
     description:
       'Gerez votre ecole primaire camerounaise en toute simplicite avec Help Digi School',
   },
+  other: {
+    'mobile-web-app-capable': 'yes',
+    'msapplication-TileColor': '#2563eb',
+    'msapplication-tap-highlight': 'no',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -47,12 +52,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr" suppressHydrationWarning>
       <head>
         <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="HelpDigiSchool" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="msapplication-TileColor" content="#2563eb" />
-        <meta name="msapplication-tap-highlight" content="no" />
       </head>
       <body className={poppins.className}>
         <Providers>

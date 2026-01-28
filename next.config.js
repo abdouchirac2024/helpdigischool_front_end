@@ -167,20 +167,13 @@ const nextConfig = {
     return []
   },
 
-  // Desactiver la telemetrie Next.js
-  telemetry: {
-    isEnabled: false,
-  },
-
   // Configuration TypeScript
   typescript: {
     ignoreBuildErrors: process.env.NODE_ENV === 'development',
   },
 
-  // Configuration ESLint
-  eslint: {
-    ignoreDuringBuilds: process.env.NODE_ENV === 'development',
-  },
+  // Turbopack config (permet le dev mode avec Turbopack, next-pwa est desactive en dev)
+  turbopack: {},
 
   // Optimisation des packages
   experimental: {
