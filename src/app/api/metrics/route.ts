@@ -7,15 +7,6 @@ const metrics = {
   startTime: Date.now(),
 }
 
-// Incrementer depuis d'autres routes via import
-export function incrementRequests() {
-  metrics.httpRequestsTotal++
-}
-
-export function incrementErrors() {
-  metrics.httpErrorsTotal++
-}
-
 /**
  * GET /api/metrics
  * Endpoint Prometheus au format OpenMetrics/text
