@@ -29,6 +29,11 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: 'default',
     title: 'Help Digi School',
+    startupImage: '/icons/icon-512x512.png',
+  },
+  icons: {
+    icon: '/icons/icon-192x192.png',
+    apple: '/icons/icon-192x192.png',
   },
   formatDetection: {
     telephone: false,
@@ -50,9 +55,6 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" suppressHydrationWarning>
-      <head>
-        <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png" />
-      </head>
       <body className={poppins.className}>
         <Providers>
           <OfflineBanner />
