@@ -25,12 +25,15 @@ datasources:
           url: "$${__value.raw}"
 
   # ===========================================================================
-  # Prometheus - Metrics (if using node-exporter)
+  # Prometheus - Metrics Collection
   # ===========================================================================
-  # - name: Prometheus
-  #   type: prometheus
-  #   uid: prometheus
-  #   access: proxy
-  #   url: http://prometheus:9090
-  #   isDefault: false
-  #   editable: false
+  - name: Prometheus
+    type: prometheus
+    uid: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: false
+    editable: false
+    jsonData:
+      timeInterval: "15s"
+      httpMethod: POST

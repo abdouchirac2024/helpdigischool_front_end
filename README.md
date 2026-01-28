@@ -30,6 +30,7 @@
 ![PM2](https://img.shields.io/badge/PM2-5.x-2B037A?style=for-the-badge&logo=pm2)
 
 ### Monitoring
+![Prometheus](https://img.shields.io/badge/Prometheus-2.51-E6522C?style=for-the-badge&logo=prometheus)
 ![Grafana](https://img.shields.io/badge/Grafana-10.2-F46800?style=for-the-badge&logo=grafana)
 ![Loki](https://img.shields.io/badge/Loki-3.3-F46800?style=for-the-badge&logo=grafana)
 ![Promtail](https://img.shields.io/badge/Promtail-3.3-F46800?style=for-the-badge&logo=grafana)
@@ -210,6 +211,7 @@ make deploy-prod
 | **Frontend (Dev)** | 3000 | http://localhost:3000 | - | Application Next.js (dev) |
 | **Frontend (Preprod)** | 32031 | http://localhost:32031 | preprod.helpdigischool.com | Pre-production |
 | **Frontend (Prod)** | 3000 | - | helpdigischool.com | Production |
+| **Prometheus** | 9090 | http://localhost:9090 | - | Metriques & alertes |
 | **Traefik Dashboard** | 8083 | http://localhost:8083 | traefik.helpdigischool.com | Admin Traefik |
 | **Traefik HTTP** | 80 | - | - | Entrée HTTP |
 | **Traefik HTTPS** | 443 | - | - | Entrée HTTPS + SSL |
@@ -225,6 +227,7 @@ make deploy-prod
 | ![Traefik](https://img.shields.io/badge/Traefik-24A1C1?style=flat-square&logo=traefikproxy&logoColor=white) | `traefik` | 3.x | Reverse proxy, SSL, Load balancer |
 | ![Next.js](https://img.shields.io/badge/Next.js-black?style=flat-square&logo=next.js&logoColor=white) | `node:20-alpine` | 16.x | Application frontend |
 | ![PM2](https://img.shields.io/badge/PM2-2B037A?style=flat-square&logo=pm2&logoColor=white) | - | 5.x | Process manager (dans container) |
+| ![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=flat-square&logo=prometheus&logoColor=white) | `prom/prometheus` | 2.51.0 | Collecte et stockage des métriques |
 | ![Grafana](https://img.shields.io/badge/Grafana-F46800?style=flat-square&logo=grafana&logoColor=white) | `grafana/grafana` | 10.2.0 | Visualisation des métriques |
 | ![Loki](https://img.shields.io/badge/Loki-F46800?style=flat-square&logo=grafana&logoColor=white) | `grafana/loki` | 3.3.2 | Stockage et indexation des logs |
 | ![Promtail](https://img.shields.io/badge/Promtail-F46800?style=flat-square&logo=grafana&logoColor=white) | `grafana/promtail` | 3.3.2 | Collecteur de logs |
@@ -452,7 +455,8 @@ helpdigischool/
 
 | Outil | À quoi ça sert ? |
 |-------|------------------|
-| ![Grafana](https://img.shields.io/badge/Grafana-F46800?style=flat-square&logo=grafana&logoColor=white) **Grafana** | Interface web pour visualiser les logs (Loki) et créer des dashboards de monitoring |
+| ![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=flat-square&logo=prometheus&logoColor=white) **Prometheus** | Collecte, stocke et interroge les metriques (CPU, RAM, HTTP, Node.js) avec alerting |
+| ![Grafana](https://img.shields.io/badge/Grafana-F46800?style=flat-square&logo=grafana&logoColor=white) **Grafana** | Interface web pour visualiser les logs (Loki), metriques (Prometheus) et creer des dashboards |
 | ![Loki](https://img.shields.io/badge/Loki-F46800?style=flat-square&logo=grafana&logoColor=white) **Loki** | Stocke et indexe les logs de tous les containers pour les rechercher facilement |
 | ![Promtail](https://img.shields.io/badge/Promtail-F46800?style=flat-square&logo=grafana&logoColor=white) **Promtail** | Agent qui collecte les logs des containers Docker et les envoie à Loki |
 | ![Node Exporter](https://img.shields.io/badge/Node_Exporter-E6522C?style=flat-square&logo=prometheus&logoColor=white) **Node Exporter** | Expose les métriques système (CPU, RAM, disque) pour le monitoring |
@@ -639,6 +643,7 @@ providers:
 
 | Service | Version | Port | URL | Credentials |
 |---------|---------|------|-----|-------------|
+| Prometheus | 2.51.0 | 9090 | http://localhost:9090 | - |
 | Grafana | 10.2.0 | 3001 | http://localhost:3001 | admin / admin |
 | Loki | 3.3.2 | 3100 | http://localhost:3100 | - |
 | Promtail | 3.3.2 | - | - | - |

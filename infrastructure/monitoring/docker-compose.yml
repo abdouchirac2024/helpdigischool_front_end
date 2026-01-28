@@ -1,6 +1,6 @@
 # =============================================================================
 # Help Digi School - Monitoring Stack
-# Loki + Grafana + Promtail
+# Prometheus + Loki + Grafana + Promtail
 # =============================================================================
 
 networks:
@@ -12,6 +12,8 @@ volumes:
   grafana-data:
     driver: local
   loki-data:
+    driver: local
+  prometheus-data:
     driver: local
 
 services:
@@ -89,6 +91,39 @@ services:
       retries: 3
     labels:
       - "service=grafana"
+      - "environment=monitoring"
+
+  # ===========================================================================
+  # PROMETHEUS - Metrics Collection & Alerting
+  # ===========================================================================
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: helpdigischool-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alert-rules.yml:/etc/prometheus/rules/alert-rules.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - monitoring
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "service=prometheus"
       - "environment=monitoring"
 
   # ===========================================================================

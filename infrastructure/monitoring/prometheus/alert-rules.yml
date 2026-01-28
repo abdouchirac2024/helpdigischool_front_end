@@ -1,0 +1,82 @@
+# =============================================================================
+# Help Digi School - Regles d'alerte Prometheus
+# =============================================================================
+
+groups:
+  # ---------------------------------------------------------------------------
+  # Alertes Systeme (Node Exporter)
+  # ---------------------------------------------------------------------------
+  - name: system_alerts
+    rules:
+      - alert: HighCpuUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU eleve sur {{ $labels.instance }}"
+          description: "Usage CPU superieur a 80% depuis 5 minutes (actuel: {{ $value }}%)"
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Memoire elevee sur {{ $labels.instance }}"
+          description: "Usage memoire superieur a 85% depuis 5 minutes (actuel: {{ $value }}%)"
+
+      - alert: DiskSpaceLow
+        expr: (1 - (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"})) * 100 > 90
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Espace disque faible sur {{ $labels.instance }}"
+          description: "Espace disque utilise a plus de 90% (actuel: {{ $value }}%)"
+
+  # ---------------------------------------------------------------------------
+  # Alertes Application
+  # ---------------------------------------------------------------------------
+  - name: application_alerts
+    rules:
+      - alert: FrontendDown
+        expr: up{job="helpdigischool-frontend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Frontend Help Digi School indisponible"
+          description: "Le frontend ne repond plus depuis 1 minute"
+
+      - alert: HighErrorRate
+        expr: rate(helpdigischool_http_errors_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Taux d'erreurs eleve"
+          description: "Plus de 10% d'erreurs HTTP sur les 5 dernieres minutes"
+
+  # ---------------------------------------------------------------------------
+  # Alertes Infrastructure
+  # ---------------------------------------------------------------------------
+  - name: infrastructure_alerts
+    rules:
+      - alert: LokiDown
+        expr: up{job="loki"} == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Loki indisponible"
+          description: "Le serveur Loki ne repond plus depuis 2 minutes"
+
+      - alert: PrometheusTargetDown
+        expr: up == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Target {{ $labels.job }} indisponible"
+          description: "{{ $labels.instance }} ne repond plus depuis 5 minutes"
