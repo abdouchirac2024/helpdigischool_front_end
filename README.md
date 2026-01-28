@@ -649,6 +649,17 @@ providers:
 | Promtail | 3.3.2 | - | - | - |
 | Node Exporter | 1.6.1 | 9100 | http://localhost:9100 | - |
 
+### Commandes Make
+
+| Commande | Description |
+|----------|-------------|
+| `make monitoring-up` | Démarrer le stack monitoring (Prometheus, Grafana, Loki, Promtail, Node Exporter) |
+| `make monitoring-down` | Arrêter le stack monitoring |
+| `make infra-up` | Démarrer Traefik + Monitoring |
+| `make infra-down` | Arrêter Traefik + Monitoring |
+| `make status` | État des containers |
+| `make health` | Vérifier la santé des services |
+
 ### Démarrage
 
 ```bash
@@ -657,16 +668,54 @@ make monitoring-up
 
 # Démarrer toute l'infrastructure (Traefik + Monitoring)
 make infra-up
+
+# Vérifier que tout tourne
+docker compose -f infrastructure/monitoring/docker-compose.yml ps
 ```
+
+### Accès aux interfaces
+
+| Service | URL | Credentials |
+|---------|-----|-------------|
+| **Prometheus** | http://localhost:9090 | - |
+| **Grafana** | http://localhost:3001 | admin / admin |
+| **Node Exporter** | http://localhost:9100/metrics | - |
+| **App Metrics** | http://localhost:3000/api/metrics | - |
 
 ### Utilisation de Grafana
 
 1. Ouvrir http://localhost:3001
 2. Login: `admin` / `admin`
-3. Aller dans **Explore** → Sélectionner **Loki**
-4. Utiliser les requêtes LogQL ci-dessous
+3. Deux dashboards pré-configurés :
+   - **Application Logs** → Sélectionner datasource **Loki**
+   - **System & App Metrics** → Sélectionner datasource **Prometheus**
 
-### Requêtes LogQL utiles
+### Requêtes PromQL utiles (Prometheus)
+
+```promql
+# Frontend up ?
+helpdigischool_up
+
+# Mémoire heap Node.js
+helpdigischool_nodejs_heap_used_bytes
+
+# Usage CPU système (%)
+100 - (avg(irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+
+# Mémoire système utilisée (%)
+(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100
+
+# Espace disque utilisé (%)
+(1 - (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"})) * 100
+
+# Targets down
+count(up == 0)
+
+# Taux d'erreurs HTTP (par seconde)
+rate(helpdigischool_http_errors_total[5m])
+```
+
+### Requêtes LogQL utiles (Loki)
 
 ```logql
 # Tous les logs
@@ -681,6 +730,7 @@ make infra-up
 # Logs par service
 {service="loki"}
 {service="grafana"}
+{service="prometheus"}
 ```
 
 ### Logs collectés
@@ -691,8 +741,10 @@ Promtail collecte automatiquement :
 
 ### Rétention
 
-- **Durée** : 30 jours
-- **Compaction** : Toutes les 10 minutes
+| Service | Durée |
+|---------|-------|
+| **Prometheus** | 30 jours (métriques) |
+| **Loki** | 30 jours (logs) |
 
 ---
 
