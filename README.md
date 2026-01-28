@@ -19,6 +19,11 @@
 ![Vitest](https://img.shields.io/badge/Vitest-3-6E9F18?style=for-the-badge&logo=vitest)
 ![Testing Library](https://img.shields.io/badge/Testing_Library-16-E33332?style=for-the-badge&logo=testinglibrary)
 
+### PWA
+![PWA](https://img.shields.io/badge/PWA-Installable-5A0FC8?style=for-the-badge&logo=pwa)
+![Offline](https://img.shields.io/badge/Offline-Ready-4CAF50?style=for-the-badge)
+![next--pwa](https://img.shields.io/badge/next--pwa-5.6-black?style=for-the-badge&logo=next.js)
+
 ### Infrastructure & DevOps
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)
 ![Traefik](https://img.shields.io/badge/Traefik-3.x-24A1C1?style=for-the-badge&logo=traefikproxy)
@@ -54,6 +59,7 @@
 - [API Routes](#-api-routes)
 - [Authentification](#-authentification)
 - [Déploiement](#-déploiement)
+- [PWA (Progressive Web App)](#-pwa-progressive-web-app)
 - [Contribution](#-contribution)
 
 ---
@@ -1263,6 +1269,102 @@ pm2 monit
 ```
 
 Voir la [section PM2](#-pm2-process-manager) pour plus de détails.
+
+---
+
+## 📱 PWA (Progressive Web App)
+
+Help Digi School est une **Progressive Web App** installable sur mobile et desktop.
+
+### Fonctionnalités PWA
+
+| Fonctionnalité | Description |
+|----------------|-------------|
+| **Installable** | Prompt d'installation natif sur Android/Chrome/Edge + guide pour iOS Safari |
+| **Mode hors ligne** | Page offline de secours quand la connexion est perdue |
+| **Bannière réseau** | Bandeau d'avertissement en cas de perte de connexion |
+| **Cache intelligent** | Assets statiques, fonts, images et API mis en cache automatiquement |
+| **Mise à jour auto** | Détection de nouvelle version avec prompt de rechargement |
+| **Raccourcis** | Accès direct au Dashboard et à la Connexion depuis l'icône |
+
+### Stratégies de cache
+
+| Ressource | Stratégie | Durée | Description |
+|-----------|-----------|-------|-------------|
+| Google Fonts | CacheFirst | 1 an | Polices rarement modifiées, servies depuis le cache |
+| Fonts locales | StaleWhileRevalidate | 7 jours | Cache puis mise à jour en arrière-plan |
+| Images | StaleWhileRevalidate | 30 jours | Cache puis mise à jour en arrière-plan |
+| JavaScript | StaleWhileRevalidate | 7 jours | Cache puis mise à jour en arrière-plan |
+| CSS | StaleWhileRevalidate | 7 jours | Cache puis mise à jour en arrière-plan |
+| API | NetworkFirst | 1 jour | Réseau en priorité, cache en fallback (timeout 10s) |
+| Autres | NetworkFirst | 1 jour | Réseau en priorité, cache en fallback |
+
+### Architecture PWA
+
+```
+public/
+├── manifest.json              # Manifeste PWA (nom, icônes, raccourcis)
+├── sw.js                      # Service Worker (généré au build)
+├── icons/                     # Icônes PWA (72x72 à 512x512 + maskable)
+└── screenshots/               # Screenshots pour l'install prompt
+
+src/
+├── app/offline/page.tsx       # Page affichée hors ligne
+├── components/pwa/
+│   ├── InstallPrompt.tsx      # Bannière d'installation (Android + iOS)
+│   ├── PWARegister.tsx        # Enregistrement du Service Worker
+│   └── OfflineBanner.tsx      # Bandeau de perte de connexion
+└── hooks/
+    └── useOnlineStatus.ts     # Hook réactif online/offline
+```
+
+### Configuration
+
+La PWA est configurée dans `next.config.js` via **next-pwa** :
+
+- **Désactivée en développement** (`disable: process.env.NODE_ENV === 'development'`)
+- **Service Worker généré au build** dans `public/sw.js`
+- **Fallback offline** : redirige vers `/offline` quand la page n'est pas en cache
+
+### Tester la PWA
+
+```bash
+# La PWA ne fonctionne qu'en mode production
+npm run build
+npm run start
+
+# Ouvrir http://localhost:3000
+# Dans Chrome DevTools > Application > Service Workers
+# Cocher "Offline" pour tester le mode hors ligne
+```
+
+### Icônes PWA
+
+Les icônes placeholder sont générées via :
+
+```bash
+node scripts/generate-icons.js
+```
+
+Pour la production, remplacez les fichiers dans `public/icons/` par de vrais logos PNG.
+Outils recommandés :
+- [Real Favicon Generator](https://realfavicongenerator.net) - Génère toutes les tailles
+- [Maskable.app](https://maskable.app/editor) - Crée des icônes maskable
+
+### Tailles d'icônes requises
+
+| Taille | Fichier | Usage |
+|--------|---------|-------|
+| 72x72 | `icon-72x72.png` | Android ancien |
+| 96x96 | `icon-96x96.png` | Android |
+| 128x128 | `icon-128x128.png` | Chrome Web Store |
+| 144x144 | `icon-144x144.png` | Windows |
+| 152x152 | `icon-152x152.png` | iOS |
+| 192x192 | `icon-192x192.png` | Android (requis) |
+| 384x384 | `icon-384x384.png` | Android splash |
+| 512x512 | `icon-512x512.png` | Android splash (requis) |
+| 192x192 | `icon-maskable-192x192.png` | Android maskable |
+| 512x512 | `icon-maskable-512x512.png` | Android maskable |
 
 ---
 
