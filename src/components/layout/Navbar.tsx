@@ -20,6 +20,8 @@ import {
   Globe,
   Menu,
   X,
+  Download,
+  Smartphone,
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -33,6 +35,7 @@ import { cn } from '@/lib/utils'
 import { useAuth } from '@/lib/auth/auth-context'
 import { useToast } from '@/hooks/use-toast'
 import { useLanguage } from '@/lib/i18n'
+import { useInstallPWA } from '@/hooks/use-install-pwa'
 
 const navLinks = [
   { href: '/', labelFr: 'Accueil', labelEn: 'Home', icon: Home },
@@ -65,8 +68,10 @@ export function Navbar() {
   const { user, isAuthenticated, isLoading, logout } = useAuth()
   const { toast } = useToast()
   const { language, toggleLanguage } = useLanguage()
+  const { canInstall, isIOS, promptInstall } = useInstallPWA()
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [showIOSGuide, setShowIOSGuide] = useState(false)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10)
@@ -183,8 +188,28 @@ export function Navbar() {
               })}
             </div>
 
-            {/* Auth, Language & Mobile Toggle */}
+            {/* Auth, Language, Install & Mobile Toggle */}
             <div className="flex items-center gap-1.5 sm:gap-2">
+              {/* Install App Button */}
+              {canInstall && (
+                <button
+                  onClick={() => {
+                    if (isIOS) {
+                      setShowIOSGuide(true)
+                    } else {
+                      promptInstall()
+                    }
+                  }}
+                  className="hidden items-center gap-1.5 rounded-xl border border-[#2302B3]/20 bg-[#2302B3]/5 px-2.5 py-1.5 text-xs font-semibold text-[#2302B3] transition-all duration-200 hover:bg-[#2302B3]/10 active:scale-95 sm:flex"
+                  title={language === 'fr' ? "Installer l'application" : 'Install app'}
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  <span className="hidden lg:inline" suppressHydrationWarning>
+                    {language === 'fr' ? 'Installer' : 'Install'}
+                  </span>
+                </button>
+              )}
+
               {/* Language Switcher */}
               <button
                 onClick={toggleLanguage}
@@ -366,6 +391,29 @@ export function Navbar() {
             })}
           </div>
 
+          {/* Install App - Mobile */}
+          {canInstall && (
+            <>
+              <div className="my-3 h-px bg-gray-200/80" />
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  if (isIOS) {
+                    setShowIOSGuide(true)
+                  } else {
+                    promptInstall()
+                  }
+                }}
+                className="flex w-full items-center gap-3 rounded-xl bg-gradient-to-r from-[#2302B3]/5 to-[#4318FF]/5 px-3 py-2.5 text-sm font-medium text-[#2302B3] transition-all hover:from-[#2302B3]/10 hover:to-[#4318FF]/10"
+              >
+                <Smartphone className="h-[18px] w-[18px]" />
+                <span suppressHydrationWarning>
+                  {language === 'fr' ? "Installer l'application" : 'Install App'}
+                </span>
+              </button>
+            </>
+          )}
+
           {/* Separator */}
           <div className="my-3 h-px bg-gray-200/80" />
 
@@ -450,6 +498,42 @@ export function Navbar() {
           )}
         </div>
       </div>
+
+      {/* iOS Install Guide Modal */}
+      {showIOSGuide && (
+        <>
+          <div
+            className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm"
+            onClick={() => setShowIOSGuide(false)}
+          />
+          <div className="fixed bottom-20 left-4 right-4 z-50 mx-auto max-w-sm rounded-2xl border border-gray-200 bg-white p-5 shadow-2xl sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2">
+            <div className="mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#2302B3] to-[#4318FF]">
+                  <Smartphone className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="font-bold text-gray-900">Installer l&apos;application</h3>
+              </div>
+              <button
+                onClick={() => setShowIOSGuide(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <p className="text-sm text-gray-600">
+              Pour installer Help Digi School sur votre appareil, appuyez sur le bouton{' '}
+              <span className="inline-block rounded-md bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700">
+                Partager
+              </span>{' '}
+              en bas de Safari, puis selectionnez{' '}
+              <span className="inline-block rounded-md bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700">
+                Sur l&apos;ecran d&apos;accueil
+              </span>
+            </p>
+          </div>
+        </>
+      )}
     </>
   )
 }

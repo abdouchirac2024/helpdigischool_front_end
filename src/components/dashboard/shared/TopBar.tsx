@@ -13,7 +13,8 @@ import {
   Home,
   LayoutDashboard,
   ChevronDown,
-  Globe
+  Globe,
+  Download,
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -26,6 +27,7 @@ import {
 import { useAuth } from '@/lib/auth'
 import { useToast } from '@/hooks/use-toast'
 import { useLanguage } from '@/lib/i18n'
+import { useInstallPWA } from '@/hooks/use-install-pwa'
 
 // Role labels
 const roleLabels: Record<string, { fr: string; en: string }> = {
@@ -53,20 +55,19 @@ export function TopBar({
   schoolName = 'École Primaire La Victoire',
   userName = 'Jean Dupont',
   userRole = 'Directeur',
-  userEmail = 'jean.dupont@ecole.cm'
+  userEmail = 'jean.dupont@ecole.cm',
 }: TopBarProps) {
   const { logout } = useAuth()
   const { toast } = useToast()
   const { language, toggleLanguage } = useLanguage()
+  const { canInstall, promptInstall } = useInstallPWA()
 
   // Helper to get label based on language
-  const getLabel = (labelFr: string, labelEn: string) => language === 'fr' ? labelFr : labelEn
+  const getLabel = (labelFr: string, labelEn: string) => (language === 'fr' ? labelFr : labelEn)
 
   // Get translated role
   const roleKey = userRole?.toLowerCase() || ''
-  const displayRole = roleLabels[roleKey]
-    ? roleLabels[roleKey][language]
-    : userRole
+  const displayRole = roleLabels[roleKey] ? roleLabels[roleKey][language] : userRole
 
   const handleLogout = async () => {
     try {
@@ -85,26 +86,30 @@ export function TopBar({
   }
 
   // Get user initials
-  const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase()
+  const userInitials = userName
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 z-40">
-      <div className="h-full px-4 flex items-center justify-between">
+    <header className="fixed left-0 right-0 top-0 z-40 h-16 border-b border-gray-200 bg-white">
+      <div className="flex h-full items-center justify-between px-4">
         <div className="flex items-center gap-4">
           <button
             onClick={onToggleSidebar}
-            className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="rounded-lg p-2 transition-colors hover:bg-gray-100 lg:hidden"
           >
-            {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
 
           {/* Logo - Links to Home */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#2302B3] to-[#4318FF] flex items-center justify-center group-hover:scale-105 transition-transform">
-              <GraduationCap className="w-5 h-5 text-white" />
+          <Link href="/" className="group flex items-center gap-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#2302B3] to-[#4318FF] transition-transform group-hover:scale-105">
+              <GraduationCap className="h-5 w-5 text-white" />
             </div>
             <div className="hidden sm:block">
-              <span className="font-bold text-base text-[#2302B3]">Help Digi School</span>
+              <span className="text-base font-bold text-[#2302B3]">Help Digi School</span>
               <p className="text-xs text-gray-500">{schoolName}</p>
             </div>
           </Link>
@@ -116,68 +121,91 @@ export function TopBar({
             variant="ghost"
             size="sm"
             onClick={toggleLanguage}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-gray-100 border border-gray-200"
+            className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-2.5 py-1.5 hover:bg-gray-100"
             suppressHydrationWarning
           >
-            <Globe className="w-4 h-4 text-[#2302B3]" />
-            <span className="text-sm font-semibold text-gray-700" suppressHydrationWarning>{language.toUpperCase()}</span>
+            <Globe className="h-4 w-4 text-[#2302B3]" />
+            <span className="text-sm font-semibold text-gray-700" suppressHydrationWarning>
+              {language.toUpperCase()}
+            </span>
           </Button>
+
+          {/* Install App */}
+          {canInstall && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => promptInstall()}
+              className="flex items-center gap-1.5 rounded-lg border border-[#2302B3]/20 bg-[#2302B3]/5 px-2.5 text-[#2302B3] hover:bg-[#2302B3]/10"
+              title={language === 'fr' ? "Installer l'application" : 'Install app'}
+            >
+              <Download className="h-4 w-4" />
+              <span className="hidden text-xs font-semibold sm:inline" suppressHydrationWarning>
+                {language === 'fr' ? 'Installer' : 'Install'}
+              </span>
+            </Button>
+          )}
 
           {/* Notifications */}
           <Button variant="ghost" size="sm" className="relative">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            <Bell className="h-5 w-5" />
+            <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-red-500"></span>
           </Button>
 
           {/* User Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2 px-2 sm:px-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] flex items-center justify-center">
-                  <span className="text-white text-sm font-semibold">{userInitials}</span>
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF]">
+                  <span className="text-sm font-semibold text-white">{userInitials}</span>
                 </div>
-                <div className="hidden md:block text-left">
+                <div className="hidden text-left md:block">
                   <p className="text-sm font-medium text-gray-900">{userName}</p>
-                  <p className="text-xs text-gray-500" suppressHydrationWarning>{displayRole}</p>
+                  <p className="text-xs text-gray-500" suppressHydrationWarning>
+                    {displayRole}
+                  </p>
                 </div>
-                <ChevronDown className="w-4 h-4 text-gray-400 hidden sm:block" />
+                <ChevronDown className="hidden h-4 w-4 text-gray-400 sm:block" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>
                 <div className="flex flex-col">
                   <span className="font-medium">{userName}</span>
-                  <span className="text-xs text-gray-500 font-normal">{userEmail}</span>
+                  <span className="text-xs font-normal text-gray-500">{userEmail}</span>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href="/" className="flex items-center gap-2 cursor-pointer">
-                  <Home className="w-4 h-4" />
+                <Link href="/" className="flex cursor-pointer items-center gap-2">
+                  <Home className="h-4 w-4" />
                   <span suppressHydrationWarning>{getLabel('Accueil', 'Home')}</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/dashboard" className="flex items-center gap-2 cursor-pointer">
-                  <LayoutDashboard className="w-4 h-4" />
+                <Link href="/dashboard" className="flex cursor-pointer items-center gap-2">
+                  <LayoutDashboard className="h-4 w-4" />
                   <span suppressHydrationWarning>{getLabel('Mon Dashboard', 'My Dashboard')}</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/settings" className="flex items-center gap-2 cursor-pointer">
-                  <User className="w-4 h-4" />
+                <Link href="/dashboard/settings" className="flex cursor-pointer items-center gap-2">
+                  <User className="h-4 w-4" />
                   <span suppressHydrationWarning>{getLabel('Mon Profil', 'My Profile')}</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/settings" className="flex items-center gap-2 cursor-pointer">
-                  <Settings className="w-4 h-4" />
+                <Link href="/dashboard/settings" className="flex cursor-pointer items-center gap-2">
+                  <Settings className="h-4 w-4" />
                   <span suppressHydrationWarning>{getLabel('Paramètres', 'Settings')}</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600 cursor-pointer">
-                <LogOut className="w-4 h-4 mr-2" />
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className="cursor-pointer text-red-600 focus:text-red-600"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
                 <span suppressHydrationWarning>{getLabel('Déconnexion', 'Logout')}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
