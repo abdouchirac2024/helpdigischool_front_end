@@ -1,120 +1,157 @@
 'use client'
 
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { ArrowRight, Sparkles, CheckCircle2 } from "lucide-react";
-import { useCounter } from "@/hooks/use-counter";
-import { useEffect, useRef, useState } from "react";
+import { Button } from '@/components/ui/button'
+import Link from 'next/link'
+import {
+  ArrowRight,
+  Sparkles,
+  CheckCircle2,
+  Shield,
+  Zap,
+  HeartHandshake,
+  Clock,
+} from 'lucide-react'
+import { useCounter } from '@/hooks/use-counter'
+import { useEffect, useRef, useState } from 'react'
 
 const benefits = [
-  "Configuration en 5 minutes",
-  "Essai gratuit 14 jours",
-  "Formation incluse",
-  "Support local camerounais",
-];
+  { icon: Clock, text: 'Configuration en 5 minutes' },
+  { icon: Zap, text: 'Essai gratuit 14 jours' },
+  { icon: HeartHandshake, text: 'Formation incluse' },
+  { icon: Shield, text: 'Support local camerounais' },
+]
 
 export function CTASection() {
   const { count, ref: counterRef } = useCounter({
     end: 500,
     duration: 2000,
-  });
+  })
 
-  const [isVisible, setIsVisible] = useState(false);
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false)
+  const sectionRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    const current = sectionRef.current
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setIsVisible(true);
+          setIsVisible(true)
         }
       },
       { threshold: 0.2 }
-    );
+    )
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
+    if (current) {
+      observer.observe(current)
     }
 
     return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
+      if (current) {
+        observer.unobserve(current)
       }
-    };
-  }, []);
+    }
+  }, [])
 
   return (
-    <section ref={sectionRef} className="py-12 sm:py-16 md:py-20 lg:py-32 relative overflow-hidden">
-      <div className="container mx-auto px-4 sm:px-6">
-        <div 
-          className={`relative bg-gradient-to-br from-primary via-primary to-secondary rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 lg:p-16 overflow-hidden transition-all duration-1000 ${
-            isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-95'
+    <section ref={sectionRef} className="relative overflow-hidden py-16 sm:py-20 lg:py-32">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div
+          className={`relative overflow-hidden rounded-2xl transition-all duration-1000 sm:rounded-3xl ${
+            isVisible ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-10 scale-95 opacity-0'
           }`}
         >
-          {/* Decorative Elements */}
-          <div className="absolute top-0 right-0 w-48 h-48 sm:w-72 sm:h-72 bg-primary-foreground/5 rounded-full translate-x-1/2 -translate-y-1/2 animate-pulse" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 sm:w-96 sm:h-96 bg-primary-foreground/5 rounded-full -translate-x-1/2 translate-y-1/2 animate-pulse" />
-          <div className="absolute inset-0 pattern-dots opacity-10" />
+          {/* Background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary via-[#3010D9] to-secondary" />
 
-          <div ref={counterRef} className="relative z-10 text-center max-w-3xl mx-auto">
+          {/* Decorative circles */}
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/[0.06] sm:h-80 sm:w-80 lg:h-96 lg:w-96" />
+            <div className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-white/[0.04] sm:h-96 sm:w-96" />
+            <div className="absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/[0.03] lg:h-64 lg:w-64" />
+          </div>
+
+          {/* Grid pattern */}
+          <div
+            className="absolute inset-0 opacity-[0.04]"
+            style={{
+              backgroundImage:
+                'radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)',
+              backgroundSize: '24px 24px',
+            }}
+          />
+
+          {/* Content */}
+          <div
+            ref={counterRef}
+            className="relative z-10 px-6 py-14 text-center sm:px-10 sm:py-16 md:px-12 lg:px-16 lg:py-20"
+          >
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-primary-foreground/10 text-primary-foreground text-xs sm:text-sm font-medium mb-4 sm:mb-6 backdrop-blur-sm animate-fade-in-up">
-              <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 animate-pulse" />
-              Rejoignez {Math.floor(count)}+ écoles
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold text-white backdrop-blur-sm sm:text-sm">
+              <Sparkles className="h-3.5 w-3.5 text-amber-300" />
+              <span>Rejoignez {Math.floor(count)}+ écoles</span>
             </div>
 
             {/* Headline */}
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-4 sm:mb-6 animate-fade-in-up animation-delay-100 px-2">
-              Prêt à digitaliser votre école?
+            <h2 className="mx-auto mb-4 max-w-2xl text-2xl font-bold text-white sm:mb-5 sm:text-3xl md:text-4xl lg:text-5xl lg:leading-tight">
+              Prêt à digitaliser{' '}
+              <span className="bg-gradient-to-r from-amber-200 to-amber-300 bg-clip-text text-transparent">
+                votre école
+              </span>
+              ?
             </h2>
 
             {/* Subheadline */}
-            <p className="text-base sm:text-lg lg:text-xl text-primary-foreground/80 mb-6 sm:mb-8 max-w-2xl mx-auto animate-fade-in-up animation-delay-200 px-2">
-              Inscrivez votre école dès maintenant et simplifiez la gestion des notes, 
-              bulletins et paiements. Vos équipes et parents vous remercieront.
+            <p className="mx-auto mb-8 max-w-xl text-sm leading-relaxed text-white/70 sm:mb-10 sm:text-base lg:text-lg">
+              Inscrivez votre école dès maintenant et simplifiez la gestion des notes, bulletins et
+              paiements. Vos équipes et parents vous remercieront.
             </p>
 
             {/* Benefits */}
-            <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-8 sm:mb-10 px-2">
+            <div className="mx-auto mb-10 grid max-w-2xl grid-cols-2 gap-2.5 sm:mb-12 sm:gap-3 lg:grid-cols-4">
               {benefits.map((benefit, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-1.5 sm:gap-2 text-primary-foreground/90 animate-fade-in-up bg-primary-foreground/5 px-3 py-1.5 rounded-full backdrop-blur-sm"
-                  style={{ animationDelay: `${300 + i * 100}ms` }}
+                  className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.07] px-3 py-2.5 backdrop-blur-sm sm:gap-2.5 sm:px-4 sm:py-3"
                 >
-                  <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm font-medium whitespace-nowrap">{benefit}</span>
+                  <benefit.icon className="h-4 w-4 shrink-0 text-amber-300 sm:h-5 sm:w-5" />
+                  <span className="text-[11px] font-medium leading-tight text-white/90 sm:text-xs lg:text-sm">
+                    {benefit.text}
+                  </span>
                 </div>
               ))}
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-fade-in-up animation-delay-700 px-2">
-              <Button 
-                variant="hero-outline" 
+            <div className="flex flex-col justify-center gap-3 sm:flex-row sm:gap-4">
+              <Button
                 size="xl"
-                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 hover:scale-105 transition-all duration-300 w-full sm:w-auto text-sm sm:text-base"
+                className="h-12 rounded-xl bg-white px-6 text-sm font-semibold text-primary shadow-xl shadow-black/20 transition-all duration-300 hover:scale-[1.02] hover:bg-white/95 hover:shadow-2xl sm:h-14 sm:px-8 sm:text-base"
                 asChild
               >
-                <Link href="/register">
+                <Link href="/register" className="flex items-center justify-center gap-2">
                   Inscrire Mon École
-                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
+                  <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Link>
               </Button>
-              <Button 
-                variant="hero-outline" 
+              <Button
+                variant="outline"
                 size="xl"
-                className="hover:scale-105 transition-all duration-300 w-full sm:w-auto text-sm sm:text-base"
+                className="h-12 rounded-xl border-white/25 bg-white/10 px-6 text-sm font-semibold text-white shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:bg-white/20 sm:h-14 sm:px-8 sm:text-base"
                 asChild
               >
-                <Link href="/contact">
+                <Link href="/contact" className="flex items-center justify-center">
                   Parler à un conseiller
                 </Link>
               </Button>
             </div>
+
+            {/* Trust line */}
+            <p className="mt-6 text-[11px] text-white/40 sm:mt-8 sm:text-xs">
+              Sans engagement &middot; Sans carte de crédit &middot; Annulation à tout moment
+            </p>
           </div>
         </div>
       </div>
     </section>
-  );
+  )
 }
