@@ -2,7 +2,7 @@
   "name": "Help Digi School - Gestion Scolaire",
   "short_name": "HelpDigiSchool",
   "description": "Plateforme de gestion scolaire pour les ecoles primaires et secondaires du Cameroun",
-  "start_url": "/",
+  "start_url": "/login",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#2563eb",
