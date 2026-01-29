@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import {
   GraduationCap,
@@ -16,6 +17,8 @@ import {
   BookOpen,
   Shield,
   Headphones,
+  Sparkles,
+  Star,
 } from 'lucide-react'
 
 const links = {
@@ -80,17 +83,25 @@ const linkSections = [
 export function Footer() {
   return (
     <footer className="relative overflow-hidden pb-20 lg:pb-0">
-      {/* ── Gradient Background ── */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0c0333] via-[#110442] to-[#0a0226]" />
+      {/* ── Background Image + Overlay ── */}
+      <div className="absolute inset-0">
+        <Image
+          src="/student_girl.jpeg"
+          alt="Élève souriante"
+          fill
+          className="object-cover object-top"
+          quality={90}
+          priority={false}
+        />
+        {/* Dark gradient overlay for readability */}
+        <div className="from-[#0c0333]/92 to-[#0a0226]/98 absolute inset-0 bg-gradient-to-b via-[#110442]/95" />
+      </div>
 
       {/* ── Decorative Elements ── */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        {/* Top glow */}
         <div className="absolute -top-32 left-1/2 h-64 w-[600px] -translate-x-1/2 rounded-full bg-[#2302B3]/20 blur-[120px]" />
-        {/* Side accents */}
         <div className="absolute -left-32 top-1/3 h-72 w-72 rounded-full bg-[#4318FF]/10 blur-[100px]" />
         <div className="absolute -right-32 bottom-1/4 h-72 w-72 rounded-full bg-[#2302B3]/10 blur-[100px]" />
-        {/* Grid pattern overlay */}
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
@@ -111,37 +122,81 @@ export function Footer() {
       </div>
 
       <div className="container relative z-10 mx-auto px-4 pt-20 sm:px-6 sm:pt-24 lg:px-8 lg:pt-28">
-        {/* ── Newsletter CTA Band ── */}
-        <div className="mb-14 overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-r from-[#2302B3]/30 via-[#4318FF]/20 to-[#2302B3]/30 p-6 backdrop-blur-sm sm:mb-16 sm:rounded-3xl sm:p-8 lg:p-10">
-          <div className="flex flex-col items-center gap-6 lg:flex-row lg:justify-between">
-            <div className="text-center lg:text-left">
-              <h3 className="mb-2 text-xl font-bold text-white sm:text-2xl">
-                Restez informé des nouveautés
-              </h3>
-              <p className="max-w-md text-sm text-slate-300/80 sm:text-base">
-                Recevez nos dernières actualités et mises à jour directement dans votre boîte mail.
-              </p>
-            </div>
-            <form
-              className="flex w-full max-w-md gap-2 sm:gap-3"
-              onSubmit={(e) => e.preventDefault()}
-            >
-              <div className="relative flex-1">
-                <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="email"
-                  placeholder="votre@email.com"
-                  className="h-11 w-full rounded-xl border border-white/10 bg-white/[0.06] pl-10 pr-4 text-sm text-white placeholder-slate-400/60 outline-none ring-0 transition-all focus:border-[#4318FF]/50 focus:bg-white/[0.1] sm:h-12 sm:rounded-xl"
+        {/* ── Hero CTA Band with Student Image ── */}
+        <div className="relative mb-14 overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-r from-[#2302B3]/40 via-[#4318FF]/25 to-[#2302B3]/40 backdrop-blur-md sm:mb-16 sm:rounded-3xl">
+          <div className="flex flex-col items-center lg:flex-row">
+            {/* Image side */}
+            <div className="relative hidden w-full lg:block lg:w-[280px] xl:w-[320px]">
+              <div className="relative h-full min-h-[280px]">
+                <Image
+                  src="/student_girl.jpeg"
+                  alt="Élève camerounaise souriante"
+                  fill
+                  className="object-cover object-top"
+                  quality={85}
                 />
+                {/* Gradient fade into content */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#1a0754]/90" />
+                {/* Floating badge */}
+                <div className="absolute bottom-4 left-4 flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-md">
+                  <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                  <span className="text-xs font-semibold text-white">+2 000 eleves</span>
+                </div>
               </div>
-              <button
-                type="submit"
-                className="flex h-11 shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-[#2302B3] to-[#4318FF] px-5 text-sm font-semibold text-white shadow-lg shadow-[#2302B3]/30 transition-all hover:shadow-xl hover:shadow-[#2302B3]/40 active:scale-[0.97] sm:h-12 sm:px-6"
+            </div>
+
+            {/* Content side */}
+            <div className="flex flex-1 flex-col items-center gap-6 p-6 sm:p-8 lg:items-start lg:p-10">
+              <div className="text-center lg:text-left">
+                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#4318FF]/30 bg-[#4318FF]/10 px-3 py-1">
+                  <Sparkles className="h-3.5 w-3.5 text-[#4318FF]" />
+                  <span className="text-xs font-semibold text-[#4318FF]/90">Newsletter</span>
+                </div>
+                <h3 className="mb-2 text-xl font-bold text-white sm:text-2xl">
+                  Rejoignez la communaute educative
+                </h3>
+                <p className="max-w-md text-sm text-slate-300/80 sm:text-base">
+                  Conseils pedagogiques, astuces numeriques et nouveautes — directement dans votre
+                  boite mail.
+                </p>
+              </div>
+              <form
+                className="flex w-full max-w-md gap-2 sm:gap-3"
+                onSubmit={(e) => e.preventDefault()}
               >
-                <Send className="h-4 w-4" />
-                <span className="hidden sm:inline">S&apos;abonner</span>
-              </button>
-            </form>
+                <div className="relative flex-1">
+                  <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="email"
+                    placeholder="votre@email.com"
+                    className="h-11 w-full rounded-xl border border-white/10 bg-white/[0.06] pl-10 pr-4 text-sm text-white placeholder-slate-400/60 outline-none ring-0 transition-all focus:border-[#4318FF]/50 focus:bg-white/[0.1] sm:h-12 sm:rounded-xl"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="flex h-11 shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-[#2302B3] to-[#4318FF] px-5 text-sm font-semibold text-white shadow-lg shadow-[#2302B3]/30 transition-all hover:shadow-xl hover:shadow-[#2302B3]/40 active:scale-[0.97] sm:h-12 sm:px-6"
+                >
+                  <Send className="h-4 w-4" />
+                  <span className="hidden sm:inline">S&apos;abonner</span>
+                </button>
+              </form>
+            </div>
+
+            {/* Mobile image (visible only on small screens) */}
+            <div className="relative h-48 w-full overflow-hidden rounded-b-2xl sm:h-56 lg:hidden">
+              <Image
+                src="/student_girl.jpeg"
+                alt="Élève camerounaise souriante"
+                fill
+                className="object-cover object-top"
+                quality={85}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#110442]/80 to-transparent" />
+              <div className="absolute bottom-4 left-4 flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-md">
+                <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                <span className="text-xs font-semibold text-white">+2 000 eleves</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -158,12 +213,12 @@ export function Footer() {
                   Help Digi School
                 </span>
                 <span className="text-xs font-medium text-[#4318FF]/80 sm:text-sm">
-                  Écoles Primaires du Cameroun
+                  Ecoles Primaires du Cameroun
                 </span>
               </div>
             </Link>
             <p className="mb-8 max-w-xs text-sm leading-relaxed text-slate-400 sm:text-[15px]">
-              La plateforme tout-en-un pour la gestion moderne des écoles primaires. Notes,
+              La plateforme tout-en-un pour la gestion moderne des ecoles primaires. Notes,
               bulletins, paiements, communication — tout en un clic.
             </p>
 
