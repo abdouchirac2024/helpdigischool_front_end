@@ -1,94 +1,96 @@
-import withPWAInit from 'next-pwa'
+import withPWAInit from '@ducanh2912/next-pwa'
 
 const withPWA = withPWAInit({
   dest: 'public',
   register: false, // On gere l'enregistrement manuellement via PWARegister
-  skipWaiting: true,
+  skipWaiting: false, // L'utilisateur controle la mise a jour via le toast
   disable: process.env.NODE_ENV === 'development',
   fallbacks: {
     document: '/offline',
   },
-  runtimeCaching: [
-    {
-      urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
-      handler: 'CacheFirst',
-      options: {
-        cacheName: 'google-fonts',
-        expiration: {
-          maxEntries: 20,
-          maxAgeSeconds: 365 * 24 * 60 * 60, // 1 an
+  workboxOptions: {
+    runtimeCaching: [
+      {
+        urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
+        handler: 'CacheFirst',
+        options: {
+          cacheName: 'google-fonts',
+          expiration: {
+            maxEntries: 20,
+            maxAgeSeconds: 365 * 24 * 60 * 60, // 1 an
+          },
         },
       },
-    },
-    {
-      urlPattern: /\.(?:eot|otf|ttc|ttf|woff|woff2|font\.css)$/i,
-      handler: 'StaleWhileRevalidate',
-      options: {
-        cacheName: 'static-font-assets',
-        expiration: {
-          maxEntries: 20,
-          maxAgeSeconds: 7 * 24 * 60 * 60, // 7 jours
+      {
+        urlPattern: /\.(?:eot|otf|ttc|ttf|woff|woff2|font\.css)$/i,
+        handler: 'StaleWhileRevalidate',
+        options: {
+          cacheName: 'static-font-assets',
+          expiration: {
+            maxEntries: 20,
+            maxAgeSeconds: 7 * 24 * 60 * 60, // 7 jours
+          },
         },
       },
-    },
-    {
-      urlPattern: /\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,
-      handler: 'StaleWhileRevalidate',
-      options: {
-        cacheName: 'static-image-assets',
-        expiration: {
-          maxEntries: 64,
-          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 jours
+      {
+        urlPattern: /\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,
+        handler: 'StaleWhileRevalidate',
+        options: {
+          cacheName: 'static-image-assets',
+          expiration: {
+            maxEntries: 64,
+            maxAgeSeconds: 30 * 24 * 60 * 60, // 30 jours
+          },
         },
       },
-    },
-    {
-      urlPattern: /\.(?:js)$/i,
-      handler: 'StaleWhileRevalidate',
-      options: {
-        cacheName: 'static-js-assets',
-        expiration: {
-          maxEntries: 48,
-          maxAgeSeconds: 7 * 24 * 60 * 60,
+      {
+        urlPattern: /\.(?:js)$/i,
+        handler: 'StaleWhileRevalidate',
+        options: {
+          cacheName: 'static-js-assets',
+          expiration: {
+            maxEntries: 48,
+            maxAgeSeconds: 7 * 24 * 60 * 60,
+          },
         },
       },
-    },
-    {
-      urlPattern: /\.(?:css)$/i,
-      handler: 'StaleWhileRevalidate',
-      options: {
-        cacheName: 'static-style-assets',
-        expiration: {
-          maxEntries: 32,
-          maxAgeSeconds: 7 * 24 * 60 * 60,
+      {
+        urlPattern: /\.(?:css)$/i,
+        handler: 'StaleWhileRevalidate',
+        options: {
+          cacheName: 'static-style-assets',
+          expiration: {
+            maxEntries: 32,
+            maxAgeSeconds: 7 * 24 * 60 * 60,
+          },
         },
       },
-    },
-    {
-      urlPattern: /\/api\/.*$/i,
-      handler: 'NetworkFirst',
-      options: {
-        cacheName: 'api-cache',
-        networkTimeoutSeconds: 10,
-        expiration: {
-          maxEntries: 32,
-          maxAgeSeconds: 24 * 60 * 60, // 1 jour
+      {
+        urlPattern: /\/api\/.*$/i,
+        handler: 'NetworkFirst',
+        options: {
+          cacheName: 'api-cache',
+          networkTimeoutSeconds: 10,
+          expiration: {
+            maxEntries: 32,
+            maxAgeSeconds: 10 * 60, // 10 minutes - donnees scolaires changent frequemment
+          },
         },
       },
-    },
-    {
-      urlPattern: /.*$/i,
-      handler: 'NetworkFirst',
-      options: {
-        cacheName: 'others',
-        networkTimeoutSeconds: 10,
-        expiration: {
-          maxEntries: 32,
-          maxAgeSeconds: 24 * 60 * 60,
+      {
+        urlPattern: /.*$/i,
+        handler: 'NetworkFirst',
+        options: {
+          cacheName: 'others',
+          networkTimeoutSeconds: 10,
+          expiration: {
+            maxEntries: 32,
+            maxAgeSeconds: 24 * 60 * 60,
+          },
         },
       },
-    },
-  ],
+    ],
+  },
 })
 
 /** @type {import('next').NextConfig} */

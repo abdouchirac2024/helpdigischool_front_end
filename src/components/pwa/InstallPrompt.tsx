@@ -32,20 +32,24 @@ export function InstallPrompt() {
     const handler = (e: Event) => {
       e.preventDefault()
       setDeferredPrompt(e as BeforeInstallPromptEvent)
-      // Afficher apres un delai
+      // Afficher apres la 2e visite ou 30s d'utilisation
       const dismissed = localStorage.getItem('pwa-install-dismissed')
-      if (!dismissed) {
-        setTimeout(() => setShowPrompt(true), 5000)
+      const visitCount = parseInt(localStorage.getItem('pwa-visit-count') || '0', 10) + 1
+      localStorage.setItem('pwa-visit-count', visitCount.toString())
+      if (!dismissed && visitCount >= 2) {
+        setTimeout(() => setShowPrompt(true), 30000)
       }
     }
 
     window.addEventListener('beforeinstallprompt', handler)
 
-    // Pour iOS, afficher le guide apres un delai
+    // Pour iOS, afficher le guide apres la 2e visite
     if (ios) {
       const dismissed = localStorage.getItem('pwa-install-dismissed')
-      if (!dismissed) {
-        setTimeout(() => setShowPrompt(true), 5000)
+      const visitCount = parseInt(localStorage.getItem('pwa-visit-count') || '0', 10) + 1
+      localStorage.setItem('pwa-visit-count', visitCount.toString())
+      if (!dismissed && visitCount >= 2) {
+        setTimeout(() => setShowPrompt(true), 30000)
       }
     }
 

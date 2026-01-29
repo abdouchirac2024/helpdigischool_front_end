@@ -61,6 +61,7 @@ function UpdateToast({ onReload, onDismiss }: { onReload: () => void; onDismiss:
 }
 
 export function PWARegister() {
+  const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null)
   const [showUpdate, setShowUpdate] = useState(false)
 
   useEffect(() => {
@@ -69,7 +70,24 @@ export function PWARegister() {
     navigator.serviceWorker
       .register('/sw.js')
       .then((registration) => {
-        console.log('SW registered:', registration.scope)
+        // Si un SW est deja en attente au chargement
+        if (registration.waiting) {
+          setWaitingWorker(registration.waiting)
+          setShowUpdate(true)
+        }
+
+        // Detecter quand un nouveau SW est installe et attend
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing
+          if (!newWorker) return
+
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              setWaitingWorker(newWorker)
+              setShowUpdate(true)
+            }
+          })
+        })
 
         // Verifier les mises a jour periodiquement
         setInterval(
@@ -83,15 +101,22 @@ export function PWARegister() {
         console.log('SW registration failed:', error)
       })
 
-    // Ecouter les mises a jour du SW
+    // Recharger quand le nouveau SW prend le controle
+    let refreshing = false
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      setShowUpdate(true)
+      if (!refreshing) {
+        refreshing = true
+        window.location.reload()
+      }
     })
   }, [])
 
+  const handleUpdate = () => {
+    waitingWorker?.postMessage({ type: 'SKIP_WAITING' })
+    setShowUpdate(false)
+  }
+
   if (!showUpdate) return null
 
-  return (
-    <UpdateToast onReload={() => window.location.reload()} onDismiss={() => setShowUpdate(false)} />
-  )
+  return <UpdateToast onReload={handleUpdate} onDismiss={() => setShowUpdate(false)} />
 }
