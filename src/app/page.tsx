@@ -7,6 +7,12 @@ import { StatsSection } from '@/components/landing/StatsSection'
 import { TestimonialsSection } from '@/components/landing/TestimonialsSection'
 import { FAQSection } from '@/components/landing/FAQSection'
 import { PWARedirect } from '@/components/pwa/PWARedirect'
+import {
+  DividerHeroToFeatures,
+  DividerWaveDark,
+  DividerWaveLight,
+  DividerTestimonialsToFAQ,
+} from '@/components/landing/SectionDivider'
 
 export const metadata: Metadata = {
   title: 'Help Digi School - Plateforme SaaS #1 pour Écoles Primaires au Cameroun',
@@ -23,9 +29,13 @@ export default function HomePage() {
       <Navbar />
       <main className="pb-20 lg:pb-0">
         <HeroSection />
+        <DividerHeroToFeatures />
         <FeaturesSection />
+        <DividerWaveDark />
         <StatsSection />
+        <DividerWaveLight />
         <TestimonialsSection />
+        <DividerTestimonialsToFAQ />
         <FAQSection />
       </main>
       <Footer />

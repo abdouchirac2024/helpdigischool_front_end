@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
 import {
   ArrowRight,
   Play,
@@ -77,13 +78,23 @@ export function HeroSection() {
           {/* Left Content - Text */}
           <div className="space-y-6 text-center sm:space-y-7 lg:col-span-7 lg:text-left">
             {/* Badge */}
-            <div className="inline-flex animate-fade-in items-center gap-2.5 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-medium text-white backdrop-blur-xl sm:text-sm">
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-medium text-white backdrop-blur-xl sm:text-sm"
+            >
               <Sparkles className="h-3.5 w-3.5 text-accent" />
               <span>Plateforme SaaS #1 au Cameroun</span>
-            </div>
+            </motion.div>
 
             {/* Headline */}
-            <h1 className="animate-slide-up text-4xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-5xl xl:text-6xl 2xl:text-7xl">
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+              className="text-4xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-5xl xl:text-6xl 2xl:text-7xl"
+            >
               Gérez votre école{' '}
               <span className="relative">
                 <span className="bg-gradient-to-r from-primary via-blue-400 to-secondary bg-clip-text text-transparent">
@@ -112,32 +123,58 @@ export function HeroSection() {
                 </svg>
               </span>
               <br className="hidden sm:block" /> en toute simplicité
-            </h1>
+            </motion.h1>
 
             {/* Subheadline */}
-            <p className="mx-auto max-w-xl animate-slide-up text-base leading-relaxed text-white/80 sm:text-lg lg:mx-0 lg:text-xl">
+            <motion.p
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+              className="mx-auto max-w-xl text-base leading-relaxed text-white/80 sm:text-lg lg:mx-0 lg:text-xl"
+            >
               Notes, bulletins, paiements — tout en{' '}
               <span className="font-bold text-white">1 clic</span>.
               <span className="mt-1 block text-sm text-white/60 sm:text-base">
                 La solution complète pour les écoles primaires camerounaises.
               </span>
-            </p>
+            </motion.p>
 
             {/* Features Grid */}
-            <div className="mx-auto grid max-w-lg animate-slide-up grid-cols-2 gap-2.5 sm:gap-3 lg:mx-0">
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: {},
+                visible: { transition: { staggerChildren: 0.1, delayChildren: 0.45 } },
+              }}
+              className="mx-auto grid max-w-lg grid-cols-2 gap-2.5 sm:gap-3 lg:mx-0"
+            >
               {features.map((feature, i) => (
-                <div
+                <motion.div
                   key={i}
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    visible: {
+                      opacity: 1,
+                      y: 0,
+                      transition: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] },
+                    },
+                  }}
                   className="flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.07] px-3 py-2.5 text-xs font-medium text-white/90 backdrop-blur-sm transition-colors hover:bg-white/[0.12] sm:text-sm"
                 >
                   <feature.icon className="h-4 w-4 shrink-0 text-secondary" />
                   <span className="leading-tight">{feature.text}</span>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
 
             {/* CTA Buttons */}
-            <div className="flex animate-slide-up flex-col justify-center gap-3 pt-2 sm:flex-row sm:gap-4 lg:justify-start">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
+              className="flex flex-col justify-center gap-3 pt-2 sm:flex-row sm:gap-4 lg:justify-start"
+            >
               <Button
                 variant="hero"
                 size="xl"
@@ -161,10 +198,15 @@ export function HeroSection() {
                   <span>Voir la Démo</span>
                 </Link>
               </Button>
-            </div>
+            </motion.div>
 
-            {/* Stats Bar - Mobile & Desktop */}
-            <div className="flex animate-fade-in flex-wrap justify-center gap-6 border-t border-white/10 pt-6 sm:gap-8 lg:justify-start">
+            {/* Stats Bar */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.9 }}
+              className="flex flex-wrap justify-center gap-6 border-t border-white/10 pt-6 sm:gap-8 lg:justify-start"
+            >
               {stats.map((stat, i) => (
                 <div key={i} className="flex items-center gap-2.5">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10 sm:h-10 sm:w-10">
@@ -178,14 +220,25 @@ export function HeroSection() {
                   </div>
                 </div>
               ))}
-            </div>
+            </motion.div>
           </div>
 
           {/* Right Side - Dashboard Preview Card */}
           <div className="hidden lg:col-span-5 lg:block">
             <div className="relative">
               {/* Main Card */}
-              <div className="animate-scale-in overflow-hidden rounded-2xl border border-white/15 bg-white/[0.08] shadow-2xl backdrop-blur-xl">
+              <motion.div
+                initial={{ opacity: 0, x: 60, scale: 0.95 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                transition={{
+                  duration: 0.8,
+                  delay: 0.4,
+                  type: 'spring',
+                  stiffness: 100,
+                  damping: 20,
+                }}
+                className="overflow-hidden rounded-2xl border border-white/15 bg-white/[0.08] shadow-2xl backdrop-blur-xl"
+              >
                 {/* Card Header */}
                 <div className="bg-gradient-to-r from-primary to-secondary p-5">
                   <div className="flex items-center gap-3">
@@ -278,33 +331,55 @@ export function HeroSection() {
                     ))}
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Floating Card - Left */}
-              <div className="absolute -left-12 top-24 animate-float rounded-xl border border-white/15 bg-white/[0.1] p-3.5 shadow-xl backdrop-blur-xl">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/20">
-                    <CheckCircle2 className="h-5 w-5 text-secondary" />
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.8 }}
+                className="absolute -left-12 top-24"
+              >
+                <motion.div
+                  animate={{ y: [0, -8, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                  className="rounded-xl border border-white/15 bg-white/[0.1] p-3.5 shadow-xl backdrop-blur-xl"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/20">
+                      <CheckCircle2 className="h-5 w-5 text-secondary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-white">98%</p>
+                      <p className="text-[11px] text-white/50">Taux de paiement</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-white">98%</p>
-                    <p className="text-[11px] text-white/50">Taux de paiement</p>
-                  </div>
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
 
               {/* Floating Card - Right */}
-              <div className="absolute -right-6 bottom-28 animate-float rounded-xl border border-white/15 bg-white/[0.1] p-3.5 shadow-xl backdrop-blur-xl delay-500">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/20">
-                    <FileText className="h-5 w-5 text-accent" />
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 1.0 }}
+                className="absolute -right-6 bottom-28"
+              >
+                <motion.div
+                  animate={{ y: [0, -8, 0] }}
+                  transition={{ duration: 4, delay: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                  className="rounded-xl border border-white/15 bg-white/[0.1] p-3.5 shadow-xl backdrop-blur-xl"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/20">
+                      <FileText className="h-5 w-5 text-accent" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-white">1,250</p>
+                      <p className="text-[11px] text-white/50">Bulletins/mois</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-white">1,250</p>
-                    <p className="text-[11px] text-white/50">Bulletins/mois</p>
-                  </div>
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
 
               {/* Glow Effects */}
               <div className="absolute -right-8 -top-8 -z-10 h-64 w-64 rounded-full bg-primary/15 blur-[80px]" />
