@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { Building2, Users, FileText, ThumbsUp } from 'lucide-react'
 import { useCounter } from '@/hooks/use-counter'
 
@@ -106,6 +107,50 @@ export function StatsSection() {
         <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-violet-100/40 blur-3xl" />
         <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-amber-100/40 blur-3xl" />
         <div className="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-100/30 blur-3xl" />
+      </div>
+
+      {/* School logos in corners */}
+      <div className="pointer-events-none absolute inset-0">
+        {/* Top-left */}
+        <div className="absolute left-4 top-4 sm:left-8 sm:top-8 lg:left-12 lg:top-10">
+          <Image
+            src="/hel.jpeg"
+            alt=""
+            width={60}
+            height={60}
+            className="rounded-2xl opacity-[0.07] sm:h-[72px] sm:w-[72px] lg:h-20 lg:w-20"
+          />
+        </div>
+        {/* Top-right */}
+        <div className="absolute right-4 top-4 sm:right-8 sm:top-8 lg:right-12 lg:top-10">
+          <Image
+            src="/hel.jpeg"
+            alt=""
+            width={60}
+            height={60}
+            className="rounded-2xl opacity-[0.07] sm:h-[72px] sm:w-[72px] lg:h-20 lg:w-20"
+          />
+        </div>
+        {/* Bottom-left */}
+        <div className="absolute bottom-4 left-4 sm:bottom-8 sm:left-8 lg:bottom-10 lg:left-12">
+          <Image
+            src="/hel.jpeg"
+            alt=""
+            width={60}
+            height={60}
+            className="rounded-2xl opacity-[0.07] sm:h-[72px] sm:w-[72px] lg:h-20 lg:w-20"
+          />
+        </div>
+        {/* Bottom-right */}
+        <div className="absolute bottom-4 right-4 sm:bottom-8 sm:right-8 lg:bottom-10 lg:right-12">
+          <Image
+            src="/hel.jpeg"
+            alt=""
+            width={60}
+            height={60}
+            className="rounded-2xl opacity-[0.07] sm:h-[72px] sm:w-[72px] lg:h-20 lg:w-20"
+          />
+        </div>
       </div>
 
       {/* Dot pattern */}
