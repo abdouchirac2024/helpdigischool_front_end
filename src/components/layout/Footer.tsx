@@ -137,29 +137,87 @@ export function Footer() {
         })}
       </div>
 
-      {/* ── SVG Filigrane / Watermark pattern ── */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-[0.025]">
+      {/* ── Graduation cap + "Help Digi School" text repeated across footer ── */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <pattern
-              id="hds-filigrane"
+              id="hds-brand"
               x="0"
               y="0"
-              width="160"
-              height="160"
+              width="280"
+              height="120"
               patternUnits="userSpaceOnUse"
+              patternTransform="rotate(-12)"
             >
+              {/* Graduation cap icon */}
+              <path d="M24 12 L12 18 L24 24 L36 18 Z" fill="rgba(255,255,255,0.04)" />
               <path
-                d={HDS_LOGO_PATH}
+                d="M16 20 L16 26 C16 28 20 30 24 30 C28 30 32 28 32 26 L32 20"
                 fill="none"
-                stroke="currentColor"
-                strokeWidth="0.8"
-                className="text-violet-300"
-                transform="scale(1.4) translate(5,5)"
+                stroke="rgba(255,255,255,0.04)"
+                strokeWidth="1.5"
               />
+              <line
+                x1="36"
+                y1="18"
+                x2="36"
+                y2="28"
+                stroke="rgba(255,255,255,0.04)"
+                strokeWidth="1.5"
+              />
+              {/* Text */}
+              <text
+                x="44"
+                y="24"
+                fill="rgba(255,255,255,0.04)"
+                fontSize="13"
+                fontWeight="700"
+                fontFamily="system-ui, sans-serif"
+                letterSpacing="1"
+              >
+                Help Digi School
+              </text>
+            </pattern>
+            <pattern
+              id="hds-brand-2"
+              x="140"
+              y="60"
+              width="280"
+              height="120"
+              patternUnits="userSpaceOnUse"
+              patternTransform="rotate(-12)"
+            >
+              <path d="M24 12 L12 18 L24 24 L36 18 Z" fill="rgba(255,255,255,0.03)" />
+              <path
+                d="M16 20 L16 26 C16 28 20 30 24 30 C28 30 32 28 32 26 L32 20"
+                fill="none"
+                stroke="rgba(255,255,255,0.03)"
+                strokeWidth="1.5"
+              />
+              <line
+                x1="36"
+                y1="18"
+                x2="36"
+                y2="28"
+                stroke="rgba(255,255,255,0.03)"
+                strokeWidth="1.5"
+              />
+              <text
+                x="44"
+                y="24"
+                fill="rgba(255,255,255,0.03)"
+                fontSize="13"
+                fontWeight="700"
+                fontFamily="system-ui, sans-serif"
+                letterSpacing="1"
+              >
+                Help Digi School
+              </text>
             </pattern>
           </defs>
-          <rect width="100%" height="100%" fill="url(#hds-filigrane)" />
+          <rect width="100%" height="100%" fill="url(#hds-brand)" />
+          <rect width="100%" height="100%" fill="url(#hds-brand-2)" />
         </svg>
       </div>
 
