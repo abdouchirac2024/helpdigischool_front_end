@@ -79,7 +79,7 @@ const badgeVariants = {
     opacity: 1,
     scale: 1,
     y: 0,
-    transition: { type: 'spring', stiffness: 200, damping: 20 },
+    transition: { type: 'spring' as const, stiffness: 200, damping: 20 },
   },
 }
 
@@ -108,7 +108,7 @@ const ctaCardVariants = {
     y: 0,
     scale: 1,
     transition: {
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 80,
       damping: 16,
       delay: 0.4,
@@ -222,7 +222,7 @@ export function FAQSection() {
             whileHover={{
               y: -4,
               scale: 1.01,
-              transition: { type: 'spring', stiffness: 300, damping: 20 },
+              transition: { type: 'spring' as const, stiffness: 300, damping: 20 },
             }}
             className="rounded-2xl border border-border/50 bg-card p-6 text-center shadow-sm transition-shadow duration-300 hover:shadow-xl sm:p-8 lg:p-10"
           >
@@ -230,7 +230,7 @@ export function FAQSection() {
               initial={{ scale: 0, rotate: -20 }}
               whileInView={{ scale: 1, rotate: 0 }}
               viewport={{ once: true }}
-              transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.5 }}
+              transition={{ type: 'spring' as const, stiffness: 200, damping: 15, delay: 0.5 }}
               className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 sm:h-14 sm:w-14"
             >
               <MessageCircle className="h-6 w-6 text-primary sm:h-7 sm:w-7" />

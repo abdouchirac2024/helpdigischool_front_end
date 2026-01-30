@@ -84,7 +84,7 @@ export function IdentitySection({
                 opacity: 1,
                 scale: 1,
                 y: 0,
-                transition: { type: 'spring', stiffness: 200, damping: 20 },
+                transition: { type: 'spring' as const, stiffness: 200, damping: 20 },
               },
             }}
             className="mb-6 inline-block rounded-full bg-[#2302B3]/5 px-4 py-1.5 text-sm font-bold uppercase tracking-wider text-[#2302B3] ring-1 ring-[#2302B3]/10"

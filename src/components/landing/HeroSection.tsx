@@ -233,7 +233,7 @@ export function HeroSection() {
                 transition={{
                   duration: 0.8,
                   delay: 0.4,
-                  type: 'spring',
+                  type: 'spring' as const,
                   stiffness: 100,
                   damping: 20,
                 }}

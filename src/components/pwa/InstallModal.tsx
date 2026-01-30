@@ -53,7 +53,7 @@ const modalVariants = {
     opacity: 1,
     scale: 1,
     y: 0,
-    transition: { type: 'spring', stiffness: 300, damping: 25, delay: 0.05 },
+    transition: { type: 'spring' as const, stiffness: 300, damping: 25, delay: 0.05 },
   },
   exit: {
     opacity: 0,
@@ -132,7 +132,12 @@ export function InstallModal({ open, onClose }: InstallModalProps) {
                   <motion.div
                     initial={{ scale: 0, rotate: -20 }}
                     animate={{ scale: 1, rotate: 0 }}
-                    transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.15 }}
+                    transition={{
+                      type: 'spring' as const,
+                      stiffness: 200,
+                      damping: 15,
+                      delay: 0.15,
+                    }}
                     className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 shadow-lg backdrop-blur-sm"
                   >
                     <Smartphone className="h-8 w-8 text-white" />

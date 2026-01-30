@@ -343,7 +343,7 @@ export default function AboutContent() {
                         transition={{
                           duration: 0.4,
                           delay: 1.1 + i * 0.1,
-                          type: 'spring',
+                          type: 'spring' as const,
                           stiffness: 200,
                         }}
                         className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-[#2302B3] to-[#4318FF] text-xs font-bold text-white dark:border-gray-900"
@@ -385,7 +385,7 @@ export default function AboutContent() {
               <motion.div
                 variants={scaleIn}
                 whileHover={{ scale: 1.02, rotate: -1 }}
-                transition={{ type: 'spring', stiffness: 300 }}
+                transition={{ type: 'spring' as const, stiffness: 300 }}
                 className="relative rounded-3xl bg-gradient-to-br from-[#2302B3] to-[#4318FF] p-8 text-white lg:p-12"
               >
                 <motion.div
@@ -510,7 +510,7 @@ export default function AboutContent() {
                 key={i}
                 variants={staggerItem}
                 whileHover={{ y: -8, scale: 1.02 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                transition={{ type: 'spring' as const, stiffness: 300, damping: 20 }}
                 className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-8 transition-all duration-500 hover:border-transparent hover:shadow-2xl"
               >
                 {/* Hover gradient background */}
@@ -521,7 +521,7 @@ export default function AboutContent() {
                 <motion.div
                   className={`h-14 w-14 rounded-2xl bg-gradient-to-br ${value.color} mb-6 flex items-center justify-center shadow-lg`}
                   whileHover={{ scale: 1.15, rotate: 5 }}
-                  transition={{ type: 'spring', stiffness: 300 }}
+                  transition={{ type: 'spring' as const, stiffness: 300 }}
                 >
                   <value.icon className="h-7 w-7 text-white" />
                 </motion.div>
@@ -579,7 +579,7 @@ export default function AboutContent() {
                     <motion.div
                       className="absolute left-1/2 top-4 z-10 flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] shadow-lg shadow-[#2302B3]/50"
                       whileHover={{ scale: 1.3 }}
-                      transition={{ type: 'spring', stiffness: 300 }}
+                      transition={{ type: 'spring' as const, stiffness: 300 }}
                     >
                       <milestone.icon className="h-4 w-4 text-white" />
                     </motion.div>
@@ -588,7 +588,7 @@ export default function AboutContent() {
                     <motion.div
                       className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-colors hover:bg-white/10"
                       whileHover={{ y: -4, scale: 1.03 }}
-                      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                      transition={{ type: 'spring' as const, stiffness: 300, damping: 20 }}
                     >
                       <div className="mb-2 text-3xl font-black text-[#4318FF]">
                         {milestone.year}
@@ -670,7 +670,7 @@ export default function AboutContent() {
                 key={i}
                 variants={scaleIn}
                 whileHover={{ y: -6, scale: 1.05 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                transition={{ type: 'spring' as const, stiffness: 300, damping: 20 }}
                 className="relative rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm transition-shadow hover:shadow-xl dark:border-gray-700 dark:bg-gray-800"
               >
                 <motion.div

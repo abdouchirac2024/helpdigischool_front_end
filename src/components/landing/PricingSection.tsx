@@ -24,7 +24,7 @@ const badgeVariants = {
     opacity: 1,
     scale: 1,
     y: 0,
-    transition: { type: 'spring', stiffness: 200, damping: 20 },
+    transition: { type: 'spring' as const, stiffness: 200, damping: 20 },
   },
 }
 
@@ -41,7 +41,7 @@ const cardVariants = {
     scale: 1,
     rotateX: 0,
     transition: {
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 70,
       damping: 16,
       delay: i * 0.15,
@@ -194,7 +194,7 @@ export function PricingSection() {
               whileHover={{
                 y: -10,
                 scale: plan.popular ? 1.12 : 1.03,
-                transition: { type: 'spring', stiffness: 300, damping: 20 },
+                transition: { type: 'spring' as const, stiffness: 300, damping: 20 },
               }}
               className={cn(
                 'relative overflow-hidden rounded-2xl border bg-card transition-shadow duration-300 hover:shadow-2xl',
@@ -211,7 +211,7 @@ export function PricingSection() {
                   viewport={{ once: true }}
                   transition={{
                     delay: i * 0.15 + 0.3,
-                    type: 'spring',
+                    type: 'spring' as const,
                     stiffness: 200,
                     damping: 20,
                   }}

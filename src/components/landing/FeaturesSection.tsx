@@ -103,7 +103,7 @@ const cardVariants = {
     scale: 1,
     rotateX: 0,
     transition: {
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 100,
       damping: 15,
       mass: 0.8,
@@ -131,7 +131,7 @@ const badgeVariants = {
     scale: 1,
     y: 0,
     transition: {
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 200,
       damping: 20,
     },
@@ -213,7 +213,7 @@ export function FeaturesSection() {
               whileHover={{
                 y: -8,
                 scale: 1.02,
-                transition: { type: 'spring', stiffness: 300, damping: 20 },
+                transition: { type: 'spring' as const, stiffness: 300, damping: 20 },
               }}
               className={`group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-6 shadow-sm transition-colors duration-300 hover:shadow-xl sm:p-7 lg:p-8 ${feature.hoverBorder}`}
             >

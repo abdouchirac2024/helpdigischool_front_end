@@ -45,7 +45,7 @@ export function CTASection() {
           initial={{ opacity: 0, y: 60, scale: 0.92 }}
           animate={isInView ? { opacity: 1, y: 0, scale: 1 } : undefined}
           transition={{
-            type: 'spring',
+            type: 'spring' as const,
             stiffness: 60,
             damping: 18,
           }}
@@ -88,7 +88,7 @@ export function CTASection() {
             <motion.div
               initial={{ opacity: 0, scale: 0.8, y: 20 }}
               animate={isInView ? { opacity: 1, scale: 1, y: 0 } : undefined}
-              transition={{ type: 'spring', stiffness: 200, damping: 20, delay: 0.2 }}
+              transition={{ type: 'spring' as const, stiffness: 200, damping: 20, delay: 0.2 }}
               className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold text-white backdrop-blur-sm sm:text-sm"
             >
               <Sparkles className="h-3.5 w-3.5 text-amber-300" />

@@ -78,7 +78,7 @@ const cardVariants = {
     y: 0,
     scale: 1,
     transition: {
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 100,
       damping: 14,
       delay: i * 0.15,
@@ -92,7 +92,7 @@ const floatIconVariants = {
     opacity: 1,
     scale: 1,
     transition: {
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 120,
       damping: 12,
       delay: 0.5 + i * 0.1,
@@ -124,7 +124,7 @@ function StatCard({ stat, index }: { stat: (typeof stats)[0]; index: number }) {
       whileHover={{
         y: -6,
         scale: 1.03,
-        transition: { type: 'spring', stiffness: 300, damping: 20 },
+        transition: { type: 'spring' as const, stiffness: 300, damping: 20 },
       }}
       className="group relative"
     >
@@ -260,7 +260,7 @@ export function StatsSection() {
                 opacity: 1,
                 scale: 1,
                 y: 0,
-                transition: { type: 'spring', stiffness: 200, damping: 20 },
+                transition: { type: 'spring' as const, stiffness: 200, damping: 20 },
               },
             }}
             className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-white/80 backdrop-blur-sm sm:text-sm"

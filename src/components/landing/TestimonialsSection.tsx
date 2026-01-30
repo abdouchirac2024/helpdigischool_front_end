@@ -63,7 +63,7 @@ const badgeVariants = {
     opacity: 1,
     scale: 1,
     y: 0,
-    transition: { type: 'spring', stiffness: 200, damping: 20 },
+    transition: { type: 'spring' as const, stiffness: 200, damping: 20 },
   },
 }
 
@@ -80,7 +80,7 @@ const cardVariants = {
     scale: 1,
     rotateY: 0,
     transition: {
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 80,
       damping: 16,
       delay: i * 0.12,
@@ -165,7 +165,7 @@ export function TestimonialsSection() {
               whileHover={{
                 y: -8,
                 scale: 1.02,
-                transition: { type: 'spring', stiffness: 300, damping: 20 },
+                transition: { type: 'spring' as const, stiffness: 300, damping: 20 },
               }}
               className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 shadow-sm transition-colors duration-300 hover:border-primary/20 hover:shadow-xl sm:p-7 lg:p-8"
             >
@@ -192,7 +192,7 @@ export function TestimonialsSection() {
                       viewport={{ once: true }}
                       transition={{
                         delay: i * 0.12 + star * 0.08,
-                        type: 'spring',
+                        type: 'spring' as const,
                         stiffness: 300,
                         damping: 15,
                       }}
@@ -223,7 +223,7 @@ export function TestimonialsSection() {
                   {/* Avatar */}
                   <motion.div
                     whileHover={{ scale: 1.1 }}
-                    transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+                    transition={{ type: 'spring' as const, stiffness: 300, damping: 15 }}
                     className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${testimonial.gradient} text-sm font-bold text-white shadow-lg sm:h-12 sm:w-12`}
                   >
                     {testimonial.avatar}
