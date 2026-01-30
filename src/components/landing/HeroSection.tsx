@@ -134,7 +134,7 @@ export function HeroSection() {
             >
               Notes, bulletins, paiements — tout en{' '}
               <span className="font-bold text-white">1 clic</span>.
-              <span className="mt-1 block text-sm text-white/60 sm:text-base">
+              <span className="mt-1 block text-sm font-medium text-white sm:text-base">
                 La solution complète pour les écoles primaires camerounaises.
               </span>
             </motion.p>
@@ -339,23 +339,7 @@ export function HeroSection() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.8 }}
                 className="absolute -left-12 top-24"
-              >
-                <motion.div
-                  animate={{ y: [0, -8, 0] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                  className="rounded-xl border border-white/15 bg-white/[0.1] p-3.5 shadow-xl backdrop-blur-xl"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/20">
-                      <CheckCircle2 className="h-5 w-5 text-secondary" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-white">98%</p>
-                      <p className="text-[11px] text-white/50">Taux de paiement</p>
-                    </div>
-                  </div>
-                </motion.div>
-              </motion.div>
+              ></motion.div>
 
               {/* Floating Card - Right */}
               <motion.div

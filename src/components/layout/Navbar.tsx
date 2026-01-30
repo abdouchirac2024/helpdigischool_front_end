@@ -153,7 +153,7 @@ export function Navbar() {
                   Help Digi School
                 </span>
                 <span
-                  className="hidden text-[10px] font-medium text-gray-400 sm:block lg:text-[11px]"
+                  className="hidden text-[10px] font-medium text-gray-900 dark:text-gray-100 sm:block lg:text-[11px]"
                   suppressHydrationWarning
                 >
                   {getLabel('Écoles Primaires Cameroun', 'Cameroon Primary Schools')}
