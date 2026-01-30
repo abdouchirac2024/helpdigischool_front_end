@@ -21,7 +21,7 @@ const benefitVariants = {
     y: 0,
     scale: 1,
     transition: {
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 120,
       damping: 14,
       delay: 0.4 + i * 0.1,
