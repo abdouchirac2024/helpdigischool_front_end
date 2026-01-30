@@ -6,7 +6,6 @@ import { FeaturesSection } from '@/components/landing/FeaturesSection'
 import { StatsSection } from '@/components/landing/StatsSection'
 import { TestimonialsSection } from '@/components/landing/TestimonialsSection'
 import { FAQSection } from '@/components/landing/FAQSection'
-import { CTASection } from '@/components/landing/CTASection'
 import { PWARedirect } from '@/components/pwa/PWARedirect'
 
 export const metadata: Metadata = {
@@ -28,7 +27,6 @@ export default function HomePage() {
         <StatsSection />
         <TestimonialsSection />
         <FAQSection />
-        <CTASection />
       </main>
       <Footer />
     </div>

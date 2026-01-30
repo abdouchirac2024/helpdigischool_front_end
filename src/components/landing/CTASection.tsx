@@ -91,15 +91,6 @@ export function CTASection() {
               <span>Rejoignez {Math.floor(count)}+ écoles</span>
             </div>
 
-            {/* Headline */}
-            <h2 className="mx-auto mb-4 max-w-2xl text-2xl font-bold text-white sm:mb-5 sm:text-3xl md:text-4xl lg:text-5xl lg:leading-tight">
-              Prêt à digitaliser{' '}
-              <span className="bg-gradient-to-r from-amber-200 to-amber-300 bg-clip-text text-transparent">
-                votre école
-              </span>
-              ?
-            </h2>
-
             {/* Subheadline */}
             <p className="mx-auto mb-8 max-w-xl text-sm leading-relaxed text-white/70 sm:mb-10 sm:text-base lg:text-lg">
               Inscrivez votre école dès maintenant et simplifiez la gestion des notes, bulletins et
