@@ -23,6 +23,13 @@ import {
   Star,
 } from 'lucide-react'
 
+/**
+ * SVG path for the Help Digi School "H" hexagon logo.
+ * Used as filigrane / watermark pattern across the footer.
+ */
+const HDS_LOGO_PATH =
+  'M50 2 L93 27 L93 73 L50 98 L7 73 L7 27 Z M35 30 L35 70 M35 50 L65 50 M65 30 L65 70'
+
 const footerLinks = [
   {
     title: 'Produit',
@@ -128,6 +135,32 @@ export function Footer() {
             </motion.div>
           )
         })}
+      </div>
+
+      {/* ── SVG Filigrane / Watermark pattern ── */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-[0.025]">
+        <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern
+              id="hds-filigrane"
+              x="0"
+              y="0"
+              width="160"
+              height="160"
+              patternUnits="userSpaceOnUse"
+            >
+              <path
+                d={HDS_LOGO_PATH}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="0.8"
+                className="text-violet-300"
+                transform="scale(1.4) translate(5,5)"
+              />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#hds-filigrane)" />
+        </svg>
       </div>
 
       {/* Top accent line */}
@@ -281,8 +314,19 @@ export function Footer() {
           ))}
         </motion.div>
 
-        {/* ── Divider ── */}
-        <div className="mt-14 h-px bg-gradient-to-r from-transparent via-violet-500/10 to-transparent lg:mt-16" />
+        {/* ── Branded tagline strip ── */}
+        <div className="mt-14 flex items-center gap-4 lg:mt-16">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-violet-500/10 to-transparent" />
+          <div className="flex items-center gap-2 rounded-full border border-violet-500/10 bg-violet-500/5 px-4 py-1.5">
+            <svg width="16" height="16" viewBox="0 0 100 100" className="text-violet-400/50">
+              <path d={HDS_LOGO_PATH} fill="none" stroke="currentColor" strokeWidth="3" />
+            </svg>
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-violet-400/30">
+              Help Digi School &middot; Template
+            </span>
+          </div>
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-violet-500/10 to-transparent" />
+        </div>
 
         {/* ── Bottom bar ── */}
         <motion.div
