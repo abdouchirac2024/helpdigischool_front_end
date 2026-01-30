@@ -98,7 +98,7 @@ export function IdentitySection({
                 opacity: 1,
                 y: 0,
                 filter: 'blur(0px)',
-                transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1] },
+                transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1] as const },
               },
             }}
             className="mb-8 text-4xl font-black tracking-tight text-gray-900 md:text-5xl lg:text-6xl"
@@ -111,7 +111,7 @@ export function IdentitySection({
               visible: {
                 scaleX: 1,
                 opacity: 1,
-                transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+                transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as const },
               },
             }}
             className="mx-auto mb-10 h-1.5 w-24 origin-center rounded-full bg-gradient-to-r from-[#2302B3] to-[#4318FF]"
@@ -123,7 +123,7 @@ export function IdentitySection({
                 opacity: 1,
                 y: 0,
                 filter: 'blur(0px)',
-                transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+                transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as const },
               },
             }}
             className="text-xl font-medium leading-relaxed text-muted-foreground md:text-2xl"

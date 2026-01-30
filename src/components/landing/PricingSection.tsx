@@ -14,7 +14,7 @@ const headerVariants = {
     opacity: 1,
     y: 0,
     filter: 'blur(0px)',
-    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as const },
   },
 }
 
@@ -260,7 +260,7 @@ export function PricingSection() {
                       transition={{
                         delay: i * 0.15 + j * 0.05 + 0.3,
                         duration: 0.4,
-                        ease: [0.16, 1, 0.3, 1],
+                        ease: [0.16, 1, 0.3, 1] as const,
                       }}
                       className="flex items-start gap-3"
                     >

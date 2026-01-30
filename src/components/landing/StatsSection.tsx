@@ -275,7 +275,7 @@ export function StatsSection() {
                 opacity: 1,
                 y: 0,
                 filter: 'blur(0px)',
-                transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+                transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as const },
               },
             }}
             className="mb-3 text-2xl font-bold text-white sm:text-3xl lg:text-4xl"
@@ -291,7 +291,7 @@ export function StatsSection() {
               visible: {
                 opacity: 1,
                 y: 0,
-                transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+                transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as const },
               },
             }}
             className="text-sm text-white/60 sm:text-base lg:text-lg"
