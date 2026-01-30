@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -29,6 +29,22 @@ export function MobileNav() {
   const pathname = usePathname()
   const { user, isAuthenticated } = useAuth()
   const { language } = useLanguage()
+  const [isStandalone, setIsStandalone] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia('(display-mode: standalone)')
+    setIsStandalone(
+      mq.matches ||
+        ('standalone' in navigator &&
+          (navigator as unknown as { standalone: boolean }).standalone === true)
+    )
+    const handler = (e: MediaQueryListEvent) => setIsStandalone(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+
+  // Hide in PWA standalone mode
+  if (isStandalone) return null
 
   // Hide on dashboard pages
   if (pathname?.startsWith('/dashboard')) return null
