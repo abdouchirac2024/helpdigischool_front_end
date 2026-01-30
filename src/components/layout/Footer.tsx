@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import {
   GraduationCap,
   Mail,
@@ -12,316 +13,307 @@ import {
   Linkedin,
   Youtube,
   Heart,
+  ArrowUpRight,
   ArrowRight,
-  Send,
   BookOpen,
-  Shield,
-  Headphones,
-  Sparkles,
+  PenTool,
+  Calculator,
+  Globe,
+  Lightbulb,
   Star,
 } from 'lucide-react'
 
-const links = {
-  product: [
-    { label: 'Fonctionnalités', href: '/features' },
-    { label: 'Tarifs', href: '/pricing' },
-    { label: 'Témoignages', href: '/#testimonials' },
-    { label: 'FAQ', href: '/#faq' },
-  ],
-  company: [
-    { label: 'À propos', href: '/about' },
-    { label: 'Blog', href: '/blog' },
-    { label: 'Carrières', href: '/careers' },
-    { label: 'Contact', href: '/contact' },
-  ],
-  support: [
-    { label: "Centre d'aide", href: '/help' },
-    { label: 'Documentation', href: '/docs' },
-    { label: 'Statut système', href: '/status' },
-  ],
-  legal: [
-    { label: 'Confidentialité', href: '/privacy' },
-    { label: 'CGU', href: '/terms' },
-    { label: 'Cookies', href: '/cookies' },
-  ],
-}
+const footerLinks = [
+  {
+    title: 'Produit',
+    items: [
+      { label: 'Fonctionnalités', href: '/features' },
+      { label: 'Tarifs', href: '/pricing' },
+      { label: 'Témoignages', href: '/#testimonials' },
+      { label: 'FAQ', href: '/#faq' },
+    ],
+  },
+  {
+    title: 'Entreprise',
+    items: [
+      { label: 'À propos', href: '/about' },
+      { label: 'Blog', href: '/blog' },
+      { label: 'Carrières', href: '/careers' },
+      { label: 'Contact', href: '/contact' },
+    ],
+  },
+  {
+    title: 'Support',
+    items: [
+      { label: "Centre d'aide", href: '/help' },
+      { label: 'Documentation', href: '/docs' },
+      { label: 'Statut système', href: '/status' },
+    ],
+  },
+  {
+    title: 'Légal',
+    items: [
+      { label: 'Confidentialité', href: '/privacy' },
+      { label: 'CGU', href: '/terms' },
+      { label: 'Cookies', href: '/cookies' },
+    ],
+  },
+]
 
 const socialLinks = [
-  {
-    icon: Facebook,
-    href: 'https://facebook.com/helpdigischool',
-    label: 'Facebook',
-    color: 'hover:bg-[#1877F2]',
-  },
-  {
-    icon: Twitter,
-    href: 'https://twitter.com/helpdigischool',
-    label: 'Twitter',
-    color: 'hover:bg-[#1DA1F2]',
-  },
-  {
-    icon: Linkedin,
-    href: 'https://linkedin.com/company/helpdigischool',
-    label: 'LinkedIn',
-    color: 'hover:bg-[#0A66C2]',
-  },
-  {
-    icon: Youtube,
-    href: 'https://youtube.com/@helpdigischool',
-    label: 'YouTube',
-    color: 'hover:bg-[#FF0000]',
-  },
+  { icon: Facebook, href: 'https://facebook.com/helpdigischool', label: 'Facebook' },
+  { icon: Twitter, href: 'https://twitter.com/helpdigischool', label: 'Twitter' },
+  { icon: Linkedin, href: 'https://linkedin.com/company/helpdigischool', label: 'LinkedIn' },
+  { icon: Youtube, href: 'https://youtube.com/@helpdigischool', label: 'YouTube' },
 ]
 
-const linkSections = [
-  { title: 'Produit', icon: BookOpen, items: links.product },
-  { title: 'Entreprise', icon: GraduationCap, items: links.company },
-  { title: 'Support', icon: Headphones, items: links.support },
-  { title: 'Légal', icon: Shield, items: links.legal },
+/* Floating education icons for the branded pattern */
+const brandIcons = [
+  { icon: GraduationCap, x: '8%', y: '12%', size: 20, delay: 0, rotate: -12 },
+  { icon: BookOpen, x: '22%', y: '65%', size: 18, delay: 1.2, rotate: 8 },
+  { icon: PenTool, x: '38%', y: '25%', size: 16, delay: 0.6, rotate: -20 },
+  { icon: Calculator, x: '52%', y: '72%', size: 17, delay: 1.8, rotate: 15 },
+  { icon: Globe, x: '68%', y: '18%', size: 19, delay: 0.3, rotate: -8 },
+  { icon: Lightbulb, x: '82%', y: '55%', size: 16, delay: 1.5, rotate: 22 },
+  { icon: Star, x: '15%', y: '40%', size: 14, delay: 2.1, rotate: -15 },
+  { icon: GraduationCap, x: '75%', y: '38%', size: 15, delay: 0.9, rotate: 10 },
+  { icon: BookOpen, x: '48%', y: '45%', size: 14, delay: 2.4, rotate: -5 },
+  { icon: PenTool, x: '90%', y: '30%', size: 16, delay: 1.1, rotate: 18 },
+  { icon: Star, x: '60%', y: '80%', size: 13, delay: 0.7, rotate: -25 },
+  { icon: Lightbulb, x: '30%', y: '85%', size: 15, delay: 1.6, rotate: 12 },
 ]
+
+const fadeIn = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.07, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] },
+  }),
+}
 
 export function Footer() {
   return (
     <footer className="relative overflow-hidden pb-20 lg:pb-0">
-      {/* ── Background Image + Overlay ── */}
-      <div className="absolute inset-0">
-        <Image
-          src="/student_girl.jpeg"
-          alt="Élève souriante"
-          fill
-          className="object-cover object-top"
-          quality={90}
-          priority={false}
-        />
-        {/* Dark gradient overlay for readability */}
-        <div className="from-[#0c0333]/92 to-[#0a0226]/98 absolute inset-0 bg-gradient-to-b via-[#110442]/95" />
-      </div>
+      {/* ── Deep branded background ── */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#080025] via-[#0a0030] to-[#050015]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_15%_0%,rgba(99,60,255,0.10),transparent_55%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_85%_90%,rgba(99,60,255,0.06),transparent_50%)]" />
 
-      {/* ── Decorative Elements ── */}
+      {/* ── Floating education icons pattern ── */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-32 left-1/2 h-64 w-[600px] -translate-x-1/2 rounded-full bg-[#2302B3]/20 blur-[120px]" />
-        <div className="absolute -left-32 top-1/3 h-72 w-72 rounded-full bg-[#4318FF]/10 blur-[100px]" />
-        <div className="absolute -right-32 bottom-1/4 h-72 w-72 rounded-full bg-[#2302B3]/10 blur-[100px]" />
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage:
-              'linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)',
-            backgroundSize: '60px 60px',
-          }}
-        />
-        {/* Top curved separator */}
-        <svg
-          className="absolute -top-1 left-0 right-0 w-full text-white"
-          viewBox="0 0 1440 60"
-          fill="none"
-          preserveAspectRatio="none"
-        >
-          <path d="M0 60V0h1440v60c-240-40-480-55-720-50S240 20 0 60z" fill="currentColor" />
-        </svg>
+        {brandIcons.map((item, i) => {
+          const Icon = item.icon
+          return (
+            <motion.div
+              key={i}
+              className="absolute"
+              style={{ left: item.x, top: item.y, rotate: `${item.rotate}deg` }}
+              animate={{
+                y: [0, -12, 0],
+                opacity: [0.04, 0.08, 0.04],
+              }}
+              transition={{
+                duration: 6 + (i % 3),
+                repeat: Infinity,
+                ease: 'easeInOut',
+                delay: item.delay,
+              }}
+            >
+              <Icon
+                className="text-violet-400"
+                style={{ width: item.size, height: item.size }}
+                strokeWidth={1.2}
+              />
+            </motion.div>
+          )
+        })}
       </div>
 
-      <div className="container relative z-10 mx-auto px-4 pt-20 sm:px-6 sm:pt-24 lg:px-8 lg:pt-28">
-        {/* ── Hero CTA Band with Student Image ── */}
-        <div className="relative mb-14 overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-r from-[#2302B3]/40 via-[#4318FF]/25 to-[#2302B3]/40 backdrop-blur-md sm:mb-16 sm:rounded-3xl">
-          <div className="flex flex-col items-center lg:flex-row">
-            {/* Image side */}
-            <div className="relative hidden w-full lg:block lg:w-[280px] xl:w-[320px]">
-              <div className="relative h-full min-h-[280px]">
-                <Image
-                  src="/student_girl.jpeg"
-                  alt="Élève camerounaise souriante"
-                  fill
-                  className="object-cover object-top"
-                  quality={85}
+      {/* Top accent line */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/25 to-transparent" />
+
+      <div className="container relative z-10 mx-auto px-5 pt-16 sm:px-8 sm:pt-20 lg:px-10 lg:pt-24">
+        {/* ═══════ CTA Banner ═══════ */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="relative mb-16 grid overflow-hidden rounded-2xl border border-violet-500/10 lg:grid-cols-2 lg:rounded-3xl"
+        >
+          {/* Left: content */}
+          <div className="relative z-10 flex flex-col justify-center bg-gradient-to-br from-[#0f0340] via-[#0c0235] to-[#08012a] px-6 py-10 sm:px-10 sm:py-12 lg:py-16 lg:pl-12 lg:pr-8">
+            {/* Mini branded pattern in CTA bg */}
+            <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-[0.03]">
+              {[GraduationCap, BookOpen, Star, Lightbulb].map((Icon, i) => (
+                <Icon
+                  key={i}
+                  className="absolute text-violet-300"
+                  style={{
+                    width: 40 + i * 8,
+                    height: 40 + i * 8,
+                    left: `${10 + i * 25}%`,
+                    top: `${15 + ((i * 30) % 70)}%`,
+                    rotate: `${-15 + i * 12}deg`,
+                  }}
+                  strokeWidth={0.8}
                 />
-                {/* Gradient fade into content */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#1a0754]/90" />
-                {/* Floating badge */}
-                <div className="absolute bottom-4 left-4 flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-md">
-                  <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-                  <span className="text-xs font-semibold text-white">+2 000 eleves</span>
-                </div>
-              </div>
+              ))}
             </div>
 
-            {/* Content side */}
-            <div className="flex flex-1 flex-col items-center gap-6 p-6 sm:p-8 lg:items-start lg:p-10">
-              <div className="text-center lg:text-left">
-                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#4318FF]/30 bg-[#4318FF]/10 px-3 py-1">
-                  <Sparkles className="h-3.5 w-3.5 text-[#4318FF]" />
-                  <span className="text-xs font-semibold text-[#4318FF]/90">Newsletter</span>
-                </div>
-                <h3 className="mb-2 text-xl font-bold text-white sm:text-2xl">
-                  Rejoignez la communaute educative
-                </h3>
-                <p className="max-w-md text-sm text-slate-300/80 sm:text-base">
-                  Conseils pedagogiques, astuces numeriques et nouveautes — directement dans votre
-                  boite mail.
-                </p>
+            <div className="relative">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-violet-400/20 bg-violet-500/10 px-3.5 py-1">
+                <GraduationCap className="h-3.5 w-3.5 text-violet-400" />
+                <span className="text-[11px] font-bold uppercase tracking-[0.15em] text-violet-300/80">
+                  Help Digi School
+                </span>
               </div>
-              <form
-                className="flex w-full max-w-md gap-2 sm:gap-3"
-                onSubmit={(e) => e.preventDefault()}
-              >
-                <div className="relative flex-1">
-                  <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="email"
-                    placeholder="votre@email.com"
-                    className="h-11 w-full rounded-xl border border-white/10 bg-white/[0.06] pl-10 pr-4 text-sm text-white placeholder-slate-400/60 outline-none ring-0 transition-all focus:border-[#4318FF]/50 focus:bg-white/[0.1] sm:h-12 sm:rounded-xl"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="flex h-11 shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-[#2302B3] to-[#4318FF] px-5 text-sm font-semibold text-white shadow-lg shadow-[#2302B3]/30 transition-all hover:shadow-xl hover:shadow-[#2302B3]/40 active:scale-[0.97] sm:h-12 sm:px-6"
+              <h3 className="mb-3 text-2xl font-extrabold leading-snug text-white sm:text-3xl lg:text-[2rem]">
+                L&apos;avenir de l&apos;éducation{' '}
+                <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
+                  commence ici.
+                </span>
+              </h3>
+              <p className="mb-7 max-w-md text-sm leading-relaxed text-violet-200/45">
+                Rejoignez les écoles primaires qui modernisent la gestion scolaire au Cameroun.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  href="/contact"
+                  className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-600/25 transition-all hover:shadow-xl hover:shadow-violet-500/30"
                 >
-                  <Send className="h-4 w-4" />
-                  <span className="hidden sm:inline">S&apos;abonner</span>
-                </button>
-              </form>
-            </div>
-
-            {/* Mobile image (visible only on small screens) */}
-            <div className="relative h-48 w-full overflow-hidden rounded-b-2xl sm:h-56 lg:hidden">
-              <Image
-                src="/student_girl.jpeg"
-                alt="Élève camerounaise souriante"
-                fill
-                className="object-cover object-top"
-                quality={85}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#110442]/80 to-transparent" />
-              <div className="absolute bottom-4 left-4 flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-md">
-                <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-                <span className="text-xs font-semibold text-white">+2 000 eleves</span>
+                  Commencer gratuitement
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+                <Link
+                  href="/features"
+                  className="inline-flex items-center gap-2 rounded-xl border border-violet-400/15 bg-violet-500/5 px-6 py-3 text-sm font-semibold text-violet-200 transition-colors hover:border-violet-400/30 hover:text-white"
+                >
+                  Découvrir
+                </Link>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* ── Main Grid: Brand + Link Columns ── */}
-        <div className="grid gap-10 pb-12 sm:gap-12 sm:pb-14 lg:grid-cols-12 lg:gap-8 lg:pb-16">
+          {/* Right: child image — visible and prominent */}
+          <div className="relative h-64 sm:h-72 lg:h-auto">
+            <Image
+              src="/student_girl.jpeg"
+              alt="Élève souriante camerounaise utilisant Help Digi School"
+              fill
+              className="object-cover object-top"
+              quality={90}
+              sizes="(max-width: 1024px) 100vw, 50vw"
+            />
+            {/* Soft left blend into content on desktop */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0c0235]/80 via-transparent to-transparent lg:from-[#0c0235]/50 lg:via-transparent" />
+            {/* Bottom blend on mobile */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#08012a]/40 to-transparent" />
+            {/* Top subtle violet tint */}
+            <div className="absolute inset-0 bg-violet-950/10" />
+          </div>
+        </motion.div>
+
+        {/* ═══════ Links grid ═══════ */}
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-40px' }}
+          className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5 lg:gap-8"
+        >
           {/* Brand column */}
-          <div className="lg:col-span-4">
-            <Link href="/" className="group mb-6 inline-flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#2302B3] to-[#4318FF] shadow-lg shadow-[#2302B3]/30 ring-1 ring-white/10 transition-all group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-[#4318FF]/40 sm:h-14 sm:w-14">
-                <GraduationCap className="h-6 w-6 text-white sm:h-7 sm:w-7" />
+          <motion.div variants={fadeIn} custom={0} className="sm:col-span-2 lg:col-span-1">
+            <Link href="/" className="group mb-5 inline-flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 shadow-lg shadow-violet-600/20">
+                <GraduationCap className="h-5 w-5 text-white" />
               </div>
-              <div>
-                <span className="block text-xl font-extrabold tracking-tight text-white sm:text-2xl">
-                  Help Digi School
-                </span>
-                <span className="text-xs font-medium text-[#4318FF]/80 sm:text-sm">
-                  Ecoles Primaires du Cameroun
-                </span>
-              </div>
+              <span className="text-lg font-extrabold tracking-tight text-white">
+                Help Digi School
+              </span>
             </Link>
-            <p className="mb-8 max-w-xs text-sm leading-relaxed text-slate-400 sm:text-[15px]">
-              La plateforme tout-en-un pour la gestion moderne des ecoles primaires. Notes,
-              bulletins, paiements, communication — tout en un clic.
+            <p className="max-w-[260px] text-[13px] leading-relaxed text-violet-300/40">
+              La plateforme tout-en-un pour la gestion moderne des écoles primaires au Cameroun.
             </p>
 
-            {/* Contact info */}
-            <div className="space-y-3">
+            <div className="mt-6 space-y-2.5">
               <a
                 href="mailto:contact@helpdigischool.cm"
-                className="group flex items-center gap-3 text-slate-400 transition-colors hover:text-white"
+                className="flex items-center gap-2.5 text-[13px] text-violet-300/40 transition-colors hover:text-violet-200"
               >
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/[0.05] ring-1 ring-white/[0.06] transition-all group-hover:bg-[#2302B3]/30 group-hover:ring-[#2302B3]/30">
-                  <Mail className="h-4 w-4" />
-                </div>
-                <span className="text-sm">contact@helpdigischool.cm</span>
+                <Mail className="h-3.5 w-3.5 text-violet-500/60" />
+                contact@helpdigischool.cm
               </a>
               <a
                 href="tel:+237600000000"
-                className="group flex items-center gap-3 text-slate-400 transition-colors hover:text-white"
+                className="flex items-center gap-2.5 text-[13px] text-violet-300/40 transition-colors hover:text-violet-200"
               >
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/[0.05] ring-1 ring-white/[0.06] transition-all group-hover:bg-[#2302B3]/30 group-hover:ring-[#2302B3]/30">
-                  <Phone className="h-4 w-4" />
-                </div>
-                <span className="text-sm">+237 6 00 00 00 00</span>
+                <Phone className="h-3.5 w-3.5 text-violet-500/60" />
+                +237 6 00 00 00 00
               </a>
-              <div className="flex items-center gap-3 text-slate-400">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/[0.05] ring-1 ring-white/[0.06]">
-                  <MapPin className="h-4 w-4" />
-                </div>
-                <span className="text-sm">Douala, Akwa Business Center</span>
+              <div className="flex items-center gap-2.5 text-[13px] text-violet-300/40">
+                <MapPin className="h-3.5 w-3.5 text-violet-500/60" />
+                Douala, Cameroun
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Link columns */}
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4 lg:col-span-8 lg:gap-6 xl:gap-10">
-            {linkSections.map((section) => {
-              const SectionIcon = section.icon
-              return (
-                <div key={section.title}>
-                  <div className="mb-5 flex items-center gap-2">
-                    <SectionIcon className="h-4 w-4 text-[#4318FF]/70" />
-                    <h4 className="text-xs font-bold uppercase tracking-widest text-slate-200">
-                      {section.title}
-                    </h4>
-                  </div>
-                  <ul className="space-y-3">
-                    {section.items.map((link) => (
-                      <li key={link.href}>
-                        <Link
-                          href={link.href}
-                          className="group flex items-center gap-1.5 text-sm text-slate-400 transition-all hover:text-white"
-                        >
-                          <ArrowRight className="h-3 w-3 -translate-x-1 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
-                          <span className="transition-transform group-hover:translate-x-0.5">
-                            {link.label}
-                          </span>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )
-            })}
-          </div>
-        </div>
+          {footerLinks.map((section, i) => (
+            <motion.div key={section.title} variants={fadeIn} custom={i + 1}>
+              <h4 className="mb-4 text-[11px] font-bold uppercase tracking-[0.18em] text-violet-300/60">
+                {section.title}
+              </h4>
+              <ul className="space-y-2.5">
+                {section.items.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className="group inline-flex items-center gap-1 text-[13px] text-violet-300/40 transition-colors hover:text-white"
+                    >
+                      {link.label}
+                      <ArrowUpRight className="h-3 w-3 -translate-y-0.5 opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-60" />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          ))}
+        </motion.div>
 
         {/* ── Divider ── */}
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-white/[0.06]" />
-          </div>
-          <div className="relative flex justify-center">
-            <div className="h-px w-32 bg-gradient-to-r from-transparent via-[#4318FF]/40 to-transparent" />
-          </div>
-        </div>
+        <div className="mt-14 h-px bg-gradient-to-r from-transparent via-violet-500/10 to-transparent lg:mt-16" />
 
-        {/* ── Bottom Bar ── */}
-        <div className="flex flex-col items-center gap-6 py-8 sm:flex-row sm:justify-between sm:py-10">
-          {/* Copyright */}
-          <div className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 text-xs text-slate-500 sm:justify-start sm:text-sm">
-            <span>&copy; {new Date().getFullYear()} Help Digi School.</span>
-            <span className="inline-flex items-center gap-1">
-              Fait avec
-              <Heart className="h-3 w-3 animate-pulse fill-red-500 text-red-500" />
-              au Cameroun
-            </span>
-          </div>
+        {/* ── Bottom bar ── */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3 }}
+          className="flex flex-col items-center gap-5 py-7 sm:flex-row sm:justify-between sm:py-8"
+        >
+          <p className="flex items-center gap-1.5 text-[12px] text-violet-400/30">
+            &copy; {new Date().getFullYear()} Help Digi School &middot; Fait avec
+            <Heart className="h-3 w-3 fill-rose-500/70 text-rose-500/70" />
+            au Cameroun
+          </p>
 
-          {/* Social links */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             {socialLinks.map((social) => (
-              <a
+              <motion.a
                 key={social.label}
                 href={social.href}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={social.label}
-                className={`flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.05] ring-1 ring-white/[0.08] transition-all hover:scale-110 hover:shadow-lg hover:ring-0 active:scale-95 ${social.color}`}
+                whileHover={{ y: -2 }}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-violet-400/30 transition-colors hover:bg-violet-500/10 hover:text-violet-300"
               >
-                <social.icon className="h-[18px] w-[18px] text-slate-300" />
-              </a>
+                <social.icon className="h-4 w-4" />
+              </motion.a>
             ))}
           </div>
-        </div>
+        </motion.div>
       </div>
     </footer>
   )
