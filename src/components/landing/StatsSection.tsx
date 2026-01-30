@@ -15,6 +15,8 @@ import {
   Globe,
 } from 'lucide-react'
 import { useCounter } from '@/hooks/use-counter'
+import { motion, useInView } from 'framer-motion'
+import { useRef } from 'react'
 
 const stats = [
   {
@@ -65,6 +67,39 @@ const stats = [
   },
 ]
 
+const cardVariants = {
+  hidden: {
+    opacity: 0,
+    y: 50,
+    scale: 0.9,
+  },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 100,
+      damping: 14,
+      delay: i * 0.15,
+    },
+  }),
+}
+
+const floatIconVariants = {
+  hidden: { opacity: 0, scale: 0 },
+  visible: (i: number) => ({
+    opacity: 1,
+    scale: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 120,
+      damping: 12,
+      delay: 0.5 + i * 0.1,
+    },
+  }),
+}
+
 function StatCard({ stat, index }: { stat: (typeof stats)[0]; index: number }) {
   const { count, ref } = useCounter({
     end: stat.value,
@@ -79,19 +114,34 @@ function StatCard({ stat, index }: { stat: (typeof stats)[0]; index: number }) {
   }
 
   return (
-    <div ref={ref} className="group relative" style={{ animationDelay: `${index * 100}ms` }}>
+    <motion.div
+      ref={ref}
+      custom={index}
+      variants={cardVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: '-60px' }}
+      whileHover={{
+        y: -6,
+        scale: 1.03,
+        transition: { type: 'spring', stiffness: 300, damping: 20 },
+      }}
+      className="group relative"
+    >
       <div
-        className={`relative overflow-hidden rounded-3xl bg-white/10 p-6 shadow-lg ring-1 ${stat.ring} backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 hover:bg-white/15 hover:shadow-xl sm:p-8`}
+        className={`relative overflow-hidden rounded-3xl bg-white/10 p-6 shadow-lg ring-1 ${stat.ring} backdrop-blur-sm transition-colors duration-500 hover:bg-white/15 hover:shadow-xl sm:p-8`}
       >
         {/* Subtle gradient accent on top */}
         <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${stat.gradient}`} />
 
         {/* Icon */}
-        <div
-          className={`mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl ${stat.iconBg} transition-transform duration-300 group-hover:scale-110 sm:h-16 sm:w-16`}
+        <motion.div
+          whileHover={{ rotate: [0, -12, 12, 0], scale: 1.15 }}
+          transition={{ duration: 0.5 }}
+          className={`mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl ${stat.iconBg} sm:h-16 sm:w-16`}
         >
           <stat.icon className={`h-7 w-7 ${stat.iconColor} sm:h-8 sm:w-8`} />
-        </div>
+        </motion.div>
 
         {/* Value */}
         <p className="mb-1 text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-[2.75rem]">
@@ -107,46 +157,68 @@ function StatCard({ stat, index }: { stat: (typeof stats)[0]; index: number }) {
         {/* Description */}
         <p className="text-xs text-white/60 sm:text-sm">{stat.description}</p>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
+const cornerIcons = [
+  { Icon: GraduationCap, position: 'left-4 top-4 sm:left-8 sm:top-8 lg:left-12 lg:top-10' },
+  { Icon: School, position: 'right-4 top-4 sm:right-8 sm:top-8 lg:right-12 lg:top-10' },
+  { Icon: BookOpen, position: 'bottom-4 left-4 sm:bottom-8 sm:left-8 lg:bottom-10 lg:left-12' },
+  { Icon: Trophy, position: 'bottom-4 right-4 sm:bottom-8 sm:right-8 lg:bottom-10 lg:right-12' },
+]
+
 export function StatsSection() {
+  const sectionRef = useRef<HTMLElement>(null)
+  const isInView = useInView(sectionRef, { once: true, margin: '-100px' })
+
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-indigo-950 via-[#1a1060] to-purple-950 py-20 sm:py-24 lg:py-32">
+    <section
+      ref={sectionRef}
+      className="relative overflow-hidden bg-gradient-to-br from-indigo-950 via-[#1a1060] to-purple-950 py-20 sm:py-24 lg:py-32"
+    >
       {/* Glowing orbs */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-violet-600/20 blur-3xl" />
-        <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-indigo-600/20 blur-3xl" />
-        <div className="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-purple-600/15 blur-3xl" />
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={isInView ? { scale: 1, opacity: 1 } : undefined}
+          transition={{ duration: 2, ease: 'easeOut' }}
+          className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-violet-600/20 blur-3xl"
+        />
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={isInView ? { scale: 1, opacity: 1 } : undefined}
+          transition={{ duration: 2, delay: 0.3, ease: 'easeOut' }}
+          className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-indigo-600/20 blur-3xl"
+        />
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={isInView ? { scale: 1, opacity: 1 } : undefined}
+          transition={{ duration: 2, delay: 0.6, ease: 'easeOut' }}
+          className="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-purple-600/15 blur-3xl"
+        />
       </div>
 
       {/* School icons in corners */}
       <div className="pointer-events-none absolute inset-0 z-[1]">
-        {/* Top-left - Graduation cap */}
-        <div className="absolute left-4 top-4 sm:left-8 sm:top-8 lg:left-12 lg:top-10">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.06] backdrop-blur-sm sm:h-20 sm:w-20 lg:h-24 lg:w-24">
-            <GraduationCap className="h-8 w-8 text-white/20 sm:h-10 sm:w-10 lg:h-12 lg:w-12" />
-          </div>
-        </div>
-        {/* Top-right - School */}
-        <div className="absolute right-4 top-4 sm:right-8 sm:top-8 lg:right-12 lg:top-10">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.06] backdrop-blur-sm sm:h-20 sm:w-20 lg:h-24 lg:w-24">
-            <School className="h-8 w-8 text-white/20 sm:h-10 sm:w-10 lg:h-12 lg:w-12" />
-          </div>
-        </div>
-        {/* Bottom-left - BookOpen */}
-        <div className="absolute bottom-4 left-4 sm:bottom-8 sm:left-8 lg:bottom-10 lg:left-12">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.06] backdrop-blur-sm sm:h-20 sm:w-20 lg:h-24 lg:w-24">
-            <BookOpen className="h-8 w-8 text-white/20 sm:h-10 sm:w-10 lg:h-12 lg:w-12" />
-          </div>
-        </div>
-        {/* Bottom-right - Trophy */}
-        <div className="absolute bottom-4 right-4 sm:bottom-8 sm:right-8 lg:bottom-10 lg:right-12">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.06] backdrop-blur-sm sm:h-20 sm:w-20 lg:h-24 lg:w-24">
-            <Trophy className="h-8 w-8 text-white/20 sm:h-10 sm:w-10 lg:h-12 lg:w-12" />
-          </div>
-        </div>
+        {cornerIcons.map(({ Icon, position }, i) => (
+          <motion.div
+            key={i}
+            custom={i}
+            variants={floatIconVariants}
+            initial="hidden"
+            animate={isInView ? 'visible' : 'hidden'}
+            className={`absolute ${position}`}
+          >
+            <motion.div
+              animate={{ y: [0, -6, 0] }}
+              transition={{ duration: 3 + i * 0.5, repeat: Infinity, ease: 'easeInOut' }}
+              className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/[0.06] backdrop-blur-sm sm:h-20 sm:w-20 lg:h-24 lg:w-24"
+            >
+              <Icon className="h-8 w-8 text-white/20 sm:h-10 sm:w-10 lg:h-12 lg:w-12" />
+            </motion.div>
+          </motion.div>
+        ))}
       </div>
 
       {/* Floating school icons scattered */}
@@ -172,21 +244,61 @@ export function StatsSection() {
 
       <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="mx-auto mb-12 max-w-2xl text-center sm:mb-16">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-white/80 backdrop-blur-sm sm:text-sm">
+        <motion.div
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: 0.15 } },
+          }}
+          className="mx-auto mb-12 max-w-2xl text-center sm:mb-16"
+        >
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, scale: 0.8, y: 20 },
+              visible: {
+                opacity: 1,
+                scale: 1,
+                y: 0,
+                transition: { type: 'spring', stiffness: 200, damping: 20 },
+              },
+            }}
+            className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-white/80 backdrop-blur-sm sm:text-sm"
+          >
             <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-r from-violet-400 to-purple-400" />
             En chiffres
-          </div>
-          <h2 className="mb-3 text-2xl font-bold text-white sm:text-3xl lg:text-4xl">
+          </motion.div>
+          <motion.h2
+            variants={{
+              hidden: { opacity: 0, y: 40, filter: 'blur(10px)' },
+              visible: {
+                opacity: 1,
+                y: 0,
+                filter: 'blur(0px)',
+                transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+              },
+            }}
+            className="mb-3 text-2xl font-bold text-white sm:text-3xl lg:text-4xl"
+          >
             La confiance de{' '}
             <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
               centaines d&apos;écoles
             </span>
-          </h2>
-          <p className="text-sm text-white/60 sm:text-base lg:text-lg">
+          </motion.h2>
+          <motion.p
+            variants={{
+              hidden: { opacity: 0, y: 30 },
+              visible: {
+                opacity: 1,
+                y: 0,
+                transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+              },
+            }}
+            className="text-sm text-white/60 sm:text-base lg:text-lg"
+          >
             Des résultats concrets qui parlent d&apos;eux-mêmes.
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
         {/* Stats Grid */}
         <div className="mx-auto grid max-w-5xl grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4 lg:gap-6">
