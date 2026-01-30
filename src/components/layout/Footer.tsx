@@ -151,11 +151,11 @@ export function Footer() {
               patternTransform="rotate(-12)"
             >
               {/* Graduation cap icon */}
-              <path d="M24 12 L12 18 L24 24 L36 18 Z" fill="rgba(255,255,255,0.04)" />
+              <path d="M24 12 L12 18 L24 24 L36 18 Z" fill="rgba(255,255,255,0.18)" />
               <path
                 d="M16 20 L16 26 C16 28 20 30 24 30 C28 30 32 28 32 26 L32 20"
                 fill="none"
-                stroke="rgba(255,255,255,0.04)"
+                stroke="rgba(255,255,255,0.18)"
                 strokeWidth="1.5"
               />
               <line
@@ -163,14 +163,14 @@ export function Footer() {
                 y1="18"
                 x2="36"
                 y2="28"
-                stroke="rgba(255,255,255,0.04)"
+                stroke="rgba(255,255,255,0.18)"
                 strokeWidth="1.5"
               />
               {/* Text */}
               <text
                 x="44"
                 y="24"
-                fill="rgba(255,255,255,0.04)"
+                fill="rgba(255,255,255,0.15)"
                 fontSize="13"
                 fontWeight="700"
                 fontFamily="system-ui, sans-serif"
@@ -188,11 +188,11 @@ export function Footer() {
               patternUnits="userSpaceOnUse"
               patternTransform="rotate(-12)"
             >
-              <path d="M24 12 L12 18 L24 24 L36 18 Z" fill="rgba(255,255,255,0.03)" />
+              <path d="M24 12 L12 18 L24 24 L36 18 Z" fill="rgba(255,255,255,0.14)" />
               <path
                 d="M16 20 L16 26 C16 28 20 30 24 30 C28 30 32 28 32 26 L32 20"
                 fill="none"
-                stroke="rgba(255,255,255,0.03)"
+                stroke="rgba(255,255,255,0.14)"
                 strokeWidth="1.5"
               />
               <line
@@ -200,13 +200,13 @@ export function Footer() {
                 y1="18"
                 x2="36"
                 y2="28"
-                stroke="rgba(255,255,255,0.03)"
+                stroke="rgba(255,255,255,0.14)"
                 strokeWidth="1.5"
               />
               <text
                 x="44"
                 y="24"
-                fill="rgba(255,255,255,0.03)"
+                fill="rgba(255,255,255,0.11)"
                 fontSize="13"
                 fontWeight="700"
                 fontFamily="system-ui, sans-serif"
@@ -311,59 +311,83 @@ export function Footer() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-40px' }}
-          className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5 lg:gap-8"
+          className="grid grid-cols-2 gap-10 sm:grid-cols-2 lg:grid-cols-5 lg:gap-8"
         >
           {/* Brand column */}
-          <motion.div variants={fadeIn} custom={0} className="sm:col-span-2 lg:col-span-1">
+          <motion.div variants={fadeIn} custom={0} className="col-span-2 lg:col-span-1">
             <Link href="/" className="group mb-5 inline-flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 shadow-lg shadow-violet-600/20">
-                <GraduationCap className="h-5 w-5 text-white" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 shadow-lg shadow-violet-600/25">
+                <GraduationCap className="h-6 w-6 text-white" />
               </div>
-              <span className="text-lg font-extrabold tracking-tight text-white">
+              <span className="text-xl font-extrabold tracking-tight text-white">
                 Help Digi School
               </span>
             </Link>
-            <p className="max-w-[260px] text-[13px] leading-relaxed text-violet-300/40">
+            <p className="max-w-[300px] text-[15px] leading-relaxed text-violet-300/55">
               La plateforme tout-en-un pour la gestion moderne des écoles primaires au Cameroun.
             </p>
 
-            <div className="mt-6 space-y-2.5">
+            <div className="mt-6 space-y-3">
               <a
                 href="mailto:contact@helpdigischool.cm"
-                className="flex items-center gap-2.5 text-[13px] text-violet-300/40 transition-colors hover:text-violet-200"
+                className="flex items-center gap-2.5 text-[15px] text-violet-300/55 transition-colors hover:text-violet-200"
               >
-                <Mail className="h-3.5 w-3.5 text-violet-500/60" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500/10">
+                  <Mail className="h-4 w-4 text-violet-400/70" />
+                </div>
                 contact@helpdigischool.cm
               </a>
               <a
                 href="tel:+237600000000"
-                className="flex items-center gap-2.5 text-[13px] text-violet-300/40 transition-colors hover:text-violet-200"
+                className="flex items-center gap-2.5 text-[15px] text-violet-300/55 transition-colors hover:text-violet-200"
               >
-                <Phone className="h-3.5 w-3.5 text-violet-500/60" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500/10">
+                  <Phone className="h-4 w-4 text-violet-400/70" />
+                </div>
                 +237 6 00 00 00 00
               </a>
-              <div className="flex items-center gap-2.5 text-[13px] text-violet-300/40">
-                <MapPin className="h-3.5 w-3.5 text-violet-500/60" />
+              <div className="flex items-center gap-2.5 text-[15px] text-violet-300/55">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500/10">
+                  <MapPin className="h-4 w-4 text-violet-400/70" />
+                </div>
                 Douala, Cameroun
               </div>
+            </div>
+
+            {/* Social icons on mobile - under brand column */}
+            <div className="mt-6 flex items-center gap-3 lg:hidden">
+              {socialLinks.map((social) => (
+                <motion.a
+                  key={social.label}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.label}
+                  whileHover={{ y: -3, scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex h-11 w-11 items-center justify-center rounded-xl border border-violet-500/15 bg-violet-500/10 text-violet-300/70 shadow-sm transition-all hover:border-violet-400/30 hover:bg-violet-500/20 hover:text-white hover:shadow-lg hover:shadow-violet-500/10"
+                >
+                  <social.icon className="h-5 w-5" />
+                </motion.a>
+              ))}
             </div>
           </motion.div>
 
           {/* Link columns */}
           {footerLinks.map((section, i) => (
             <motion.div key={section.title} variants={fadeIn} custom={i + 1}>
-              <h4 className="mb-4 text-[11px] font-bold uppercase tracking-[0.18em] text-violet-300/60">
+              <h4 className="mb-5 text-sm font-bold uppercase tracking-[0.15em] text-violet-200/60">
                 {section.title}
               </h4>
-              <ul className="space-y-2.5">
+              <ul className="space-y-3">
                 {section.items.map((link) => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="group inline-flex items-center gap-1 text-[13px] text-violet-300/40 transition-colors hover:text-white"
+                      className="group inline-flex items-center gap-1.5 text-[15px] text-violet-300/55 transition-colors hover:text-white"
                     >
                       {link.label}
-                      <ArrowUpRight className="h-3 w-3 -translate-y-0.5 opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-60" />
+                      <ArrowUpRight className="h-3.5 w-3.5 -translate-y-0.5 opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-60" />
                     </Link>
                   </li>
                 ))}
@@ -373,17 +397,17 @@ export function Footer() {
         </motion.div>
 
         {/* ── Branded tagline strip ── */}
-        <div className="mt-14 flex items-center gap-4 lg:mt-16">
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-violet-500/10 to-transparent" />
-          <div className="flex items-center gap-2 rounded-full border border-violet-500/10 bg-violet-500/5 px-4 py-1.5">
-            <svg width="16" height="16" viewBox="0 0 100 100" className="text-violet-400/50">
+        <div className="mt-14 flex items-center gap-3 sm:gap-4 lg:mt-16">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-violet-500/15 to-transparent" />
+          <div className="bg-violet-500/8 flex items-center gap-2.5 rounded-full border border-violet-500/15 px-5 py-2">
+            <svg width="18" height="18" viewBox="0 0 100 100" className="text-violet-400/60">
               <path d={HDS_LOGO_PATH} fill="none" stroke="currentColor" strokeWidth="3" />
             </svg>
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-violet-400/30">
-              Help Digi School &middot; Template
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-violet-400/40 sm:text-[11px]">
+              Help Digi School
             </span>
           </div>
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-violet-500/10 to-transparent" />
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-violet-500/15 to-transparent" />
         </div>
 
         {/* ── Bottom bar ── */}
@@ -392,15 +416,16 @@ export function Footer() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.3 }}
-          className="flex flex-col items-center gap-5 py-7 sm:flex-row sm:justify-between sm:py-8"
+          className="flex flex-col items-center gap-5 py-8 sm:flex-row sm:justify-between sm:py-10"
         >
-          <p className="flex items-center gap-1.5 text-[12px] text-violet-400/30">
+          <p className="flex items-center gap-1.5 text-[15px] text-violet-400/45">
             &copy; {new Date().getFullYear()} Help Digi School &middot; Fait avec
-            <Heart className="h-3 w-3 fill-rose-500/70 text-rose-500/70" />
+            <Heart className="h-3.5 w-3.5 fill-rose-500/80 text-rose-500/80" />
             au Cameroun
           </p>
 
-          <div className="flex items-center gap-2">
+          {/* Social icons desktop only (mobile ones are in brand column) */}
+          <div className="hidden items-center gap-3 lg:flex">
             {socialLinks.map((social) => (
               <motion.a
                 key={social.label}
@@ -408,10 +433,11 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={social.label}
-                whileHover={{ y: -2 }}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-violet-400/30 transition-colors hover:bg-violet-500/10 hover:text-violet-300"
+                whileHover={{ y: -3, scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex h-11 w-11 items-center justify-center rounded-xl border border-violet-500/15 bg-violet-500/10 text-violet-300/70 shadow-sm transition-all hover:border-violet-400/30 hover:bg-violet-500/20 hover:text-white hover:shadow-lg hover:shadow-violet-500/10"
               >
-                <social.icon className="h-4 w-4" />
+                <social.icon className="h-5 w-5" />
               </motion.a>
             ))}
           </div>
