@@ -216,7 +216,7 @@ export function HeroSection() {
                     <p className="text-sm font-bold leading-none text-white sm:text-base">
                       {stat.value}
                     </p>
-                    <p className="mt-0.5 text-[11px] text-white/50 sm:text-xs">{stat.label}</p>
+                    <p className="mt-0.5 text-[11px] text-white/70 sm:text-xs">{stat.label}</p>
                   </div>
                 </div>
               ))}
@@ -237,10 +237,10 @@ export function HeroSection() {
                   stiffness: 100,
                   damping: 20,
                 }}
-                className="overflow-hidden rounded-2xl border border-white/15 bg-white/[0.08] shadow-2xl backdrop-blur-xl"
+                className="overflow-hidden rounded-2xl border border-white/20 bg-[#0f0a2e]/90 shadow-2xl shadow-[#3B13ED]/20 backdrop-blur-xl"
               >
                 {/* Card Header */}
-                <div className="bg-gradient-to-r from-primary to-secondary p-5">
+                <div className="bg-gradient-to-r from-[#3B13ED] to-[#5a3aff] p-5">
                   <div className="flex items-center gap-3">
                     <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/20">
                       <GraduationCap className="h-6 w-6 text-white" />
@@ -260,35 +260,35 @@ export function HeroSection() {
                       {
                         label: 'Élèves',
                         value: '342',
-                        color: 'from-primary/20 to-primary/5',
-                        textColor: 'text-primary',
+                        color: 'from-[#3B13ED]/25 to-[#3B13ED]/10',
+                        textColor: 'text-[#a78bfa]',
                       },
                       {
                         label: 'Classes',
                         value: '12',
-                        color: 'from-secondary/20 to-secondary/5',
-                        textColor: 'text-secondary',
+                        color: 'from-emerald-500/25 to-emerald-500/10',
+                        textColor: 'text-emerald-400',
                       },
                       {
                         label: 'Enseignants',
                         value: '18',
-                        color: 'from-accent/20 to-accent/5',
-                        textColor: 'text-accent',
+                        color: 'from-amber-500/25 to-amber-500/10',
+                        textColor: 'text-amber-400',
                       },
                     ].map((stat, i) => (
                       <div
                         key={i}
-                        className={`rounded-xl bg-gradient-to-b p-3.5 text-center ${stat.color} border border-white/10`}
+                        className={`rounded-xl bg-gradient-to-b p-3.5 text-center ${stat.color} border border-white/15`}
                       >
-                        <p className={`text-xl font-bold ${stat.textColor}`}>{stat.value}</p>
-                        <p className="mt-0.5 text-[11px] text-white/50">{stat.label}</p>
+                        <p className={`text-2xl font-extrabold ${stat.textColor}`}>{stat.value}</p>
+                        <p className="mt-1 text-[11px] font-medium text-white/70">{stat.label}</p>
                       </div>
                     ))}
                   </div>
 
                   {/* Activity Feed */}
                   <div className="space-y-2.5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-white/40">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-white/70">
                       Activité récente
                     </p>
                     {[
@@ -296,27 +296,27 @@ export function HeroSection() {
                         icon: FileText,
                         text: '12 bulletins générés',
                         time: 'Il y a 5 min',
-                        color: 'bg-primary/15',
-                        iconColor: 'text-primary',
+                        color: 'bg-[#3B13ED]/20',
+                        iconColor: 'text-[#a78bfa]',
                       },
                       {
                         icon: CreditCard,
                         text: 'Paiement — 25,000 FCFA',
                         time: 'Il y a 15 min',
-                        color: 'bg-secondary/15',
-                        iconColor: 'text-secondary',
+                        color: 'bg-emerald-500/20',
+                        iconColor: 'text-emerald-400',
                       },
                       {
                         icon: Bell,
                         text: 'SMS envoyés aux parents CM2',
                         time: 'Il y a 1h',
-                        color: 'bg-accent/15',
-                        iconColor: 'text-accent',
+                        color: 'bg-amber-500/20',
+                        iconColor: 'text-amber-400',
                       },
                     ].map((item, i) => (
                       <div
                         key={i}
-                        className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.04] p-3 transition-colors hover:bg-white/[0.08]"
+                        className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.06] p-3 transition-colors hover:bg-white/[0.12]"
                       >
                         <div
                           className={`h-9 w-9 rounded-lg ${item.color} flex shrink-0 items-center justify-center`}
@@ -324,8 +324,8 @@ export function HeroSection() {
                           <item.icon className={`h-4 w-4 ${item.iconColor}`} />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-xs font-medium text-white/90">{item.text}</p>
-                          <p className="text-[11px] text-white/40">{item.time}</p>
+                          <p className="truncate text-xs font-semibold text-white">{item.text}</p>
+                          <p className="text-[11px] text-white/60">{item.time}</p>
                         </div>
                       </div>
                     ))}
@@ -351,23 +351,23 @@ export function HeroSection() {
                 <motion.div
                   animate={{ y: [0, -8, 0] }}
                   transition={{ duration: 4, delay: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                  className="rounded-xl border border-white/15 bg-white/[0.1] p-3.5 shadow-xl backdrop-blur-xl"
+                  className="rounded-xl border border-white/20 bg-[#0f0a2e]/90 p-3.5 shadow-xl shadow-[#3B13ED]/15 backdrop-blur-xl"
                 >
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/20">
                       <FileText className="h-5 w-5 text-accent" />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-white">1,250</p>
-                      <p className="text-[11px] text-white/50">Bulletins/mois</p>
+                      <p className="text-sm font-extrabold text-emerald-400">1,250</p>
+                      <p className="text-[11px] font-medium text-white/70">Bulletins/mois</p>
                     </div>
                   </div>
                 </motion.div>
               </motion.div>
 
               {/* Glow Effects */}
-              <div className="absolute -right-8 -top-8 -z-10 h-64 w-64 rounded-full bg-primary/15 blur-[80px]" />
-              <div className="absolute -bottom-8 -left-8 -z-10 h-64 w-64 rounded-full bg-secondary/15 blur-[80px]" />
+              <div className="absolute -right-8 -top-8 -z-10 h-64 w-64 rounded-full bg-[#3B13ED]/20 blur-[80px]" />
+              <div className="absolute -bottom-8 -left-8 -z-10 h-64 w-64 rounded-full bg-[#3B13ED]/15 blur-[80px]" />
             </div>
           </div>
         </div>

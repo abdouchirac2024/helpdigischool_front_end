@@ -270,7 +270,7 @@ export function Footer() {
                   commence ici.
                 </span>
               </h3>
-              <p className="mb-7 max-w-md text-sm leading-relaxed text-violet-200/45">
+              <p className="mb-7 max-w-md text-sm leading-relaxed text-violet-200/75">
                 Rejoignez les écoles primaires qui modernisent la gestion scolaire au Cameroun.
               </p>
               <div className="flex flex-wrap gap-3">
@@ -327,14 +327,14 @@ export function Footer() {
                 Help Digi School
               </span>
             </Link>
-            <p className="max-w-[300px] text-[15px] leading-relaxed text-violet-300/55">
+            <p className="max-w-[300px] text-[15px] leading-relaxed text-violet-200/80">
               La plateforme tout-en-un pour la gestion moderne des écoles primaires au Cameroun.
             </p>
 
             <div className="mt-6 space-y-3">
               <a
                 href="mailto:contact@helpdigischool.cm"
-                className="flex items-center gap-2.5 text-[15px] text-violet-300/55 transition-colors hover:text-violet-200"
+                className="flex items-center gap-2.5 text-[15px] text-violet-200/80 transition-colors hover:text-white"
               >
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500/10">
                   <Mail className="h-4 w-4 text-violet-400/70" />
@@ -343,14 +343,14 @@ export function Footer() {
               </a>
               <a
                 href="tel:+237600000000"
-                className="flex items-center gap-2.5 text-[15px] text-violet-300/55 transition-colors hover:text-violet-200"
+                className="flex items-center gap-2.5 text-[15px] text-violet-200/80 transition-colors hover:text-white"
               >
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500/10">
                   <Phone className="h-4 w-4 text-violet-400/70" />
                 </div>
                 +237 6 00 00 00 00
               </a>
-              <div className="flex items-center gap-2.5 text-[15px] text-violet-300/55">
+              <div className="flex items-center gap-2.5 text-[15px] text-violet-200/80">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500/10">
                   <MapPin className="h-4 w-4 text-violet-400/70" />
                 </div>
@@ -380,7 +380,7 @@ export function Footer() {
           {/* Link columns */}
           {footerLinks.map((section, i) => (
             <motion.div key={section.title} variants={fadeIn} custom={i + 1}>
-              <h4 className="mb-5 text-sm font-bold uppercase tracking-[0.15em] text-violet-200/60">
+              <h4 className="mb-5 text-sm font-bold uppercase tracking-[0.15em] text-violet-100/90">
                 {section.title}
               </h4>
               <ul className="space-y-3">
@@ -388,7 +388,7 @@ export function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="group inline-flex items-center gap-1.5 text-[15px] text-violet-300/55 transition-colors hover:text-white"
+                      className="group inline-flex items-center gap-1.5 text-[15px] text-violet-200/80 transition-colors hover:text-white"
                     >
                       {link.label}
                       <ArrowUpRight className="h-3.5 w-3.5 -translate-y-0.5 opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-60" />
@@ -407,7 +407,7 @@ export function Footer() {
             <svg width="18" height="18" viewBox="0 0 100 100" className="text-violet-400/60">
               <path d={HDS_LOGO_PATH} fill="none" stroke="currentColor" strokeWidth="3" />
             </svg>
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-violet-400/40 sm:text-[11px]">
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-violet-300/70 sm:text-[11px]">
               Help Digi School
             </span>
           </div>
@@ -422,7 +422,7 @@ export function Footer() {
           transition={{ delay: 0.3 }}
           className="flex flex-col items-center gap-5 py-8 sm:flex-row sm:justify-between sm:py-10"
         >
-          <p className="flex items-center gap-1.5 text-[15px] text-violet-400/45">
+          <p className="flex items-center gap-1.5 text-[15px] text-violet-200/80">
             &copy; {new Date().getFullYear()} Help Digi School &middot; Fait avec
             <Heart className="h-3.5 w-3.5 fill-rose-500/80 text-rose-500/80" />
             au Cameroun
