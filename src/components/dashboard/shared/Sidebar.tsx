@@ -23,37 +23,51 @@ export function Sidebar({ menuItems, isOpen, onClose }: SidebarProps) {
   const pathname = usePathname()
 
   return (
-    <aside className={cn(
-      'fixed top-16 left-0 bottom-0 w-64 bg-white border-r border-gray-200 z-30 transition-transform duration-300 overflow-y-auto',
-      isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-    )}>
-      <nav className="p-3 space-y-1">
+    <aside
+      className={cn(
+        'fixed bottom-0 left-0 top-16 z-30 w-64 overflow-y-auto border-r border-gray-200 bg-white transition-transform duration-300',
+        isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      )}
+    >
+      <nav className="space-y-1 p-3">
         {menuItems.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+          const isActive =
+            pathname === item.href ||
+            (pathname.startsWith(item.href + '/') &&
+              !menuItems.some(
+                (other) =>
+                  other.href !== item.href &&
+                  other.href.length > item.href.length &&
+                  (pathname === other.href || pathname.startsWith(other.href + '/'))
+              ))
           return (
             <Link
               key={item.href}
               href={item.href}
               onClick={onClose}
               className={cn(
-                'flex items-center justify-between px-4 py-3 rounded-xl transition-all group',
+                'group flex items-center justify-between rounded-xl px-4 py-3 transition-all',
                 isActive
                   ? 'bg-[#2302B3] text-white shadow-lg shadow-[#2302B3]/20'
                   : 'text-gray-700 hover:bg-gray-50'
               )}
             >
               <div className="flex items-center gap-3">
-                <item.icon className={cn(
-                  'w-5 h-5 transition-colors',
-                  isActive ? 'text-white' : 'text-gray-500 group-hover:text-[#2302B3]'
-                )} />
-                <span className="font-medium text-sm">{item.label}</span>
+                <item.icon
+                  className={cn(
+                    'h-5 w-5 transition-colors',
+                    isActive ? 'text-white' : 'text-gray-500 group-hover:text-[#2302B3]'
+                  )}
+                />
+                <span className="text-sm font-medium">{item.label}</span>
               </div>
               {item.badge && (
-                <span className={cn(
-                  'px-2 py-0.5 rounded-full text-xs font-semibold',
-                  isActive ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'
-                )}>
+                <span
+                  className={cn(
+                    'rounded-full px-2 py-0.5 text-xs font-semibold',
+                    isActive ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'
+                  )}
+                >
                   {item.badge}
                 </span>
               )}
