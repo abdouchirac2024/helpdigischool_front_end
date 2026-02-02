@@ -1,14 +1,12 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": false,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
@@ -17,19 +15,15 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
-    "noImplicitAny": false,
     "noUnusedParameters": false,
     "noUnusedLocals": false,
-    "strictNullChecks": false,
     "plugins": [
       {
         "name": "next"
       }
     ],
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["./src/*"]
     }
   },
   "include": [
@@ -39,8 +33,5 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "old_vite_files"
-  ]
+  "exclude": ["node_modules", "old_vite_files"]
 }
