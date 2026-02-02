@@ -95,15 +95,3 @@ export const menuItemsByRole: Record<string, MenuItem[]> = {
     { icon: Settings, label: 'Paramètres', href: '/dashboard/secretary/settings' },
   ],
 }
-
-export const roleDisplayInfo: Record<
-  string,
-  { userName: string; userRole: string; schoolName?: string }
-> = {
-  admin: { userName: 'Admin Principal', userRole: 'Super Admin', schoolName: 'Admin SaaS' },
-  director: { userName: 'Jean Dupont', userRole: 'Directeur' },
-  teacher: { userName: 'Marie Kouam', userRole: 'Enseignante CM2' },
-  student: { userName: 'Amina Talla', userRole: 'Élève - CM2-A' },
-  parent: { userName: 'Jean Talla', userRole: 'Parent' },
-  secretary: { userName: 'Sophie Mballa', userRole: 'Secrétaire' },
-}

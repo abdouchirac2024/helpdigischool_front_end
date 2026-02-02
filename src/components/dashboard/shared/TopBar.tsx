@@ -44,30 +44,27 @@ interface TopBarProps {
   sidebarOpen: boolean
   onToggleSidebar: () => void
   schoolName?: string
-  userName?: string
-  userRole?: string
-  userEmail?: string
 }
 
 export function TopBar({
   sidebarOpen,
   onToggleSidebar,
   schoolName = 'École Primaire La Victoire',
-  userName = 'Jean Dupont',
-  userRole = 'Directeur',
-  userEmail = 'jean.dupont@ecole.cm',
 }: TopBarProps) {
-  const { logout } = useAuth()
+  const { user, logout } = useAuth()
   const { toast } = useToast()
   const { language, toggleLanguage } = useLanguage()
   const { canInstall, promptInstall } = useInstallPWA()
+
+  const userName = user ? `${user.profile.firstName} ${user.profile.lastName}` : ''
+  const userEmail = user?.email ?? ''
+  const userRole = user?.role ?? ''
 
   // Helper to get label based on language
   const getLabel = (labelFr: string, labelEn: string) => (language === 'fr' ? labelFr : labelEn)
 
   // Get translated role
-  const roleKey = userRole?.toLowerCase() || ''
-  const displayRole = roleLabels[roleKey] ? roleLabels[roleKey][language] : userRole
+  const displayRole = roleLabels[userRole] ? roleLabels[userRole][language] : userRole
 
   const handleLogout = async () => {
     try {

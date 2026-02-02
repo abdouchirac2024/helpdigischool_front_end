@@ -1,9 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
-import { menuItemsByRole, roleDisplayInfo } from '@/config/menu-items'
+import { menuItemsByRole } from '@/config/menu-items'
+import { useAuth } from '@/lib/auth'
+import { ROLE_DASHBOARD_PATHS_EXTENDED } from '@/lib/auth/auth-context'
 
 interface DashboardShellProps {
   role: string
@@ -12,19 +15,38 @@ interface DashboardShellProps {
 
 export function DashboardShell({ role, children }: DashboardShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { user, isLoading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (isLoading) return
+    if (!user) {
+      router.replace('/login')
+      return
+    }
+    if (user.role !== role) {
+      const correctPath = ROLE_DASHBOARD_PATHS_EXTENDED[user.role] ?? '/dashboard'
+      router.replace(correctPath)
+    }
+  }, [user, isLoading, role, router])
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-[#2302B3]" />
+      </div>
+    )
+  }
+
+  if (!user || user.role !== role) {
+    return null
+  }
 
   const menuItems = menuItemsByRole[role] ?? []
-  const displayInfo = roleDisplayInfo[role] ?? { userName: '', userRole: '' }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <TopBar
-        sidebarOpen={sidebarOpen}
-        onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-        userName={displayInfo.userName}
-        userRole={displayInfo.userRole}
-        schoolName={displayInfo.schoolName}
-      />
+      <TopBar sidebarOpen={sidebarOpen} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
       <Sidebar menuItems={menuItems} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
