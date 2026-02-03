@@ -126,13 +126,14 @@ const axiosInstance: AxiosInstance = axios.create({
 
 /**
  * Intercepteur de requête - Injection du token Authorization
+ * Note: Authorization header désactivé temporairement pour le développement
  */
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = getAuthToken()
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
+    // const token = getAuthToken()
+    // if (token) {
+    //   config.headers.Authorization = `Bearer ${token}`
+    // }
     return config
   },
   (error) => {
