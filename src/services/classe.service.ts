@@ -49,113 +49,87 @@ export interface CreateClasseRequest {
   capacite?: number
   fraisScolarite?: number
   description?: string
-  ecoleId: number
+  // ecoleId est maintenant optionnel - auto-determiné côté backend depuis le contexte utilisateur
+  ecoleId?: number
   anneeScolaireId?: number
   titulaireId?: number
 }
 
+/**
+ * Service de gestion des classes.
+ * L'ecoleId est maintenant automatiquement déterminé côté backend
+ * depuis le contexte utilisateur (JWT token ou X-Tenant-ID header).
+ * Plus besoin de passer X-Tenant-ID manuellement.
+ */
 class ClasseService {
   /**
-   * Recuperer toutes les classes
+   * Recuperer toutes les classes de l'ecole de l'utilisateur connecte
    */
   async getAll(): Promise<ClasseDto[]> {
     console.log('[ClasseService] GET', API_ENDPOINTS.classes.base)
-    return apiClient.get<ClasseDto[]>(API_ENDPOINTS.classes.base, {
-      headers: {
-        'X-Tenant-ID': '1',
-      },
-    })
+    return apiClient.get<ClasseDto[]>(API_ENDPOINTS.classes.base)
   }
 
   /**
    * Recuperer une classe par ID
    */
   async getById(id: number): Promise<ClasseDto> {
-    return apiClient.get<ClasseDto>(API_ENDPOINTS.classes.byId(id.toString()), {
-      headers: {
-        'X-Tenant-ID': '1',
-      },
-    })
+    return apiClient.get<ClasseDto>(API_ENDPOINTS.classes.byId(id.toString()))
   }
 
   /**
-   * Recuperer les classes d'une ecole
+   * Recuperer les classes d'une ecole specifique
    */
   async getByEcoleId(ecoleId: number): Promise<ClasseDto[]> {
-    return apiClient.get<ClasseDto[]>(`${API_ENDPOINTS.classes.base}/ecole/${ecoleId}`, {
-      headers: {
-        'X-Tenant-ID': '1',
-      },
-    })
+    return apiClient.get<ClasseDto[]>(`${API_ENDPOINTS.classes.base}/ecole/${ecoleId}`)
   }
 
   /**
    * Recuperer les eleves d'une classe
    */
   async getStudents(classId: string): Promise<unknown[]> {
-    return apiClient.get<unknown[]>(API_ENDPOINTS.classes.students(classId), {
-      headers: {
-        'X-Tenant-ID': '1',
-      },
-    })
+    return apiClient.get<unknown[]>(API_ENDPOINTS.classes.students(classId))
   }
 
   /**
    * Recuperer l'emploi du temps d'une classe
    */
   async getSchedule(classId: string): Promise<unknown[]> {
-    return apiClient.get<unknown[]>(API_ENDPOINTS.classes.schedule(classId), {
-      headers: {
-        'X-Tenant-ID': '1',
-      },
-    })
+    return apiClient.get<unknown[]>(API_ENDPOINTS.classes.schedule(classId))
   }
 
   /**
    * Recuperer les matieres d'une classe
    */
   async getSubjects(classId: string): Promise<unknown[]> {
-    return apiClient.get<unknown[]>(API_ENDPOINTS.classes.subjects(classId), {
-      headers: {
-        'X-Tenant-ID': '1',
-      },
-    })
+    return apiClient.get<unknown[]>(API_ENDPOINTS.classes.subjects(classId))
   }
 
   /**
    * Creer une nouvelle classe
+   * L'ecoleId est auto-determine cote backend depuis le contexte utilisateur
    */
   async create(data: CreateClasseRequest): Promise<ClasseDto> {
-    return apiClient.post<ClasseDto>(API_ENDPOINTS.classes.base, data, {
-      headers: {
-        'X-Tenant-ID': '1',
-      },
-    })
+    return apiClient.post<ClasseDto>(API_ENDPOINTS.classes.base, data)
   }
 
   /**
    * Mettre a jour une classe
+   * L'ecoleId ne peut pas etre change - validation cote backend
    */
   async update(
     id: number,
     data: Partial<CreateClasseRequest> & { statut?: StatutClasse }
   ): Promise<ClasseDto> {
-    return apiClient.put<ClasseDto>(API_ENDPOINTS.classes.byId(id.toString()), data, {
-      headers: {
-        'X-Tenant-ID': '1',
-      },
-    })
+    return apiClient.put<ClasseDto>(API_ENDPOINTS.classes.byId(id.toString()), data)
   }
 
   /**
    * Supprimer une classe
+   * Validation d'acces cote backend
    */
   async delete(id: number): Promise<void> {
-    await apiClient.delete(API_ENDPOINTS.classes.byId(id.toString()), {
-      headers: {
-        'X-Tenant-ID': '1',
-      },
-    })
+    await apiClient.delete(API_ENDPOINTS.classes.byId(id.toString()))
   }
 }
 

@@ -104,7 +104,8 @@ const EMPTY_FORM: CreateClasseRequest & { statut?: StatutClasse } = {
   capacite: 40,
   fraisScolarite: 0,
   description: '',
-  ecoleId: 1,
+  // ecoleId est maintenant auto-déterminé côté backend depuis le contexte utilisateur
+  ecoleId: undefined,
   anneeScolaireId: undefined,
   titulaireId: undefined,
 }
@@ -256,7 +257,8 @@ export function DirectorClassesPage() {
       capacite: cls.capacite || 40,
       fraisScolarite: cls.fraisScolarite || 0,
       description: cls.description || '',
-      ecoleId: cls.ecoleId || 1,
+      // ecoleId n'est plus modifiable - auto-determiné côté backend
+      ecoleId: undefined,
       anneeScolaireId: cls.anneeScolaireId || undefined,
       titulaireId: cls.titulaireId || undefined,
       statut: cls.statut,
@@ -1138,19 +1140,26 @@ export function DirectorClassesPage() {
               </div>
             )}
 
-            {/* Ecole ID */}
-            <div className="grid gap-2">
-              <Label htmlFor="ecoleId">ID Ecole *</Label>
-              <Input
-                id="ecoleId"
-                type="number"
-                min={1}
-                value={formData.ecoleId || ''}
-                onChange={(e) =>
-                  setFormData({ ...formData, ecoleId: parseInt(e.target.value) || 1 })
-                }
-              />
-            </div>
+            {/* Ecole - Affichage en lecture seule */}
+            {modalMode === 'edit' && selectedClasse?.ecoleNom && (
+              <div className="grid gap-2">
+                <Label>Ecole</Label>
+                <div className="flex items-center gap-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-2">
+                  <School className="h-4 w-4 text-gray-500" />
+                  <span className="text-sm text-gray-700">{selectedClasse.ecoleNom}</span>
+                  <span className="ml-auto text-xs text-gray-400">(defini automatiquement)</span>
+                </div>
+              </div>
+            )}
+
+            {modalMode === 'create' && (
+              <div className="rounded-lg border border-blue-100 bg-blue-50 p-3">
+                <p className="text-sm text-blue-700">
+                  <School className="mr-2 inline h-4 w-4" />
+                  L'ecole sera automatiquement definie selon votre compte utilisateur.
+                </p>
+              </div>
+            )}
 
             {/* Annee scolaire ID + Titulaire ID */}
             <div className="grid grid-cols-2 gap-4">
