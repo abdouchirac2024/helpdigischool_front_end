@@ -1,8 +1,10 @@
 /**
  * Service de gestion des notes
+ * Utilise apiClient centralise pour les appels HTTP
  */
 
-import { API_CONFIG, API_ENDPOINTS } from '@/constants'
+import { apiClient } from '@/lib/api/client'
+import { API_ENDPOINTS } from '@/lib/api/config'
 import type { Grade, Bulletin } from '@/types/models'
 import type { CreateGradeRequest } from '@/types/api'
 
@@ -14,19 +16,10 @@ interface GradeFilters {
 }
 
 class GradeService {
-  private baseUrl = API_CONFIG.BASE_URL
-
-  private getAuthHeaders(token: string) {
-    return {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    }
-  }
-
   /**
    * Recuperer les notes avec filtres
    */
-  async getGrades(token: string, filters: GradeFilters = {}): Promise<Grade[]> {
+  async getGrades(filters: GradeFilters = {}): Promise<Grade[]> {
     const params = new URLSearchParams()
 
     if (filters.studentId) params.append('studentId', filters.studentId)
@@ -34,165 +27,83 @@ class GradeService {
     if (filters.subjectId) params.append('subjectId', filters.subjectId)
     if (filters.trimester) params.append('trimester', String(filters.trimester))
 
-    const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.GRADES.BASE}?${params}`,
-      { headers: this.getAuthHeaders(token) }
-    )
+    const queryString = params.toString()
+    const endpoint = queryString
+      ? `${API_ENDPOINTS.grades.base}?${queryString}`
+      : API_ENDPOINTS.grades.base
 
-    if (!response.ok) {
-      throw new Error('Erreur lors de la recuperation des notes')
-    }
-
-    return response.json()
+    return apiClient.get<Grade[]>(endpoint)
   }
 
   /**
    * Recuperer une note par ID
    */
-  async getGradeById(token: string, id: string): Promise<Grade> {
-    const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.GRADES.BY_ID(id)}`,
-      { headers: this.getAuthHeaders(token) }
-    )
-
-    if (!response.ok) {
-      throw new Error('Note non trouvee')
-    }
-
-    return response.json()
+  async getGradeById(id: string): Promise<Grade> {
+    return apiClient.get<Grade>(API_ENDPOINTS.grades.byId(id))
   }
 
   /**
    * Recuperer les notes d'un eleve
    */
-  async getGradesByStudent(token: string, studentId: string): Promise<Grade[]> {
-    const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.GRADES.BY_STUDENT(studentId)}`,
-      { headers: this.getAuthHeaders(token) }
-    )
-
-    if (!response.ok) {
-      throw new Error('Erreur lors de la recuperation des notes')
-    }
-
-    return response.json()
+  async getGradesByStudent(studentId: string): Promise<Grade[]> {
+    return apiClient.get<Grade[]>(API_ENDPOINTS.grades.byStudent(studentId))
   }
 
   /**
    * Recuperer les notes d'une classe
    */
-  async getGradesByClass(token: string, classId: string): Promise<Grade[]> {
-    const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.GRADES.BY_CLASS(classId)}`,
-      { headers: this.getAuthHeaders(token) }
-    )
+  async getGradesByClass(classId: string): Promise<Grade[]> {
+    return apiClient.get<Grade[]>(API_ENDPOINTS.grades.byClass(classId))
+  }
 
-    if (!response.ok) {
-      throw new Error('Erreur lors de la recuperation des notes')
-    }
-
-    return response.json()
+  /**
+   * Recuperer les notes d'une matiere
+   */
+  async getGradesBySubject(subjectId: string): Promise<Grade[]> {
+    return apiClient.get<Grade[]>(API_ENDPOINTS.grades.bySubject(subjectId))
   }
 
   /**
    * Creer une nouvelle note
    */
-  async createGrade(token: string, data: CreateGradeRequest): Promise<Grade> {
-    const response = await fetch(`${this.baseUrl}${API_ENDPOINTS.GRADES.BASE}`, {
-      method: 'POST',
-      headers: this.getAuthHeaders(token),
-      body: JSON.stringify(data),
-    })
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}))
-      throw new Error(error.message || 'Erreur lors de la creation')
-    }
-
-    return response.json()
+  async createGrade(data: CreateGradeRequest): Promise<Grade> {
+    return apiClient.post<Grade>(API_ENDPOINTS.grades.base, data)
   }
 
   /**
    * Creer plusieurs notes (saisie en masse)
    */
-  async createBulkGrades(token: string, grades: CreateGradeRequest[]): Promise<Grade[]> {
-    const response = await fetch(`${this.baseUrl}${API_ENDPOINTS.GRADES.BASE}/bulk`, {
-      method: 'POST',
-      headers: this.getAuthHeaders(token),
-      body: JSON.stringify({ grades }),
-    })
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}))
-      throw new Error(error.message || 'Erreur lors de la creation')
-    }
-
-    return response.json()
+  async createBulkGrades(grades: CreateGradeRequest[]): Promise<Grade[]> {
+    return apiClient.post<Grade[]>(API_ENDPOINTS.grades.bulk, { grades })
   }
 
   /**
    * Mettre a jour une note
    */
-  async updateGrade(
-    token: string,
-    id: string,
-    data: Partial<CreateGradeRequest>
-  ): Promise<Grade> {
-    const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.GRADES.BY_ID(id)}`,
-      {
-        method: 'PUT',
-        headers: this.getAuthHeaders(token),
-        body: JSON.stringify(data),
-      }
-    )
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}))
-      throw new Error(error.message || 'Erreur lors de la mise a jour')
-    }
-
-    return response.json()
+  async updateGrade(id: string, data: Partial<CreateGradeRequest>): Promise<Grade> {
+    return apiClient.put<Grade>(API_ENDPOINTS.grades.byId(id), data)
   }
 
   /**
    * Supprimer une note
    */
-  async deleteGrade(token: string, id: string): Promise<void> {
-    const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.GRADES.BY_ID(id)}`,
-      {
-        method: 'DELETE',
-        headers: this.getAuthHeaders(token),
-      }
-    )
-
-    if (!response.ok) {
-      throw new Error('Erreur lors de la suppression')
-    }
+  async deleteGrade(id: string): Promise<void> {
+    await apiClient.delete(API_ENDPOINTS.grades.byId(id))
   }
 
   /**
    * Generer le bulletin d'un eleve
    */
-  async generateBulletin(
-    token: string,
-    studentId: string,
-    trimester?: number
-  ): Promise<Bulletin> {
+  async generateBulletin(studentId: string, trimester?: number): Promise<Bulletin> {
     const params = new URLSearchParams()
     if (trimester) params.append('trimester', String(trimester))
 
-    const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.GRADES.BULLETIN(studentId)}?${params}`,
-      { headers: this.getAuthHeaders(token) }
-    )
+    const queryString = params.toString()
+    const endpoint = queryString
+      ? `${API_ENDPOINTS.grades.byStudent(studentId)}/bulletin?${queryString}`
+      : `${API_ENDPOINTS.grades.byStudent(studentId)}/bulletin`
 
-    if (!response.ok) {
-      throw new Error('Erreur lors de la generation du bulletin')
-    }
-
-    return response.json()
+    return apiClient.get<Bulletin>(endpoint)
   }
 }
 

@@ -1,10 +1,12 @@
 /**
  * Configuration API et endpoints
+ * Note: Ce fichier est conservé pour la rétrocompatibilité.
+ * Préférer utiliser @/lib/api/config pour les nouveaux développements.
  */
 
-// Configuration de l'API
+// Configuration de l'API - Utilise la même URL que lib/api/config.ts
 export const API_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1',
+  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api',
   TIMEOUT: Number(process.env.NEXT_PUBLIC_API_TIMEOUT) || 30000,
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000,

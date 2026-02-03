@@ -22,12 +22,16 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.network=traefik-dev"
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.addEntryPointsLabels=true"
+      - "--metrics.prometheus.addServicesLabels=true"
     environment:
       - TZ=Europe/Paris
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - traefik
+      - monitoring
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.localhost`)"
@@ -38,3 +42,6 @@ networks:
   traefik:
     name: traefik-dev
     driver: bridge
+  monitoring:
+    external: true
+    name: helpdigischool-monitoring

@@ -4,14 +4,15 @@
  */
 
 // URL de base de l'API Gateway (point d'entrée unique)
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+// Note: Le backend Spring Boot utilise /api
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
 
 // Configuration des timeouts
 export const API_CONFIG = {
   timeout: 30000, // 30 secondes
   retries: 3,
   retryDelay: 1000,
-};
+}
 
 /**
  * Endpoints des microservices Spring Boot
@@ -222,16 +223,16 @@ export const API_ENDPOINTS = {
     download: (id: string) => `/files/${id}/download`,
     delete: (id: string) => `/files/${id}`,
   },
-} as const;
+} as const
 
 /**
  * Helper pour construire l'URL complète
  */
 export function buildUrl(endpoint: string): string {
-  return `${API_BASE_URL}${endpoint}`;
+  return `${API_BASE_URL}${endpoint}`
 }
 
 /**
  * Types pour les endpoints
  */
-export type ApiEndpoints = typeof API_ENDPOINTS;
+export type ApiEndpoints = typeof API_ENDPOINTS

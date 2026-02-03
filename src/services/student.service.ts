@@ -1,9 +1,17 @@
 /**
  * Service de gestion des eleves
+ * Utilise apiClient centralise pour les appels HTTP
  */
 
-import { API_CONFIG, API_ENDPOINTS, PAGINATION } from '@/constants'
-import type { Student, PaginatedResponse, CreateStudentRequest, UpdateStudentRequest } from '@/types'
+import { apiClient } from '@/lib/api/client'
+import { API_ENDPOINTS } from '@/lib/api/config'
+import { PAGINATION } from '@/constants'
+import type {
+  Student,
+  PaginatedResponse,
+  CreateStudentRequest,
+  UpdateStudentRequest,
+} from '@/types'
 
 interface StudentFilters {
   classId?: string
@@ -13,22 +21,10 @@ interface StudentFilters {
 }
 
 class StudentService {
-  private baseUrl = API_CONFIG.BASE_URL
-
-  private getAuthHeaders(token: string) {
-    return {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    }
-  }
-
   /**
    * Recuperer la liste des eleves avec pagination
    */
-  async getStudents(
-    token: string,
-    filters: StudentFilters = {}
-  ): Promise<PaginatedResponse<Student>> {
+  async getStudents(filters: StudentFilters = {}): Promise<PaginatedResponse<Student>> {
     const params = new URLSearchParams()
     params.append('page', String(filters.page || PAGINATION.DEFAULT_PAGE))
     params.append('limit', String(filters.limit || PAGINATION.DEFAULT_LIMIT))
@@ -36,124 +32,70 @@ class StudentService {
     if (filters.classId) params.append('classId', filters.classId)
     if (filters.search) params.append('search', filters.search)
 
-    const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.STUDENTS.BASE}?${params}`,
-      { headers: this.getAuthHeaders(token) }
-    )
-
-    if (!response.ok) {
-      throw new Error('Erreur lors de la recuperation des eleves')
-    }
-
-    return response.json()
+    return apiClient.get<PaginatedResponse<Student>>(`${API_ENDPOINTS.students.base}?${params}`)
   }
 
   /**
    * Recuperer un eleve par ID
    */
-  async getStudentById(token: string, id: string): Promise<Student> {
-    const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.STUDENTS.BY_ID(id)}`,
-      { headers: this.getAuthHeaders(token) }
-    )
-
-    if (!response.ok) {
-      throw new Error('Eleve non trouve')
-    }
-
-    return response.json()
+  async getStudentById(id: string): Promise<Student> {
+    return apiClient.get<Student>(API_ENDPOINTS.students.byId(id))
   }
 
   /**
    * Recuperer les eleves d'une classe
    */
-  async getStudentsByClass(token: string, classId: string): Promise<Student[]> {
-    const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.STUDENTS.BY_CLASS(classId)}`,
-      { headers: this.getAuthHeaders(token) }
-    )
-
-    if (!response.ok) {
-      throw new Error('Erreur lors de la recuperation des eleves')
-    }
-
-    return response.json()
+  async getStudentsByClass(classId: string): Promise<Student[]> {
+    return apiClient.get<Student[]>(`${API_ENDPOINTS.students.base}/class/${classId}`)
   }
 
   /**
    * Creer un nouvel eleve
    */
-  async createStudent(token: string, data: CreateStudentRequest): Promise<Student> {
-    const response = await fetch(`${this.baseUrl}${API_ENDPOINTS.STUDENTS.BASE}`, {
-      method: 'POST',
-      headers: this.getAuthHeaders(token),
-      body: JSON.stringify(data),
-    })
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}))
-      throw new Error(error.message || 'Erreur lors de la creation')
-    }
-
-    return response.json()
+  async createStudent(data: CreateStudentRequest): Promise<Student> {
+    return apiClient.post<Student>(API_ENDPOINTS.students.base, data)
   }
 
   /**
    * Mettre a jour un eleve
    */
-  async updateStudent(
-    token: string,
-    id: string,
-    data: UpdateStudentRequest
-  ): Promise<Student> {
-    const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.STUDENTS.BY_ID(id)}`,
-      {
-        method: 'PUT',
-        headers: this.getAuthHeaders(token),
-        body: JSON.stringify(data),
-      }
-    )
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}))
-      throw new Error(error.message || 'Erreur lors de la mise a jour')
-    }
-
-    return response.json()
+  async updateStudent(id: string, data: UpdateStudentRequest): Promise<Student> {
+    return apiClient.put<Student>(API_ENDPOINTS.students.byId(id), data)
   }
 
   /**
    * Supprimer un eleve
    */
-  async deleteStudent(token: string, id: string): Promise<void> {
-    const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.STUDENTS.BY_ID(id)}`,
-      {
-        method: 'DELETE',
-        headers: this.getAuthHeaders(token),
-      }
-    )
-
-    if (!response.ok) {
-      throw new Error('Erreur lors de la suppression')
-    }
+  async deleteStudent(id: string): Promise<void> {
+    await apiClient.delete(API_ENDPOINTS.students.byId(id))
   }
 
   /**
    * Recuperer les notes d'un eleve
    */
-  async getStudentGrades(token: string, studentId: string): Promise<unknown[]> {
-    const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.STUDENTS.GRADES(studentId)}`,
-      { headers: this.getAuthHeaders(token) }
-    )
+  async getStudentGrades(studentId: string): Promise<unknown[]> {
+    return apiClient.get<unknown[]>(API_ENDPOINTS.students.grades(studentId))
+  }
 
-    if (!response.ok) {
-      throw new Error('Erreur lors de la recuperation des notes')
-    }
+  /**
+   * Recuperer les presences d'un eleve
+   */
+  async getStudentAttendance(studentId: string): Promise<unknown[]> {
+    return apiClient.get<unknown[]>(API_ENDPOINTS.students.attendance(studentId))
+  }
 
-    return response.json()
+  /**
+   * Recuperer les bulletins d'un eleve
+   */
+  async getStudentBulletins(studentId: string): Promise<unknown[]> {
+    return apiClient.get<unknown[]>(API_ENDPOINTS.students.bulletins(studentId))
+  }
+
+  /**
+   * Recuperer les paiements d'un eleve
+   */
+  async getStudentPayments(studentId: string): Promise<unknown[]> {
+    return apiClient.get<unknown[]>(API_ENDPOINTS.students.payments(studentId))
   }
 }
 

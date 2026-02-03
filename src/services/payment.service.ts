@@ -1,8 +1,11 @@
 /**
  * Service de gestion des paiements
+ * Utilise apiClient centralise pour les appels HTTP
  */
 
-import { API_CONFIG, API_ENDPOINTS, PAGINATION } from '@/constants'
+import { apiClient } from '@/lib/api/client'
+import { API_ENDPOINTS } from '@/lib/api/config'
+import { PAGINATION } from '@/constants'
 import type { Payment, PaginatedResponse, CreatePaymentRequest } from '@/types'
 
 interface PaymentFilters {
@@ -24,22 +27,10 @@ interface PaymentStats {
 }
 
 class PaymentService {
-  private baseUrl = API_CONFIG.BASE_URL
-
-  private getAuthHeaders(token: string) {
-    return {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    }
-  }
-
   /**
    * Recuperer la liste des paiements avec pagination
    */
-  async getPayments(
-    token: string,
-    filters: PaymentFilters = {}
-  ): Promise<PaginatedResponse<Payment>> {
+  async getPayments(filters: PaymentFilters = {}): Promise<PaginatedResponse<Payment>> {
     const params = new URLSearchParams()
     params.append('page', String(filters.page || PAGINATION.DEFAULT_PAGE))
     params.append('limit', String(filters.limit || PAGINATION.DEFAULT_LIMIT))
@@ -50,140 +41,80 @@ class PaymentService {
     if (filters.startDate) params.append('startDate', filters.startDate)
     if (filters.endDate) params.append('endDate', filters.endDate)
 
-    const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.PAYMENTS.BASE}?${params}`,
-      { headers: this.getAuthHeaders(token) }
-    )
-
-    if (!response.ok) {
-      throw new Error('Erreur lors de la recuperation des paiements')
-    }
-
-    return response.json()
+    return apiClient.get<PaginatedResponse<Payment>>(`${API_ENDPOINTS.payments.base}?${params}`)
   }
 
   /**
    * Recuperer un paiement par ID
    */
-  async getPaymentById(token: string, id: string): Promise<Payment> {
-    const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.PAYMENTS.BY_ID(id)}`,
-      { headers: this.getAuthHeaders(token) }
-    )
-
-    if (!response.ok) {
-      throw new Error('Paiement non trouve')
-    }
-
-    return response.json()
+  async getPaymentById(id: string): Promise<Payment> {
+    return apiClient.get<Payment>(API_ENDPOINTS.payments.byId(id))
   }
 
   /**
    * Recuperer les paiements d'un eleve
    */
-  async getPaymentsByStudent(token: string, studentId: string): Promise<Payment[]> {
-    const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.PAYMENTS.BY_STUDENT(studentId)}`,
-      { headers: this.getAuthHeaders(token) }
-    )
-
-    if (!response.ok) {
-      throw new Error('Erreur lors de la recuperation des paiements')
-    }
-
-    return response.json()
+  async getPaymentsByStudent(studentId: string): Promise<Payment[]> {
+    return apiClient.get<Payment[]>(API_ENDPOINTS.payments.byStudent(studentId))
   }
 
   /**
-   * Recuperer les paiements en attente
+   * Recuperer les paiements d'une ecole
    */
-  async getPendingPayments(token: string): Promise<Payment[]> {
-    const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.PAYMENTS.PENDING}`,
-      { headers: this.getAuthHeaders(token) }
-    )
+  async getPaymentsBySchool(schoolId: string): Promise<Payment[]> {
+    return apiClient.get<Payment[]>(API_ENDPOINTS.payments.bySchool(schoolId))
+  }
 
-    if (!response.ok) {
-      throw new Error('Erreur lors de la recuperation des paiements')
-    }
-
-    return response.json()
+  /**
+   * Recuperer les frais
+   */
+  async getFees(): Promise<unknown[]> {
+    return apiClient.get<unknown[]>(API_ENDPOINTS.payments.fees)
   }
 
   /**
    * Creer un nouveau paiement
    */
-  async createPayment(token: string, data: CreatePaymentRequest): Promise<Payment> {
-    const response = await fetch(`${this.baseUrl}${API_ENDPOINTS.PAYMENTS.BASE}`, {
-      method: 'POST',
-      headers: this.getAuthHeaders(token),
-      body: JSON.stringify(data),
-    })
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}))
-      throw new Error(error.message || 'Erreur lors de la creation')
-    }
-
-    return response.json()
+  async createPayment(data: CreatePaymentRequest): Promise<Payment> {
+    return apiClient.post<Payment>(API_ENDPOINTS.payments.base, data)
   }
 
   /**
    * Mettre a jour un paiement
    */
-  async updatePayment(
-    token: string,
-    id: string,
-    data: Partial<CreatePaymentRequest>
-  ): Promise<Payment> {
-    const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.PAYMENTS.BY_ID(id)}`,
-      {
-        method: 'PUT',
-        headers: this.getAuthHeaders(token),
-        body: JSON.stringify(data),
-      }
-    )
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}))
-      throw new Error(error.message || 'Erreur lors de la mise a jour')
-    }
-
-    return response.json()
+  async updatePayment(id: string, data: Partial<CreatePaymentRequest>): Promise<Payment> {
+    return apiClient.put<Payment>(API_ENDPOINTS.payments.byId(id), data)
   }
 
   /**
    * Supprimer un paiement
    */
-  async deletePayment(token: string, id: string): Promise<void> {
-    const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.PAYMENTS.BY_ID(id)}`,
-      {
-        method: 'DELETE',
-        headers: this.getAuthHeaders(token),
-      }
-    )
-
-    if (!response.ok) {
-      throw new Error('Erreur lors de la suppression')
-    }
+  async deletePayment(id: string): Promise<void> {
+    await apiClient.delete(API_ENDPOINTS.payments.byId(id))
   }
 
   /**
    * Recuperer les statistiques de paiement
    */
-  async getPaymentStats(token: string): Promise<PaymentStats> {
-    const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.PAYMENTS.STATS}`,
-      { headers: this.getAuthHeaders(token) }
-    )
+  async getPaymentStats(): Promise<PaymentStats> {
+    return apiClient.get<PaymentStats>(API_ENDPOINTS.payments.reports)
+  }
 
-    if (!response.ok) {
-      throw new Error('Erreur lors de la recuperation des statistiques')
-    }
+  /**
+   * Generer un rapport de paiements
+   */
+  async generateReport(filters?: PaymentFilters): Promise<Blob> {
+    const params = new URLSearchParams()
+    if (filters?.startDate) params.append('startDate', filters.startDate)
+    if (filters?.endDate) params.append('endDate', filters.endDate)
+    if (filters?.status) params.append('status', filters.status)
 
-    return response.json()
+    const queryString = params.toString()
+    const endpoint = queryString
+      ? `${API_ENDPOINTS.payments.reports}/export?${queryString}`
+      : `${API_ENDPOINTS.payments.reports}/export`
+
+    return apiClient.get<Blob>(endpoint, { responseType: 'blob' })
   }
 }
 

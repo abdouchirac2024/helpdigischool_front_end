@@ -7,6 +7,12 @@ networks:
   monitoring:
     driver: bridge
     name: helpdigischool-monitoring
+  traefik:
+    external: true
+    name: traefik-dev
+  backend:
+    external: true
+    name: digischool-backend-network
 
 volumes:
   grafana-data:
@@ -114,6 +120,8 @@ services:
       - '--web.enable-lifecycle'
     networks:
       - monitoring
+      - traefik
+      - backend
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped

@@ -1,3 +1,4 @@
+
 # ============================================
 # Help Digi School - Docker Compose Development
 # ============================================
@@ -18,8 +19,8 @@ services:
       - /app/node_modules
       - nextjs-cache:/app/.next
     environment:
-      # Surcharge pour Docker: host.docker.internal permet d'accéder au backend sur la machine hôte
-      - NEXT_PUBLIC_API_URL=http://host.docker.internal:8080/api/v1
+      # Communication intra-Docker vers le backend
+      - NEXT_PUBLIC_API_URL=http://digischool-backend:8080/api/v1
     env_file:
       - ../../.env.local
     extra_hosts:
@@ -27,6 +28,10 @@ services:
       - "host.docker.internal:host-gateway"
     healthcheck:
       start_period: 60s
+    networks:
+      - default
+      - traefik
+      - backend
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.helpdigischool-dev.rule=Host(`helpdigischool.localhost`)"
@@ -39,6 +44,9 @@ networks:
   traefik:
     external: true
     name: traefik-dev
+  backend:
+    external: true
+    name: digischool-backend-network
 
 volumes:
   nextjs-cache:

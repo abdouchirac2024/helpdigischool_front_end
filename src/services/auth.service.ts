@@ -1,136 +1,96 @@
 /**
  * Service d'authentification
  * Gere la logique metier liee a l'authentification
+ * Utilise apiClient centralise pour les appels HTTP
  */
 
-import { API_CONFIG, API_ENDPOINTS } from '@/constants'
+import { apiClient, setAuthToken, removeAuthToken } from '@/lib/api/client'
+import { API_ENDPOINTS } from '@/lib/api/config'
 import type { User, LoginRequest, RegisterRequest, LoginResponse } from '@/types'
 
 class AuthService {
-  private baseUrl = API_CONFIG.BASE_URL
-
   /**
    * Connexion utilisateur
    */
   async login(credentials: LoginRequest): Promise<LoginResponse> {
-    const response = await fetch(`${this.baseUrl}${API_ENDPOINTS.AUTH.LOGIN}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(credentials),
-    })
+    const response = await apiClient.post<LoginResponse>(API_ENDPOINTS.auth.login, credentials)
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}))
-      throw new Error(error.message || 'Erreur de connexion')
+    // Stocker le token si présent dans la réponse
+    if (response.token) {
+      setAuthToken(response.token)
     }
 
-    return response.json()
+    return response
   }
 
   /**
    * Inscription d'une nouvelle ecole
    */
   async register(data: RegisterRequest): Promise<LoginResponse> {
-    const response = await fetch(`${this.baseUrl}${API_ENDPOINTS.AUTH.REGISTER}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    })
+    const response = await apiClient.post<LoginResponse>(API_ENDPOINTS.auth.register, data)
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}))
-      throw new Error(error.message || 'Erreur d\'inscription')
+    // Stocker le token si présent dans la réponse
+    if (response.token) {
+      setAuthToken(response.token)
     }
 
-    return response.json()
+    return response
   }
 
   /**
    * Deconnexion
    */
-  async logout(token: string): Promise<void> {
-    await fetch(`${this.baseUrl}${API_ENDPOINTS.AUTH.LOGOUT}`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+  async logout(): Promise<void> {
+    try {
+      await apiClient.post(API_ENDPOINTS.auth.logout)
+    } finally {
+      // Toujours supprimer le token local
+      removeAuthToken()
+    }
   }
 
   /**
    * Recuperer l'utilisateur courant
    */
-  async getCurrentUser(token: string): Promise<User> {
-    const response = await fetch(`${this.baseUrl}${API_ENDPOINTS.AUTH.ME}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-
-    if (!response.ok) {
-      throw new Error('Session invalide')
-    }
-
-    return response.json()
+  async getCurrentUser(): Promise<User> {
+    return apiClient.get<User>(API_ENDPOINTS.auth.me)
   }
 
   /**
    * Rafraichir le token
    */
   async refreshToken(refreshToken: string): Promise<LoginResponse> {
-    const response = await fetch(`${this.baseUrl}${API_ENDPOINTS.AUTH.REFRESH}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ refreshToken }),
+    const response = await apiClient.post<LoginResponse>(API_ENDPOINTS.auth.refresh, {
+      refreshToken,
     })
 
-    if (!response.ok) {
-      throw new Error('Impossible de rafraichir la session')
+    // Mettre à jour le token
+    if (response.token) {
+      setAuthToken(response.token)
     }
 
-    return response.json()
+    return response
   }
 
   /**
    * Mot de passe oublie
    */
   async forgotPassword(email: string): Promise<void> {
-    const response = await fetch(`${this.baseUrl}${API_ENDPOINTS.AUTH.FORGOT_PASSWORD}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email }),
-    })
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}))
-      throw new Error(error.message || 'Erreur lors de l\'envoi')
-    }
+    await apiClient.post(API_ENDPOINTS.auth.forgotPassword, { email })
   }
 
   /**
    * Reinitialiser le mot de passe
    */
   async resetPassword(token: string, password: string): Promise<void> {
-    const response = await fetch(`${this.baseUrl}${API_ENDPOINTS.AUTH.RESET_PASSWORD}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ token, password }),
-    })
+    await apiClient.post(API_ENDPOINTS.auth.resetPassword, { token, password })
+  }
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}))
-      throw new Error(error.message || 'Erreur de reinitialisation')
-    }
+  /**
+   * Vérifier l'email
+   */
+  async verifyEmail(token: string): Promise<void> {
+    await apiClient.post(API_ENDPOINTS.auth.verifyEmail, { token })
   }
 }
 

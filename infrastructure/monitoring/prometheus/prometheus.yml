@@ -78,11 +78,22 @@ scrape_configs:
           environment: "monitoring"
 
   # ---------------------------------------------------------------------------
-  # Traefik - Metriques du reverse proxy (si active)
+  # Traefik - Metriques du reverse proxy
   # ---------------------------------------------------------------------------
-  # - job_name: "traefik"
-  #   static_configs:
-  #     - targets: ["traefik:8080"]
-  #       labels:
-  #         service: "traefik"
-  #         environment: "infrastructure"
+  - job_name: "traefik"
+    static_configs:
+      - targets: ["traefik-dev:8080"]
+        labels:
+          service: "traefik"
+          environment: "infrastructure"
+
+  # ---------------------------------------------------------------------------
+  # DigiSchool Backend - Metriques Spring Boot / JVM
+  # ---------------------------------------------------------------------------
+  - job_name: "digischool-backend"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["digischool-backend:8080"]
+        labels:
+          service: "digischool-backend"
+          environment: "backend"
