@@ -72,7 +72,6 @@ describe('ClasseService', () => {
         expect.objectContaining({
           headers: expect.objectContaining({
             'Content-Type': 'application/json',
-            'X-Tenant-ID': '1',
           }),
         })
       )
@@ -269,23 +268,6 @@ describe('ClasseService', () => {
   })
 
   describe('headers', () => {
-    it('envoie le header X-Tenant-ID', async () => {
-      const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve([]),
-        status: 200,
-        statusText: 'OK',
-        text: () => Promise.resolve(''),
-        type: 'cors',
-        url: '',
-      } as Response)
-
-      await classeService.getAll()
-
-      const headers = fetchSpy.mock.calls[0][1]?.headers as Record<string, string>
-      expect(headers['X-Tenant-ID']).toBe('1')
-    })
-
     it('envoie le token si present dans localStorage', async () => {
       vi.mocked(window.localStorage.getItem).mockReturnValue('my-jwt-token')
 

@@ -57,9 +57,9 @@ export interface CreateClasseRequest {
 
 /**
  * Service de gestion des classes.
- * L'ecoleId est maintenant automatiquement déterminé côté backend
- * depuis le contexte utilisateur (JWT token ou X-Tenant-ID header).
- * Plus besoin de passer X-Tenant-ID manuellement.
+ * L'ecoleId est automatiquement déterminé côté backend
+ * depuis le JWT token (claims ecoleId).
+ * Sécurisé: le tenant ne peut pas être manipulé par le client.
  */
 class ClasseService {
   /**

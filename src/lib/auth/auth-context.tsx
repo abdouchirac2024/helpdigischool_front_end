@@ -2,135 +2,37 @@
 
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react'
 import { User, UserRole } from '@/types/models/user'
-import { LoginRequest, LoginResponse, RegisterSchoolRequest, RegisterResponse } from '@/types/api/auth'
+import {
+  LoginRequest,
+  LoginResponse,
+  RegisterSchoolRequest,
+  RegisterResponse,
+} from '@/types/api/auth'
 import { setAuthToken, removeAuthToken } from '@/lib/api/client'
 import { useRouter } from 'next/navigation'
+import { authService } from '@/services/auth.service'
 
 // Token storage keys
 const TOKEN_KEY = 'auth_token'
 const REFRESH_TOKEN_KEY = 'refresh_token'
 const USER_KEY = 'auth_user'
 
-// Mock users for development (without API)
-const MOCK_USERS: Record<string, { password: string; user: User }> = {
-  'admin@helpdigischool.com': {
-    password: 'admin123',
-    user: {
-      id: 'admin-001',
-      email: 'admin@helpdigischool.com',
-      role: 'admin',
-      status: 'active',
-      profile: {
-        firstName: 'Super',
-        lastName: 'Admin',
-        phone: '+237 6 00 00 00 00',
-      },
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  },
-  'directeur@ecole.cm': {
-    password: 'directeur123',
-    user: {
-      id: 'director-001',
-      email: 'directeur@ecole.cm',
-      role: 'director',
-      status: 'active',
-      profile: {
-        firstName: 'Jean',
-        lastName: 'Kamga',
-        phone: '+237 6 77 88 99 00',
-      },
-      schoolId: 'school-001',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  },
-  'enseignant@ecole.cm': {
-    password: 'enseignant123',
-    user: {
-      id: 'teacher-001',
-      email: 'enseignant@ecole.cm',
-      role: 'teacher',
-      status: 'active',
-      profile: {
-        firstName: 'Marie',
-        lastName: 'Kouam',
-        phone: '+237 6 77 88 99 01',
-      },
-      schoolId: 'school-001',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  },
-  'parent@email.cm': {
-    password: 'parent123',
-    user: {
-      id: 'parent-001',
-      email: 'parent@email.cm',
-      role: 'parent',
-      status: 'active',
-      profile: {
-        firstName: 'Jean',
-        lastName: 'Talla',
-        phone: '+237 6 88 77 66 55',
-      },
-      schoolId: 'school-001',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  },
-  'secretaire@ecole.cm': {
-    password: 'secretaire123',
-    user: {
-      id: 'secretary-001',
-      email: 'secretaire@ecole.cm',
-      role: 'secretary',
-      status: 'active',
-      profile: {
-        firstName: 'Sophie',
-        lastName: 'Mballa',
-        phone: '+237 6 55 44 33 22',
-      },
-      schoolId: 'school-001',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  },
-  'eleve@ecole.cm': {
-    password: 'eleve123',
-    user: {
-      id: 'student-001',
-      email: 'eleve@ecole.cm',
-      role: 'student' as UserRole,
-      status: 'active',
-      profile: {
-        firstName: 'Amina',
-        lastName: 'Talla',
-        phone: '+237 6 88 77 66 55',
-      },
-      schoolId: 'school-001',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  },
-}
-
-// Generate mock token
-function generateMockToken(): string {
-  return 'mock_token_' + Math.random().toString(36).substring(2) + Date.now().toString(36)
-}
-
 // Cookie helpers for middleware access
+// SÉCURITÉ: Utilise SameSite=Strict et Secure en production
 function setCookie(name: string, value: string, days: number = 7) {
   if (typeof document === 'undefined') return
   const expires = new Date(Date.now() + days * 864e5).toUTCString()
-  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`
+  const isProduction = process.env.NODE_ENV === 'production'
+  const secureFlag = isProduction ? '; Secure' : ''
+  // SameSite=Strict pour une meilleure protection CSRF
+  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Strict${secureFlag}`
 }
 
 function deleteCookie(name: string) {
   if (typeof document === 'undefined') return
-  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`
+  const isProduction = process.env.NODE_ENV === 'production'
+  const secureFlag = isProduction ? '; Secure' : ''
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Strict${secureFlag}`
 }
 
 export interface AuthState {
@@ -159,12 +61,12 @@ export const ROLE_DASHBOARD_PATHS: Record<UserRole, string> = {
   teacher: '/dashboard/teacher',
   parent: '/dashboard/parent',
   secretary: '/dashboard/secretary',
+  student: '/dashboard/student',
 }
 
-// Extended to include student role
+// Extended for backward compatibility (same as ROLE_DASHBOARD_PATHS)
 export const ROLE_DASHBOARD_PATHS_EXTENDED: Record<string, string> = {
   ...ROLE_DASHBOARD_PATHS,
-  student: '/dashboard/student',
 }
 
 interface AuthProviderProps {
@@ -180,25 +82,133 @@ export function AuthProvider({ children }: AuthProviderProps) {
     error: null,
   })
 
-  // Initialize auth state from storage (Mock version - no API calls)
+  // Valide que l'objet user a la structure correcte
+  const isValidUser = (user: unknown): user is User => {
+    if (!user || typeof user !== 'object') {
+      console.warn('[AuthContext] isValidUser: user is null or not an object')
+      return false
+    }
+    const u = user as Record<string, unknown>
+
+    const validRoles = ['admin', 'director', 'teacher', 'parent', 'secretary', 'student']
+    const hasValidId = typeof u.id === 'string' && u.id.length > 0
+    const hasValidEmail = typeof u.email === 'string' && u.email.length > 0
+    const hasValidRole = typeof u.role === 'string' && validRoles.includes(u.role as string)
+    const hasValidProfile = typeof u.profile === 'object' && u.profile !== null
+
+    if (!hasValidId) console.warn('[AuthContext] isValidUser: invalid id', u.id)
+    if (!hasValidEmail) console.warn('[AuthContext] isValidUser: invalid email', u.email)
+    if (!hasValidRole) console.warn('[AuthContext] isValidUser: invalid role', u.role)
+    if (!hasValidProfile) console.warn('[AuthContext] isValidUser: invalid profile', u.profile)
+
+    return hasValidId && hasValidEmail && hasValidRole && hasValidProfile
+  }
+
+  // Initialize auth state from storage - vérifie le token avec le backend
   useEffect(() => {
-    const initAuth = () => {
+    const initAuth = async () => {
+      console.log('[AuthContext] initAuth: Starting authentication initialization')
+
       try {
         const token = localStorage.getItem(TOKEN_KEY)
         const storedUser = localStorage.getItem(USER_KEY)
 
+        console.log(
+          '[AuthContext] initAuth: Token present:',
+          !!token,
+          'Stored user present:',
+          !!storedUser
+        )
+
         if (token && storedUser) {
-          const user = JSON.parse(storedUser) as User
           setAuthToken(token)
 
-          // Mock: Accept stored user as valid (no API verification)
-          setState({
-            user: user,
-            isAuthenticated: true,
-            isLoading: false,
-            error: null,
-          })
+          try {
+            // Vérifier le token avec le backend en récupérant l'utilisateur courant
+            console.log('[AuthContext] initAuth: Verifying token with backend...')
+            const user = await authService.getCurrentUser()
+
+            console.log('[AuthContext] initAuth: Backend returned user:', {
+              id: user?.id,
+              email: user?.email,
+              role: user?.role,
+            })
+
+            // Valider la structure de l'utilisateur
+            if (!isValidUser(user)) {
+              console.warn('[AuthContext] initAuth: User data invalid from backend, clearing auth')
+              clearAuthStorage()
+              setState({
+                user: null,
+                isAuthenticated: false,
+                isLoading: false,
+                error: null,
+              })
+              return
+            }
+
+            // Mettre à jour le user stocké avec les données fraîches du backend
+            localStorage.setItem(USER_KEY, JSON.stringify(user))
+
+            console.log('[AuthContext] initAuth: Authentication successful, user role:', user.role)
+            setState({
+              user: user,
+              isAuthenticated: true,
+              isLoading: false,
+              error: null,
+            })
+          } catch (backendError) {
+            // Token invalide ou expiré - essayer les données locales
+            console.warn(
+              '[AuthContext] initAuth: Backend verification failed, using stored data',
+              backendError
+            )
+
+            try {
+              const parsedUser = JSON.parse(storedUser)
+              console.log('[AuthContext] initAuth: Parsed stored user:', {
+                id: parsedUser?.id,
+                email: parsedUser?.email,
+                role: parsedUser?.role,
+              })
+
+              // Valider la structure de l'utilisateur stocké
+              if (isValidUser(parsedUser)) {
+                console.log(
+                  '[AuthContext] initAuth: Using stored user data, role:',
+                  parsedUser.role
+                )
+                setState({
+                  user: parsedUser,
+                  isAuthenticated: true,
+                  isLoading: false,
+                  error: null,
+                })
+              } else {
+                // Données invalides, nettoyer et demander reconnexion
+                console.warn('[AuthContext] initAuth: Stored user data invalid, clearing auth')
+                clearAuthStorage()
+                setState({
+                  user: null,
+                  isAuthenticated: false,
+                  isLoading: false,
+                  error: null,
+                })
+              }
+            } catch (parseError) {
+              // JSON invalide
+              console.error('[AuthContext] initAuth: Failed to parse stored user', parseError)
+              clearAuthStorage()
+              setState({
+                user: null,
+                isAuthenticated: false,
+                isLoading: false,
+                error: null,
+              })
+            }
+          }
         } else {
+          console.log('[AuthContext] initAuth: No token or stored user found')
           setState({
             user: null,
             isAuthenticated: false,
@@ -206,7 +216,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
             error: null,
           })
         }
-      } catch {
+      } catch (error) {
+        console.error('[AuthContext] initAuth: Unexpected error', error)
+        clearAuthStorage()
         setState({
           user: null,
           isAuthenticated: false,
@@ -228,29 +240,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   const login = useCallback(async (credentials: LoginRequest): Promise<LoginResponse> => {
-    setState(prev => ({ ...prev, isLoading: true, error: null }))
-
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 500))
+    console.log('[AuthContext] login: Starting login process')
+    setState((prev) => ({ ...prev, isLoading: true, error: null }))
 
     try {
-      // Mock authentication - check credentials against mock users
-      const mockUser = MOCK_USERS[credentials.email.toLowerCase()]
+      // Appeler le vrai backend API via authService
+      const response = await authService.login(credentials)
 
-      if (!mockUser || mockUser.password !== credentials.password) {
-        throw new Error('Email ou mot de passe incorrect')
-      }
-
-      const accessToken = generateMockToken()
-      const refreshToken = generateMockToken()
-
-      const response: LoginResponse = {
-        success: true,
-        user: mockUser.user,
-        accessToken,
-        refreshToken,
-        expiresIn: 3600,
-      }
+      console.log('[AuthContext] login: Login successful', {
+        userId: response.user.id,
+        userRole: response.user.role,
+        hasToken: !!response.accessToken,
+      })
 
       // Store tokens and user
       setAuthToken(response.accessToken)
@@ -260,6 +261,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Set cookie for middleware
       setCookie(TOKEN_KEY, response.accessToken, credentials.rememberMe ? 30 : 7)
 
+      console.log('[AuthContext] login: Tokens and user stored in localStorage')
+
       setState({
         user: response.user,
         isAuthenticated: true,
@@ -267,10 +270,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
         error: null,
       })
 
+      console.log('[AuthContext] login: Auth state updated, user role:', response.user.role)
+
       return response
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Erreur de connexion'
-      setState(prev => ({
+      console.error('[AuthContext] login: Login failed', message)
+      setState((prev) => ({
         ...prev,
         isLoading: false,
         error: message,
@@ -280,25 +286,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [])
 
   const register = useCallback(async (data: RegisterSchoolRequest): Promise<RegisterResponse> => {
-    setState(prev => ({ ...prev, isLoading: true, error: null }))
-
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 500))
+    setState((prev) => ({ ...prev, isLoading: true, error: null }))
 
     try {
-      // Mock registration - just return success
-      const response: RegisterResponse = {
+      // Appeler le vrai backend API via authService
+      const response = await authService.register(data)
+
+      setState((prev) => ({ ...prev, isLoading: false }))
+
+      // Note: L'inscription ne connecte pas automatiquement l'utilisateur
+      // Il devra se connecter après l'inscription
+      return {
         success: true,
         message: 'École enregistrée avec succès. Vous pouvez maintenant vous connecter.',
-        schoolId: 'school-' + Date.now(),
-        userId: 'user-' + Date.now(),
+        schoolId: response.user?.schoolId || '',
+        userId: response.user?.id || '',
       }
-
-      setState(prev => ({ ...prev, isLoading: false }))
-      return response
     } catch (error) {
       const message = error instanceof Error ? error.message : "Erreur lors de l'inscription"
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         isLoading: false,
         error: message,
@@ -308,55 +314,79 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [])
 
   const logout = useCallback(async () => {
-    // Mock logout - just clear local storage
-    clearAuthStorage()
-    setState({
-      user: null,
-      isAuthenticated: false,
-      isLoading: false,
-      error: null,
-    })
-    router.push('/login')
+    try {
+      // Appeler le backend pour déconnecter (optionnel, le backend peut invalider le token)
+      await authService.logout()
+    } catch {
+      // Ignorer les erreurs de logout côté backend
+    } finally {
+      // Toujours nettoyer le stockage local
+      clearAuthStorage()
+      setState({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: null,
+      })
+      router.push('/login')
+    }
   }, [router])
 
   const refreshSession = useCallback(async () => {
-    const storedUser = localStorage.getItem(USER_KEY)
-    if (!storedUser) {
+    const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY)
+    if (!refreshToken) {
       throw new Error('No session available')
     }
 
-    // Mock refresh - just regenerate tokens
-    const user = JSON.parse(storedUser) as User
-    const newAccessToken = generateMockToken()
-    const newRefreshToken = generateMockToken()
+    try {
+      // Appeler le vrai backend API pour rafraîchir le token
+      const response = await authService.refreshToken(refreshToken)
 
-    setAuthToken(newAccessToken)
-    localStorage.setItem(TOKEN_KEY, newAccessToken)
-    localStorage.setItem(REFRESH_TOKEN_KEY, newRefreshToken)
+      setAuthToken(response.accessToken)
+      localStorage.setItem(TOKEN_KEY, response.accessToken)
+      localStorage.setItem(REFRESH_TOKEN_KEY, response.refreshToken)
+      localStorage.setItem(USER_KEY, JSON.stringify(response.user))
 
-    setState(prev => ({
-      ...prev,
-      user: user,
-      isAuthenticated: true,
-    }))
+      setState((prev) => ({
+        ...prev,
+        user: response.user,
+        isAuthenticated: true,
+      }))
+    } catch (error) {
+      // Si le refresh échoue, déconnecter l'utilisateur
+      clearAuthStorage()
+      setState({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: 'Session expirée, veuillez vous reconnecter',
+      })
+      throw error
+    }
   }, [])
 
   const clearError = useCallback(() => {
-    setState(prev => ({ ...prev, error: null }))
+    setState((prev) => ({ ...prev, error: null }))
   }, [])
 
-  const hasPermission = useCallback((permission: keyof User): boolean => {
-    if (!state.user) return false
-    return Boolean(state.user[permission])
-  }, [state.user])
+  const hasPermission = useCallback(
+    (permission: keyof User): boolean => {
+      if (!state.user) return false
+      return Boolean(state.user[permission])
+    },
+    [state.user]
+  )
 
-  const isRole = useCallback((role: UserRole | UserRole[]): boolean => {
-    if (!state.user) return false
-    if (Array.isArray(role)) {
-      return role.includes(state.user.role)
-    }
-    return state.user.role === role
-  }, [state.user])
+  const isRole = useCallback(
+    (role: UserRole | UserRole[]): boolean => {
+      if (!state.user) return false
+      if (Array.isArray(role)) {
+        return role.includes(state.user.role)
+      }
+      return state.user.role === role
+    },
+    [state.user]
+  )
 
   const value: AuthContextType = {
     ...state,
@@ -369,11 +399,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isRole,
   }
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
 export function useAuth(): AuthContextType {

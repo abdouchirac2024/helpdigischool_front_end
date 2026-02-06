@@ -125,15 +125,15 @@ const axiosInstance: AxiosInstance = axios.create({
 })
 
 /**
- * Intercepteur de requête - Injection du token Authorization
- * Note: Authorization header désactivé temporairement pour le développement
+ * Intercepteur de requête - Injection automatique du token Authorization
+ * Le token JWT est stocké dans localStorage après login
  */
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // const token = getAuthToken()
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`
-    // }
+    const token = getAuthToken()
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
     return config
   },
   (error) => {

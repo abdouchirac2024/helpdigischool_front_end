@@ -43,14 +43,9 @@ const roleLabels: Record<string, { fr: string; en: string }> = {
 interface TopBarProps {
   sidebarOpen: boolean
   onToggleSidebar: () => void
-  schoolName?: string
 }
 
-export function TopBar({
-  sidebarOpen,
-  onToggleSidebar,
-  schoolName = 'École Primaire La Victoire',
-}: TopBarProps) {
+export function TopBar({ sidebarOpen, onToggleSidebar }: TopBarProps) {
   const { user, logout } = useAuth()
   const { toast } = useToast()
   const { language, toggleLanguage } = useLanguage()
@@ -59,6 +54,11 @@ export function TopBar({
   const userName = user ? `${user.profile.firstName} ${user.profile.lastName}` : ''
   const userEmail = user?.email ?? ''
   const userRole = user?.role ?? ''
+
+  // Nom de l'école dynamique depuis les infos utilisateur
+  // Pour admin, afficher "Administration SaaS", sinon le nom de l'école
+  const schoolName =
+    user?.schoolName || (userRole === 'admin' ? 'Administration SaaS' : 'Help Digi School')
 
   // Helper to get label based on language
   const getLabel = (labelFr: string, labelEn: string) => (language === 'fr' ? labelFr : labelEn)

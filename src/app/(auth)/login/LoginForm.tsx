@@ -20,59 +20,172 @@ import {
   MessageSquare,
   Smartphone,
   Clock,
-  AlertCircle
+  AlertCircle,
+  XCircle,
+  AlertTriangle,
+  UserX,
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useAuth, ROLE_DASHBOARD_PATHS_EXTENDED } from '@/lib/auth'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
+/**
+ * SÉCURITÉ: Valide que la redirection est vers une URL interne
+ * Prévient les attaques Open Redirect
+ */
+/**
+ * Configuration des messages d'erreur pour une meilleure UX
+ */
+function getErrorConfig(backendMessage: string): { title: string; displayMessage: string } {
+  // Normaliser le message pour la comparaison
+  const normalizedMessage = backendMessage.toLowerCase()
+
+  // Identifiants incorrects (email/téléphone ou mot de passe)
+  if (normalizedMessage.includes('identifiant ou mot de passe incorrect')) {
+    return {
+      title: 'Identifiants incorrects',
+      displayMessage: 'Email/téléphone ou mot de passe incorrect. Vérifiez vos identifiants.',
+    }
+  }
+
+  // Compte en attente de validation
+  if (normalizedMessage.includes('attente') || normalizedMessage.includes('validation')) {
+    return {
+      title: 'Compte en attente',
+      displayMessage: 'Votre compte est en attente de validation par un administrateur.',
+    }
+  }
+
+  // Compte désactivé/inactif
+  if (normalizedMessage.includes('désactivé') || normalizedMessage.includes('inactif')) {
+    return {
+      title: 'Compte désactivé',
+      displayMessage: "Votre compte a été désactivé. Contactez l'administrateur.",
+    }
+  }
+
+  // Email ou téléphone requis
+  if (normalizedMessage.includes('requis') || normalizedMessage.includes('required')) {
+    return {
+      title: 'Champ requis',
+      displayMessage: 'Veuillez entrer votre email ou numéro de téléphone.',
+    }
+  }
+
+  // Erreur réseau
+  if (normalizedMessage.includes('network') || normalizedMessage.includes('réseau')) {
+    return {
+      title: 'Erreur de connexion',
+      displayMessage: 'Impossible de contacter le serveur. Vérifiez votre connexion internet.',
+    }
+  }
+
+  // Message par défaut - utiliser le message du backend
+  return {
+    title: 'Erreur de connexion',
+    displayMessage: backendMessage,
+  }
+}
+
+/**
+ * SÉCURITÉ: Valide que la redirection est vers une URL interne
+ * Prévient les attaques Open Redirect
+ */
+function isValidRedirectUrl(url: string | null): boolean {
+  if (!url) return false
+
+  // Accepter uniquement les chemins relatifs commençant par /
+  if (url.startsWith('/') && !url.startsWith('//')) {
+    // Bloquer les chemins avec protocoles cachés
+    const decoded = decodeURIComponent(url)
+    if (decoded.includes('://') || decoded.startsWith('//')) {
+      return false
+    }
+    return true
+  }
+
+  return false
+}
+
 const slides = [
   {
     image: '/teacher_grades.jpeg',
     badge: "L'excellence scolaire",
-    title: "La plateforme tout-en-un pour les écoles modernes.",
+    title: 'La plateforme tout-en-un pour les écoles modernes.',
     position: 'bottom',
     features: [
-      { icon: School, title: "Gestion centralisée", desc: "Élèves, enseignants, emplois du temps" },
-      { icon: BarChart3, title: "Statistiques détaillées", desc: "Suivez la performance de votre école" },
-      { icon: CheckCircle2, title: "Sans engagement", desc: "Essayez gratuitement pendant 14 jours" }
-    ]
+      { icon: School, title: 'Gestion centralisée', desc: 'Élèves, enseignants, emplois du temps' },
+      {
+        icon: BarChart3,
+        title: 'Statistiques détaillées',
+        desc: 'Suivez la performance de votre école',
+      },
+      {
+        icon: CheckCircle2,
+        title: 'Sans engagement',
+        desc: 'Essayez gratuitement pendant 14 jours',
+      },
+    ],
   },
   {
     image: '/parent_notification_sms.png',
-    badge: "Communication temps réel",
-    title: "Gardez le lien avec les parents, simplement.",
+    badge: 'Communication temps réel',
+    title: 'Gardez le lien avec les parents, simplement.',
     position: 'top',
     features: [
-      { icon: Smartphone, title: "Notifications SMS", desc: "Alertes automatiques pour les notes et absences" },
-      { icon: MessageSquare, title: "Messagerie directe", desc: "Communiquez facilement avec les familles" },
-      { icon: Clock, title: "Gain de temps", desc: "Automatisez vos tâches administratives" }
-    ]
-  }
+      {
+        icon: Smartphone,
+        title: 'Notifications SMS',
+        desc: 'Alertes automatiques pour les notes et absences',
+      },
+      {
+        icon: MessageSquare,
+        title: 'Messagerie directe',
+        desc: 'Communiquez facilement avec les familles',
+      },
+      { icon: Clock, title: 'Gain de temps', desc: 'Automatisez vos tâches administratives' },
+    ],
+  },
 ]
 
 export default function LoginForm() {
   const { toast } = useToast()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { login, isLoading: authLoading, error: authError, clearError, isAuthenticated, user } = useAuth()
+  const {
+    login,
+    isLoading: authLoading,
+    error: authError,
+    clearError,
+    isAuthenticated,
+    user,
+  } = useAuth()
 
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [currentSlide, setCurrentSlide] = useState(0)
   const [localError, setLocalError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
-    email: '',
+    identifier: '', // Email ou numéro de téléphone
     password: '',
     rememberMe: false,
   })
 
-  const callbackUrl = searchParams.get('callbackUrl')
+  // SÉCURITÉ: Valider la callbackUrl pour éviter Open Redirect
+  const rawCallbackUrl = searchParams.get('callbackUrl')
+  const callbackUrl = isValidRedirectUrl(rawCallbackUrl) ? rawCallbackUrl : null
 
   // Redirect if already authenticated
   useEffect(() => {
+    console.log('[LoginForm] Auth check useEffect', {
+      isAuthenticated,
+      hasUser: !!user,
+      userRole: user?.role,
+    })
+
     if (isAuthenticated && user) {
       const dashboardPath = ROLE_DASHBOARD_PATHS_EXTENDED[user.role] || '/dashboard'
+      console.log('[LoginForm] Already authenticated, redirecting to:', dashboardPath)
       router.push(callbackUrl || dashboardPath)
     }
   }, [isAuthenticated, user, router, callbackUrl])
@@ -89,13 +202,13 @@ export default function LoginForm() {
   useEffect(() => {
     if (localError) setLocalError(null)
     if (authError) clearError()
-  }, [formData.email, formData.password])
+  }, [formData.identifier, formData.password])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLocalError(null)
 
-    if (!formData.email || !formData.password) {
+    if (!formData.identifier || !formData.password) {
       toast({
         title: 'Champs requis',
         description: 'Veuillez remplir tous les champs.',
@@ -107,26 +220,59 @@ export default function LoginForm() {
     setIsSubmitting(true)
 
     try {
+      console.log('[LoginForm] handleSubmit: Starting login with', formData.identifier)
+
       const response = await login({
-        email: formData.email,
+        identifier: formData.identifier,
         password: formData.password,
         rememberMe: formData.rememberMe,
       })
 
-      toast({
-        title: 'Connexion réussie!',
-        description: 'Redirection vers votre tableau de bord...',
+      console.log('[LoginForm] handleSubmit: Login response received', {
+        success: response.success,
+        userId: response.user?.id,
+        userRole: response.user?.role,
       })
 
-      // Redirect based on user role
-      const dashboardPath = ROLE_DASHBOARD_PATHS_EXTENDED[response.user.role] || '/dashboard'
-      router.push(callbackUrl || dashboardPath)
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Identifiants incorrects'
-      setLocalError(message)
+      // Déterminer le chemin du dashboard basé sur le rôle
+      const userRole = response.user.role
+      const dashboardPath = ROLE_DASHBOARD_PATHS_EXTENDED[userRole] || '/dashboard/director'
+
+      console.log('[LoginForm] handleSubmit: Redirecting to dashboard', {
+        userRole,
+        dashboardPath,
+        callbackUrl,
+        finalPath: callbackUrl || dashboardPath,
+      })
+
       toast({
-        title: 'Erreur de connexion',
-        description: message,
+        title: 'Connexion réussie!',
+        description: `Bienvenue ${response.user.profile.firstName}! Redirection...`,
+      })
+
+      // Redirection vers le dashboard correspondant au rôle
+      // Utiliser replace pour éviter de revenir à la page login avec le bouton retour
+      router.replace(callbackUrl || dashboardPath)
+    } catch (err: unknown) {
+      // Extraire le message d'erreur du backend
+      let message = 'Une erreur est survenue'
+
+      if (err && typeof err === 'object') {
+        // ApiError du client API
+        if ('message' in err && typeof err.message === 'string') {
+          message = err.message
+        }
+      } else if (err instanceof Error) {
+        message = err.message
+      }
+
+      // Messages d'erreur personnalisés pour une meilleure UX
+      const errorConfig = getErrorConfig(message)
+
+      setLocalError(errorConfig.displayMessage)
+      toast({
+        title: errorConfig.title,
+        description: errorConfig.displayMessage,
         variant: 'destructive',
       })
     } finally {
@@ -138,16 +284,35 @@ export default function LoginForm() {
   const displayError = localError || authError
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2">
+    <div className="grid min-h-screen lg:grid-cols-2">
       {/* Left Side - Form */}
-      <div className="relative flex flex-col justify-center p-8 lg:p-16 bg-white overflow-hidden">
+      <div className="relative flex flex-col justify-center overflow-hidden bg-white p-8 lg:p-16">
         {/* Geometric Pattern Overlay - Consistent with Contact Page */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.04] text-[#2302B3]">
+        <div className="pointer-events-none absolute inset-0 text-[#2302B3] opacity-[0.04]">
           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <pattern id="login-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-                <path d="M50 0 L100 50 L50 100 L0 50 Z" fill="none" stroke="currentColor" strokeWidth="0.5" />
-                <circle cx="50" cy="50" r="10" fill="none" stroke="currentColor" strokeWidth="0.5" />
+              <pattern
+                id="login-pattern"
+                x="0"
+                y="0"
+                width="100"
+                height="100"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M50 0 L100 50 L50 100 L0 50 Z"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="0.5"
+                />
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="10"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="0.5"
+                />
                 <path d="M0 0 L100 100 M100 0 L0 100" stroke="currentColor" strokeWidth="0.2" />
               </pattern>
             </defs>
@@ -155,32 +320,52 @@ export default function LoginForm() {
           </svg>
         </div>
 
-        <div className="relative z-10 max-w-md mx-auto w-full">
+        <div className="relative z-10 mx-auto w-full max-w-md">
           <div className="mb-10">
-            <Link href="/" className="inline-flex items-center gap-2 mb-8 group">
-              <div className="w-10 h-10 rounded-xl bg-[#2302B3]/10 flex items-center justify-center group-hover:bg-[#2302B3]/20 transition-colors">
-                <GraduationCap className="w-6 h-6 text-[#2302B3]" />
+            <Link href="/" className="group mb-8 inline-flex items-center gap-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2302B3]/10 transition-colors group-hover:bg-[#2302B3]/20">
+                <GraduationCap className="h-6 w-6 text-[#2302B3]" />
               </div>
-              <span className="font-bold text-xl tracking-tight text-[#2302B3]">Help Digi School</span>
+              <span className="text-xl font-bold tracking-tight text-[#2302B3]">
+                Help Digi School
+              </span>
             </Link>
-            <h1 className="text-3xl font-black text-gray-900 mb-3 tracking-tight">Bon retour parmi nous</h1>
-            <p className="text-muted-foreground text-lg">
+            <h1 className="mb-3 text-3xl font-black tracking-tight text-gray-900">
+              Bon retour parmi nous
+            </h1>
+            <p className="text-lg text-muted-foreground">
               Connectez-vous pour gérer votre établissement.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {displayError && (
+              <Alert
+                variant="destructive"
+                className={` ${displayError.includes('attente') ? 'border-amber-500 bg-amber-50 text-amber-900' : ''} ${displayError.includes('désactivé') ? 'border-red-600 bg-red-50 text-red-900' : ''} `}
+              >
+                {displayError.includes('attente') ? (
+                  <AlertTriangle className="h-4 w-4 text-amber-600" />
+                ) : displayError.includes('désactivé') ? (
+                  <UserX className="h-4 w-4 text-red-600" />
+                ) : (
+                  <XCircle className="h-4 w-4" />
+                )}
+                <AlertDescription className="font-medium">{displayError}</AlertDescription>
+              </Alert>
+            )}
+
             <div className="space-y-2">
-              <Label htmlFor="email">Email professionnel</Label>
+              <Label htmlFor="identifier">Email ou téléphone</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="directeur@ecole.cm"
-                  className="pl-10 h-12 bg-gray-50 border-gray-200 focus:bg-white transition-all"
-                  value={formData.email}
-                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  id="identifier"
+                  type="text"
+                  placeholder="email@ecole.cm ou 6XXXXXXXX"
+                  className="h-12 border-gray-200 bg-gray-50 pl-10 transition-all focus:bg-white"
+                  value={formData.identifier}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, identifier: e.target.value }))}
                   required
                 />
               </div>
@@ -197,14 +382,14 @@ export default function LoginForm() {
                 </Link>
               </div>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
-                  className="pl-10 pr-10 h-12 bg-gray-50 border-gray-200 focus:bg-white transition-all"
+                  className="h-12 border-gray-200 bg-gray-50 pl-10 pr-10 transition-all focus:bg-white"
                   value={formData.password}
-                  onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
                   required
                 />
                 <button
@@ -212,7 +397,7 @@ export default function LoginForm() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
             </div>
@@ -221,32 +406,36 @@ export default function LoginForm() {
               <Checkbox
                 id="remember"
                 checked={formData.rememberMe}
-                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, rememberMe: checked as boolean }))}
-                className="data-[state=checked]:bg-[#2302B3] data-[state=checked]:border-[#2302B3]"
+                onCheckedChange={(checked) =>
+                  setFormData((prev) => ({ ...prev, rememberMe: checked as boolean }))
+                }
+                className="data-[state=checked]:border-[#2302B3] data-[state=checked]:bg-[#2302B3]"
               />
-              <Label htmlFor="remember" className="text-sm cursor-pointer text-gray-600">
+              <Label htmlFor="remember" className="cursor-pointer text-sm text-gray-600">
                 Se souvenir de moi pendant 30 jours
               </Label>
             </div>
 
             <Button
               type="submit"
-              className="w-full h-12 text-base font-semibold bg-[#2302B3] hover:bg-[#1c0291] shadow-lg shadow-blue-900/20"
+              className="h-12 w-full bg-[#2302B3] text-base font-semibold shadow-lg shadow-blue-900/20 hover:bg-[#1c0291]"
               disabled={isLoading}
             >
-              {isLoading ? 'Connexion en cours...' : (
+              {isLoading ? (
+                'Connexion en cours...'
+              ) : (
                 <>
                   Se connecter
-                  <ArrowRight className="w-4 h-4 ml-2" />
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </>
               )}
             </Button>
           </form>
 
-          <div className="mt-8 pt-6 border-t border-gray-100 text-center">
+          <div className="mt-8 border-t border-gray-100 pt-6 text-center">
             <p className="text-gray-500">
               Pas encore de compte?{' '}
-              <Link href="/register" className="text-[#2302B3] font-bold hover:underline">
+              <Link href="/register" className="font-bold text-[#2302B3] hover:underline">
                 Créer un compte école
               </Link>
             </p>
@@ -255,62 +444,72 @@ export default function LoginForm() {
       </div>
 
       {/* Right Side - Carousel & Features */}
-      <div className="hidden lg:relative lg:block text-white overflow-hidden bg-[#2302B3]">
+      <div className="hidden overflow-hidden bg-[#2302B3] text-white lg:relative lg:block">
         {/* Carousel Layers */}
         {slides.map((slide, index) => (
           <div key={index} className="absolute inset-0">
             {/* Image */}
             <div
-              className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'
-                }`}
+              className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out ${
+                index === currentSlide ? 'opacity-100' : 'opacity-0'
+              }`}
               style={{ backgroundImage: `url('${slide.image}')` }}
             />
             {/* Dynamic Gradient Overlay based on content position */}
             <div
-              className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? 'opacity-90' : 'opacity-0'
-                }`}
+              className={`absolute inset-0 transition-opacity duration-1000 ${
+                index === currentSlide ? 'opacity-90' : 'opacity-0'
+              }`}
               style={{
-                background: slide.position === 'top'
-                  ? 'linear-gradient(to bottom, #2302B3 10%, rgba(35,2,179,0.8) 50%, transparent 100%)'
-                  : 'linear-gradient(to top, #2302B3 10%, rgba(35,2,179,0.8) 50%, transparent 100%)'
+                background:
+                  slide.position === 'top'
+                    ? 'linear-gradient(to bottom, #2302B3 10%, rgba(35,2,179,0.8) 50%, transparent 100%)'
+                    : 'linear-gradient(to top, #2302B3 10%, rgba(35,2,179,0.8) 50%, transparent 100%)',
               }}
             />
           </div>
         ))}
 
         {/* Decorative Circles (Fixed) */}
-        <div className="absolute top-10 right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
-        <div className="absolute bottom-1/3 left-10 w-64 h-64 bg-[#4318FF]/30 rounded-full blur-3xl" />
+        <div className="absolute right-10 top-10 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+        <div className="absolute bottom-1/3 left-10 h-64 w-64 rounded-full bg-[#4318FF]/30 blur-3xl" />
 
         <div className="relative z-10 h-full">
           {/* Carousel Content */}
           {slides.map((slide, index) => (
             <div
               key={index}
-              className={`absolute left-0 right-0 p-16 max-w-xl mx-auto transition-all duration-700 ease-out transform ${slide.position === 'top' ? 'top-0' : 'bottom-0'
-                } ${index === currentSlide
-                  ? 'opacity-100 translate-y-0'
-                  : `opacity-0 pointer-events-none ${slide.position === 'top' ? '-translate-y-8' : 'translate-y-8'}`
-                }`}
+              className={`absolute left-0 right-0 mx-auto max-w-xl transform p-16 transition-all duration-700 ease-out ${
+                slide.position === 'top' ? 'top-0' : 'bottom-0'
+              } ${
+                index === currentSlide
+                  ? 'translate-y-0 opacity-100'
+                  : `pointer-events-none opacity-0 ${slide.position === 'top' ? '-translate-y-8' : 'translate-y-8'}`
+              }`}
             >
-              <div className="flex items-center gap-2 mb-6">
+              <div className="mb-6 flex items-center gap-2">
                 <div className="h-px w-8 bg-white/50" />
-                <span className="text-white/80 uppercase tracking-widest text-xs font-bold">{slide.badge}</span>
+                <span className="text-xs font-bold uppercase tracking-widest text-white/80">
+                  {slide.badge}
+                </span>
               </div>
 
-              <h2 className="text-4xl font-bold mb-6 leading-tight drop-shadow-lg">
+              <h2 className="mb-6 text-4xl font-bold leading-tight drop-shadow-lg">
                 {slide.title}
               </h2>
 
               <div className="space-y-4">
                 {slide.features.map((feature, idx) => (
-                  <div key={idx} className="flex items-center gap-4 p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 hover:bg-white/15 transition-colors">
-                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-                      <feature.icon className="w-5 h-5 text-white" />
+                  <div
+                    key={idx}
+                    className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/10 p-4 backdrop-blur-sm transition-colors hover:bg-white/15"
+                  >
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20">
+                      <feature.icon className="h-5 w-5 text-white" />
                     </div>
                     <div>
                       <p className="font-bold text-white">{feature.title}</p>
-                      <p className="text-white/70 text-sm">{feature.desc}</p>
+                      <p className="text-sm text-white/70">{feature.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -319,13 +518,14 @@ export default function LoginForm() {
           ))}
 
           {/* Carousel Indicators */}
-          <div className="absolute bottom-8 left-16 flex gap-2 z-20">
+          <div className="absolute bottom-8 left-16 z-20 flex gap-2">
             {slides.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentSlide(index)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${index === currentSlide ? 'w-8 bg-white' : 'w-2 bg-white/30 hover:bg-white/50'
-                  }`}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  index === currentSlide ? 'w-8 bg-white' : 'w-2 bg-white/30 hover:bg-white/50'
+                }`}
                 aria-label={`Go to slide ${index + 1}`}
               />
             ))}
@@ -335,4 +535,3 @@ export default function LoginForm() {
     </div>
   )
 }
-

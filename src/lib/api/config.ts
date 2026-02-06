@@ -4,7 +4,7 @@
  */
 
 // URL de base de l'API Gateway (point d'entrée unique)
-// Note: Le backend Spring Boot utilise /api
+
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
 
 // Configuration des timeouts
@@ -31,6 +31,13 @@ export const API_ENDPOINTS = {
     resetPassword: '/auth/reset-password',
     verifyEmail: '/auth/verify-email',
     me: '/auth/me',
+  },
+
+  // ============================================
+  // ROLES SERVICE - Gestion des rôles (dynamique)
+  // ============================================
+  roles: {
+    base: '/roles',
   },
 
   // ============================================

@@ -3,10 +3,13 @@
  */
 
 // Rôles disponibles dans l'application
-export type UserRole = 'admin' | 'director' | 'teacher' | 'parent' | 'secretary'
+export type UserRole = 'admin' | 'director' | 'teacher' | 'parent' | 'secretary' | 'student'
 
-// Statut d'un compte utilisateur
-export type UserStatus = 'active' | 'inactive' | 'suspended' | 'pending'
+// Statut d'un compte utilisateur (correspond au backend)
+export type UserStatus = 'ACTIF' | 'INACTIF' | 'EN_ATTENTE'
+
+// Alias pour compatibilité
+export type UserStatusLegacy = 'active' | 'inactive' | 'suspended' | 'pending'
 
 // Genre
 export type Gender = 'M' | 'F'
@@ -26,13 +29,16 @@ export interface UserProfile {
 export interface User {
   id: string
   email: string
+  telephone?: string // Numéro de téléphone (unique)
   role: UserRole
   status: UserStatus
   profile: UserProfile
   schoolId?: string // null pour admin SaaS
+  schoolName?: string // Nom de l'école
+  tenant?: string // Identifiant du tenant
   createdAt: Date
   updatedAt: Date
-  lastLoginAt?: Date
+  lastLoginAt?: Date // Dernière connexion
 }
 
 // Utilisateur authentifié avec token
@@ -115,6 +121,17 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canEnterGrades: false,
     canViewGrades: true,
     canManagePayments: true,
+    canViewReports: true,
+    canSendMessages: true,
+  },
+  student: {
+    canManageSchools: false,
+    canManageUsers: false,
+    canManageClasses: false,
+    canManageStudents: false,
+    canEnterGrades: false,
+    canViewGrades: true,
+    canManagePayments: false,
     canViewReports: true,
     canSendMessages: true,
   },
