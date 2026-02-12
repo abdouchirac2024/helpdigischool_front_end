@@ -171,7 +171,16 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https: blob:",
               "font-src 'self' data:",
-              "connect-src 'self' " + (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'),
+              "connect-src 'self' " +
+                (() => {
+                  try {
+                    return new URL(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080')
+                      .origin
+                  } catch {
+                    return 'http://localhost:8080'
+                  }
+                })() +
+                ' https://www.google-analytics.com',
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",
