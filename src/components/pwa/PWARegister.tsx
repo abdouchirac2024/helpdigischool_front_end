@@ -28,7 +28,7 @@ function UpdateToast({ onReload, onDismiss }: { onReload: () => void; onDismiss:
       <button
         onClick={onReload}
         style={{
-          background: '#2563eb',
+          background: '#2302B3',
           color: '#fff',
           border: 'none',
           padding: '0.375rem 0.875rem',

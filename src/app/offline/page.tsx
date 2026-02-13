@@ -12,7 +12,7 @@ export default function OfflinePage() {
         </p>
         <button
           onClick={() => window.location.reload()}
-          className="rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-blue-700"
+          className="rounded-lg bg-[#2302B3] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#1a0285]"
         >
           Reessayer
         </button>
