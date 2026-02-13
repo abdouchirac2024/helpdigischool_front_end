@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
 import { menuItemsByRole, roleDisplayInfo } from '@/config/menu-items'
 import { useAuth } from '@/lib/auth/auth-context'
+import { useDashboardStats } from '@/hooks/use-dashboard-stats'
 
 interface DashboardShellProps {
   role: string
@@ -21,11 +22,34 @@ const ROLE_LABELS: Record<string, string> = {
   student: 'Élève',
 }
 
+// Paths that should get dynamic badges
+const DYNAMIC_BADGE_PATHS: Record<
+  string,
+  keyof Omit<ReturnType<typeof useDashboardStats>, 'isLoading'>
+> = {
+  '/dashboard/director/classes': 'classesCount',
+  '/dashboard/director/students': 'studentsCount',
+  '/dashboard/director/teachers': 'teachersCount',
+}
+
 export function DashboardShell({ role, children }: DashboardShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { user } = useAuth()
+  const stats = useDashboardStats()
 
-  const menuItems = menuItemsByRole[role] ?? []
+  const staticMenuItems = menuItemsByRole[role] ?? []
+
+  // Inject dynamic badge values from API stats
+  const menuItems = useMemo(() => {
+    if (stats.isLoading) return staticMenuItems
+    return staticMenuItems.map((item) => {
+      const statKey = DYNAMIC_BADGE_PATHS[item.href]
+      if (statKey) {
+        return { ...item, badge: String(stats[statKey]) }
+      }
+      return item
+    })
+  }, [staticMenuItems, stats])
 
   // Utiliser les données de l'utilisateur connecté, sinon fallback sur roleDisplayInfo
   const fallbackInfo = roleDisplayInfo[role] ?? { userName: '', userRole: '' }

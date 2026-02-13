@@ -76,6 +76,10 @@ export function DirectorClassesPage() {
   const [formData, setFormData] = useState<CreateClasseRequest>({ ...emptyForm })
   const [isSaving, setIsSaving] = useState(false)
 
+  // View detail
+  const [viewDialogOpen, setViewDialogOpen] = useState(false)
+  const [viewingClasse, setViewingClasse] = useState<ClasseDto | null>(null)
+
   // Delete confirmation
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deletingClasse, setDeletingClasse] = useState<ClasseDto | null>(null)
@@ -110,6 +114,11 @@ export function DirectorClassesPage() {
   const totalStudents = classes.reduce((acc, cls) => acc + (cls.effectifActuel || 0), 0)
   const averageStudents = classes.length > 0 ? Math.round(totalStudents / classes.length) : 0
   const overallAverage = 'N/A'
+
+  const openViewDialog = (cls: ClasseDto) => {
+    setViewingClasse(cls)
+    setViewDialogOpen(true)
+  }
 
   const openCreateDialog = () => {
     setEditingClasse(null)
@@ -338,7 +347,12 @@ export function DirectorClassesPage() {
 
               {/* Actions */}
               <div className="flex gap-2 border-t border-gray-100 pt-2">
-                <Button variant="outline" size="sm" className="flex-1 gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 gap-1"
+                  onClick={() => openViewDialog(cls)}
+                >
                   <Eye className="h-4 w-4" />
                   Voir
                 </Button>
@@ -509,6 +523,95 @@ export function DirectorClassesPage() {
               ) : (
                 'Créer la classe'
               )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Detail Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>{viewingClasse?.nomClasse}</DialogTitle>
+            <DialogDescription>Détails de la classe</DialogDescription>
+          </DialogHeader>
+          {viewingClasse && (
+            <div className="space-y-4 py-2">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="rounded-lg bg-gray-50 p-3">
+                  <p className="text-xs text-gray-500">Niveau</p>
+                  <p className="font-semibold text-gray-900">
+                    {NIVEAU_LABELS[viewingClasse.niveau] || viewingClasse.niveau}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-gray-50 p-3">
+                  <p className="text-xs text-gray-500">Sous-système</p>
+                  <p className="font-semibold text-gray-900">
+                    {viewingClasse.sousSysteme
+                      ? SOUS_SYSTEME_LABELS[viewingClasse.sousSysteme] || viewingClasse.sousSysteme
+                      : '-'}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-gray-50 p-3">
+                  <p className="text-xs text-gray-500">Section</p>
+                  <p className="font-semibold text-gray-900">{viewingClasse.section || '-'}</p>
+                </div>
+                <div className="rounded-lg bg-gray-50 p-3">
+                  <p className="text-xs text-gray-500">Statut</p>
+                  <p className="font-semibold text-gray-900">{viewingClasse.statut || 'ACTIVE'}</p>
+                </div>
+                <div className="rounded-lg bg-gray-50 p-3">
+                  <p className="text-xs text-gray-500">Effectif actuel</p>
+                  <p className="font-semibold text-gray-900">
+                    {viewingClasse.effectifActuel ?? 0}
+                    {viewingClasse.capacite ? ` / ${viewingClasse.capacite}` : ''}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-gray-50 p-3">
+                  <p className="text-xs text-gray-500">Frais de scolarité</p>
+                  <p className="font-semibold text-gray-900">
+                    {viewingClasse.fraisScolarite
+                      ? `${viewingClasse.fraisScolarite.toLocaleString()} FCFA`
+                      : '-'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-lg bg-gray-50 p-3">
+                <p className="text-xs text-gray-500">Professeur principal</p>
+                <p className="font-semibold text-gray-900">
+                  {viewingClasse.titulaireNom || 'Non assigné'}
+                </p>
+              </div>
+
+              <div className="rounded-lg bg-gray-50 p-3">
+                <p className="text-xs text-gray-500">Année scolaire</p>
+                <p className="font-semibold text-gray-900">
+                  {viewingClasse.anneeScolaireLibelle || '-'}
+                </p>
+              </div>
+
+              {viewingClasse.description && (
+                <div className="rounded-lg bg-gray-50 p-3">
+                  <p className="text-xs text-gray-500">Description</p>
+                  <p className="text-sm text-gray-900">{viewingClasse.description}</p>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
+              Fermer
+            </Button>
+            <Button
+              className="bg-[#2302B3] hover:bg-[#1a0285]"
+              onClick={() => {
+                setViewDialogOpen(false)
+                if (viewingClasse) openEditDialog(viewingClasse)
+              }}
+            >
+              <Edit className="mr-2 h-4 w-4" />
+              Modifier
             </Button>
           </DialogFooter>
         </DialogContent>

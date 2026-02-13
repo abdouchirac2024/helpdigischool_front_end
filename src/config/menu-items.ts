@@ -74,13 +74,12 @@ export const menuItemsByRole: Record<string, MenuItem[]> = {
   ],
   director: [
     { icon: LayoutDashboard, label: "Vue d'ensemble", href: '/dashboard/director' },
-    { icon: Users, label: 'Élèves', href: '/dashboard/director/students', badge: '342' },
-    { icon: BookOpen, label: 'Classes', href: '/dashboard/director/classes', badge: '12' },
+    { icon: Users, label: 'Élèves', href: '/dashboard/director/students' },
+    { icon: BookOpen, label: 'Classes', href: '/dashboard/director/classes' },
     {
       icon: GraduationCap,
       label: 'Enseignants',
       href: '/dashboard/director/teachers',
-      badge: '18',
     },
     { icon: FileText, label: 'Notes & Bulletins', href: '/dashboard/director/grades' },
     { icon: CreditCard, label: 'Paiements', href: '/dashboard/director/payments' },

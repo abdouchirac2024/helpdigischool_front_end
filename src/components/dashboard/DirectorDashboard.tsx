@@ -1,9 +1,84 @@
 'use client'
 
-import { Users, FileText, CreditCard, Bell, GraduationCap, TrendingUp } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import {
+  Users,
+  FileText,
+  CreditCard,
+  Bell,
+  GraduationCap,
+  TrendingUp,
+  BookOpen,
+  Loader2,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { classeService } from '@/services/classe.service'
+import { studentService } from '@/services/student.service'
+import { teacherService } from '@/services/teacher.service'
+import type { ClasseDto } from '@/types/classe'
+
+const BAR_COLORS = [
+  'bg-blue-500',
+  'bg-green-500',
+  'bg-yellow-500',
+  'bg-orange-500',
+  'bg-purple-500',
+  'bg-pink-500',
+  'bg-cyan-500',
+  'bg-red-500',
+  'bg-indigo-500',
+  'bg-teal-500',
+]
 
 export function DirectorDashboard() {
+  const [classes, setClasses] = useState<ClasseDto[]>([])
+  const [studentsCount, setStudentsCount] = useState(0)
+  const [teachersCount, setTeachersCount] = useState(0)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [classesRes, studentsRes, teachersRes] = await Promise.allSettled([
+          classeService.getAll(),
+          studentService.getAll(),
+          teacherService.getAll(),
+        ])
+
+        if (classesRes.status === 'fulfilled') setClasses(classesRes.value)
+        if (studentsRes.status === 'fulfilled') setStudentsCount(studentsRes.value.length)
+        if (teachersRes.status === 'fulfilled') setTeachersCount(teachersRes.value.length)
+      } catch (error) {
+        console.error('Failed to load dashboard data:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
+
+  const totalStudents = classes.reduce((acc, cls) => acc + (cls.effectifActuel || 0), 0)
+
+  // Build class distribution from real data
+  const classDistribution = classes
+    .map((cls, i) => ({
+      name: cls.nomClasse,
+      students: cls.effectifActuel || 0,
+      color: BAR_COLORS[i % BAR_COLORS.length],
+    }))
+    .sort((a, b) => b.students - a.students)
+
+  const maxStudents = Math.max(...classDistribution.map((c) => c.students), 1)
+
+  if (isLoading) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-[#2302B3]" />
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
@@ -13,11 +88,15 @@ export function DirectorDashboard() {
           <p className="mt-1 text-gray-600">Vue d'ensemble de votre école</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" className="gap-2">
-            <TrendingUp className="h-4 w-4" />
-            Statistiques
+          <Button variant="outline" className="gap-2" asChild>
+            <Link href="/dashboard/director/stats">
+              <TrendingUp className="h-4 w-4" />
+              Statistiques
+            </Link>
           </Button>
-          <Button className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]">Ajouter Élève</Button>
+          <Button className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]" asChild>
+            <Link href="/dashboard/director/students">Ajouter Élève</Link>
+          </Button>
         </div>
       </div>
 
@@ -27,46 +106,31 @@ export function DirectorDashboard() {
           <div className="mb-4 flex items-center justify-between">
             <div>
               <p className="mb-1 text-sm text-gray-600">Élèves inscrits</p>
-              <p className="text-3xl font-bold text-gray-900">342</p>
-              <div className="mt-2 flex items-center gap-3">
-                <span className="text-xs font-semibold text-blue-600">♂ 178 Garçons</span>
-                <span className="text-xs font-semibold text-pink-600">♀ 164 Filles</span>
-              </div>
+              <p className="text-3xl font-bold text-gray-900">{studentsCount || totalStudents}</p>
             </div>
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50">
               <Users className="h-6 w-6 text-blue-600" />
             </div>
           </div>
-          <span className="rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
-            +12 ce mois
-          </span>
         </div>
 
         <div className="rounded-2xl border border-gray-100 bg-white p-6 transition-all hover:shadow-lg">
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <p className="mb-1 text-sm text-gray-600">Paiements</p>
-              <p className="text-3xl font-bold text-gray-900">€80.9k</p>
-              <p className="mt-1 text-xs text-gray-500">Revenus ce mois</p>
+              <p className="mb-1 text-sm text-gray-600">Classes</p>
+              <p className="text-3xl font-bold text-gray-900">{classes.length}</p>
             </div>
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50">
-              <CreditCard className="h-6 w-6 text-green-600" />
+              <BookOpen className="h-6 w-6 text-green-600" />
             </div>
           </div>
-          <span className="rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
-            +8.2%
-          </span>
         </div>
 
         <div className="rounded-2xl border border-gray-100 bg-white p-6 transition-all hover:shadow-lg">
           <div className="mb-4 flex items-center justify-between">
             <div>
               <p className="mb-1 text-sm text-gray-600">Enseignants</p>
-              <p className="text-3xl font-bold text-gray-900">18</p>
-              <div className="mt-2 flex items-center gap-3">
-                <span className="text-xs font-semibold text-blue-600">♂ 7 Hommes</span>
-                <span className="text-xs font-semibold text-pink-600">♀ 11 Femmes</span>
-              </div>
+              <p className="text-3xl font-bold text-gray-900">{teachersCount}</p>
             </div>
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50">
               <GraduationCap className="h-6 w-6 text-orange-600" />
@@ -80,17 +144,18 @@ export function DirectorDashboard() {
         <div className="rounded-2xl border border-gray-100 bg-white p-6 transition-all hover:shadow-lg">
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <p className="mb-1 text-sm text-gray-600">Taux de réussite</p>
-              <p className="text-3xl font-bold text-gray-900">94%</p>
-              <p className="mt-1 text-xs text-gray-500">Moyenne générale</p>
+              <p className="mb-1 text-sm text-gray-600">Élèves / Classe</p>
+              <p className="text-3xl font-bold text-gray-900">
+                {classes.length > 0
+                  ? Math.round((studentsCount || totalStudents) / classes.length)
+                  : 0}
+              </p>
+              <p className="mt-1 text-xs text-gray-500">Moyenne par classe</p>
             </div>
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50">
               <TrendingUp className="h-6 w-6 text-purple-600" />
             </div>
           </div>
-          <span className="rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
-            +2.5%
-          </span>
         </div>
       </div>
 
@@ -145,31 +210,32 @@ export function DirectorDashboard() {
           </div>
         </div>
 
-        {/* Class Distribution */}
+        {/* Class Distribution - Dynamic */}
         <div className="rounded-2xl border border-gray-100 bg-white p-6">
           <h3 className="mb-4 text-lg font-semibold">Répartition par classe</h3>
-          <div className="space-y-3">
-            {[
-              { class: 'CM2', students: 58, color: 'bg-blue-500' },
-              { class: 'CM1', students: 62, color: 'bg-green-500' },
-              { class: 'CE2', students: 54, color: 'bg-yellow-500' },
-              { class: 'CE1', students: 60, color: 'bg-orange-500' },
-              { class: 'CP', students: 56, color: 'bg-purple-500' },
-              { class: 'SIL', students: 52, color: 'bg-pink-500' },
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <span className="w-12 text-sm font-medium">{item.class}</span>
-                <div className="h-8 flex-1 overflow-hidden rounded-lg bg-gray-100">
-                  <div
-                    className={`h-full ${item.color} flex items-center justify-end px-3`}
-                    style={{ width: `${(item.students / 62) * 100}%` }}
-                  >
-                    <span className="text-xs font-semibold text-white">{item.students}</span>
+          {classDistribution.length > 0 ? (
+            <div className="space-y-3">
+              {classDistribution.map((item, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <span className="w-24 truncate text-sm font-medium" title={item.name}>
+                    {item.name}
+                  </span>
+                  <div className="h-8 flex-1 overflow-hidden rounded-lg bg-gray-100">
+                    <div
+                      className={`h-full ${item.color} flex items-center justify-end px-3`}
+                      style={{
+                        width: `${Math.max((item.students / maxStudents) * 100, 8)}%`,
+                      }}
+                    >
+                      <span className="text-xs font-semibold text-white">{item.students}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <p className="py-4 text-center text-sm text-gray-500">Aucune classe trouvée</p>
+          )}
         </div>
       </div>
 
@@ -177,21 +243,29 @@ export function DirectorDashboard() {
       <div className="rounded-2xl border border-gray-100 bg-white p-6">
         <h3 className="mb-4 text-lg font-semibold">Actions rapides</h3>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <Button variant="outline" className="h-auto flex-col gap-2 py-4">
-            <Users className="h-6 w-6" />
-            <span className="text-sm">Gérer Élèves</span>
+          <Button variant="outline" className="h-auto flex-col gap-2 py-4" asChild>
+            <Link href="/dashboard/director/students">
+              <Users className="h-6 w-6" />
+              <span className="text-sm">Gérer Élèves</span>
+            </Link>
           </Button>
-          <Button variant="outline" className="h-auto flex-col gap-2 py-4">
-            <FileText className="h-6 w-6" />
-            <span className="text-sm">Bulletins</span>
+          <Button variant="outline" className="h-auto flex-col gap-2 py-4" asChild>
+            <Link href="/dashboard/director/classes">
+              <BookOpen className="h-6 w-6" />
+              <span className="text-sm">Classes</span>
+            </Link>
           </Button>
-          <Button variant="outline" className="h-auto flex-col gap-2 py-4">
-            <CreditCard className="h-6 w-6" />
-            <span className="text-sm">Paiements</span>
+          <Button variant="outline" className="h-auto flex-col gap-2 py-4" asChild>
+            <Link href="/dashboard/director/payments">
+              <CreditCard className="h-6 w-6" />
+              <span className="text-sm">Paiements</span>
+            </Link>
           </Button>
-          <Button variant="outline" className="h-auto flex-col gap-2 py-4">
-            <Bell className="h-6 w-6" />
-            <span className="text-sm">Notifications</span>
+          <Button variant="outline" className="h-auto flex-col gap-2 py-4" asChild>
+            <Link href="/dashboard/director/notifications">
+              <Bell className="h-6 w-6" />
+              <span className="text-sm">Notifications</span>
+            </Link>
           </Button>
         </div>
       </div>
