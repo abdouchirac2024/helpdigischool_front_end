@@ -6,17 +6,18 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { screen, fireEvent, waitFor } from '@testing-library/react'
 import { render } from '../utils/test-utils'
 import { DirectorClassesPage } from '@/components/dashboard/director/pages/ClassesPage'
-import type { ClasseDto } from '@/services/classe.service'
+import type { ClasseDto } from '@/types/classe'
+import { Niveau, StatutClasse } from '@/types/classe'
 
 const mockClasses: ClasseDto[] = [
   {
     id: 1,
     nomClasse: '6eme-A',
-    niveau: 'COLLEGE',
+    niveau: Niveau.COLLEGE,
     sousSysteme: 'FRANCOPHONE',
     section: 'A',
     capacite: 50,
-    statut: 'ACTIVE',
+    statut: StatutClasse.ACTIVE,
     effectifActuel: 30,
     fraisScolarite: 45000,
     description: 'Classe de 6eme',
@@ -30,29 +31,29 @@ const mockClasses: ClasseDto[] = [
   {
     id: 2,
     nomClasse: 'CM2-B',
-    niveau: 'PRIMAIRE',
+    niveau: Niveau.PRIMAIRE,
     sousSysteme: 'FRANCOPHONE',
     section: 'B',
     capacite: 45,
-    statut: 'ACTIVE',
+    statut: StatutClasse.ACTIVE,
     effectifActuel: 20,
     fraisScolarite: 25000,
-    description: null,
+    description: undefined,
     ecoleId: 1,
     ecoleNom: 'Ecole La Victoire',
     anneeScolaireId: 2,
     anneeScolaireLibelle: '2025-2026',
-    titulaireId: null,
-    titulaireNom: null,
+    titulaireId: undefined,
+    titulaireNom: undefined,
   },
   {
     id: 3,
     nomClasse: 'Tle D',
-    niveau: 'LYCEE',
+    niveau: Niveau.LYCEE,
     sousSysteme: 'FRANCOPHONE',
-    section: null,
+    section: undefined,
     capacite: 40,
-    statut: 'ARCHIVEE',
+    statut: StatutClasse.ARCHIVEE,
     effectifActuel: 0,
     fraisScolarite: 60000,
     description: 'Archivee',
@@ -60,8 +61,8 @@ const mockClasses: ClasseDto[] = [
     ecoleNom: 'Ecole La Victoire',
     anneeScolaireId: 1,
     anneeScolaireLibelle: '2024-2025',
-    titulaireId: null,
-    titulaireNom: null,
+    titulaireId: undefined,
+    titulaireNom: undefined,
   },
 ]
 

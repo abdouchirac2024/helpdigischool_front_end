@@ -8,6 +8,7 @@ const publicRoutes = [
   '/register',
   '/forgot-password',
   '/reset-password',
+  '/about',
   '/contact',
   '/features',
   '/pricing',
@@ -15,9 +16,7 @@ const publicRoutes = [
 ]
 
 // Routes that require authentication
-const protectedRoutes = [
-  '/dashboard',
-]
+const protectedRoutes = ['/dashboard']
 
 // Role-based route access
 const roleRoutes: Record<string, string[]> = {
@@ -43,12 +42,13 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Get auth token from cookie or header
-  const token = request.cookies.get('auth_token')?.value ||
-                request.headers.get('authorization')?.replace('Bearer ', '')
+  const token =
+    request.cookies.get('auth_token')?.value ||
+    request.headers.get('authorization')?.replace('Bearer ', '')
 
   // Check if the path is public
-  const isPublicRoute = publicRoutes.some(route =>
-    pathname === route || pathname.startsWith('/api/') || pathname.startsWith('/_next/')
+  const isPublicRoute = publicRoutes.some(
+    (route) => pathname === route || pathname.startsWith('/api/') || pathname.startsWith('/_next/')
   )
 
   // Allow public routes
@@ -63,7 +63,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Check if route requires authentication
-  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
+  const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route))
 
   if (isProtectedRoute) {
     // No token - redirect to login

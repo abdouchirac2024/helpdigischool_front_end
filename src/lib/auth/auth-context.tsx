@@ -39,6 +39,7 @@ function mapBackendUserToFrontend(backendUser: BackendUserResponse): User {
     profile: {
       firstName: backendUser.prenom,
       lastName: backendUser.nom,
+      phone: backendUser.telephone || undefined,
     },
     schoolId: backendUser.tenantId,
     createdAt: new Date(),
@@ -52,8 +53,12 @@ interface BackendUserResponse {
   email: string
   nom: string
   prenom: string
+  telephone: string | null
   role: string
   tenantId: string
+  ecoleId: number | null
+  ecoleNom: string | null
+  codeEcole: string | null
 }
 
 interface BackendLoginResponse {
@@ -102,6 +107,7 @@ export const ROLE_DASHBOARD_PATHS: Record<UserRole, string> = {
   teacher: '/dashboard/teacher',
   parent: '/dashboard/parent',
   secretary: '/dashboard/secretary',
+  student: '/dashboard/student',
 }
 
 // Extended to include student role
@@ -191,7 +197,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       // Call backend via apiClient (utilise le proxy CORS + retry)
       const backendResponse = await apiClient.post<BackendLoginResponse>(API_ENDPOINTS.auth.login, {
-        email: credentials.email,
+        login: credentials.login,
         password: credentials.password,
       })
 

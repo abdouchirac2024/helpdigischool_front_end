@@ -11,8 +11,8 @@ export enum Niveau {
 
 export enum StatutClasse {
   ACTIVE = 'ACTIVE',
-  ARCHIVED = 'ARCHIVED',
-  INACTIVE = 'INACTIVE', // Assuming a possible inactive state based on standard patterns
+  INACTIVE = 'INACTIVE',
+  ARCHIVEE = 'ARCHIVEE',
 }
 
 export interface ClasseDto {
@@ -36,11 +36,22 @@ export interface ClasseDto {
   titulaireNom?: string
 }
 
+export enum SousSysteme {
+  FRANCOPHONE = 'FRANCOPHONE',
+  ANGLOPHONE = 'ANGLOPHONE',
+  BILINGUE = 'BILINGUE',
+}
+
 export interface CreateClasseRequest {
   nomClasse: string
   niveau: Niveau
+  sousSysteme?: SousSysteme
+  section?: string
   capacite?: number
+  fraisScolarite?: number
   description?: string
+  anneeScolaireId?: number
+  titulaireId?: number
 }
 
 export interface UpdateClasseRequest extends Partial<CreateClasseRequest> {

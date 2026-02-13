@@ -85,7 +85,7 @@ export default function LoginForm() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [localError, setLocalError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
-    email: '',
+    login: '',
     password: '',
     rememberMe: false,
   })
@@ -112,13 +112,13 @@ export default function LoginForm() {
   useEffect(() => {
     if (localError) setLocalError(null)
     if (authError) clearError()
-  }, [formData.email, formData.password])
+  }, [formData.login, formData.password])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLocalError(null)
 
-    if (!formData.email || !formData.password) {
+    if (!formData.login || !formData.password) {
       toast({
         title: 'Champs requis',
         description: 'Veuillez remplir tous les champs.',
@@ -131,7 +131,7 @@ export default function LoginForm() {
 
     try {
       const response = await login({
-        email: formData.email,
+        login: formData.login,
         password: formData.password,
         rememberMe: formData.rememberMe,
       })
@@ -217,16 +217,16 @@ export default function LoginForm() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email">Email professionnel</Label>
+              <Label htmlFor="login">Email ou telephone</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="directeur@ecole.cm"
+                  id="login"
+                  type="text"
+                  placeholder="email@ecole.cm ou +237..."
                   className="h-12 border-gray-200 bg-gray-50 pl-10 transition-all focus:bg-white"
-                  value={formData.email}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
+                  value={formData.login}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, login: e.target.value }))}
                   required
                 />
               </div>

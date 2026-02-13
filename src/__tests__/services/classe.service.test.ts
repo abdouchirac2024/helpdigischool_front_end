@@ -3,16 +3,18 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { classeService, type ClasseDto } from '@/services/classe.service'
+import { classeService } from '@/services/classe.service'
+import type { ClasseDto } from '@/types/classe'
+import { Niveau, StatutClasse } from '@/types/classe'
 
 const mockClasse: ClasseDto = {
   id: 1,
   nomClasse: '6eme-A',
-  niveau: 'COLLEGE',
+  niveau: Niveau.COLLEGE,
   sousSysteme: 'FRANCOPHONE',
   section: 'A',
   capacite: 50,
-  statut: 'ACTIVE',
+  statut: StatutClasse.ACTIVE,
   effectifActuel: 30,
   fraisScolarite: 45000,
   description: 'Classe de 6eme',
@@ -29,20 +31,20 @@ const mockClasseList: ClasseDto[] = [
   {
     id: 2,
     nomClasse: 'CM2-A',
-    niveau: 'PRIMAIRE',
+    niveau: Niveau.PRIMAIRE,
     sousSysteme: 'FRANCOPHONE',
     section: 'A',
     capacite: 45,
-    statut: 'ACTIVE',
+    statut: StatutClasse.ACTIVE,
     effectifActuel: 20,
     fraisScolarite: 25000,
-    description: null,
+    description: undefined,
     ecoleId: 1,
     ecoleNom: 'Ecole La Victoire',
     anneeScolaireId: 2,
     anneeScolaireLibelle: '2025-2026',
-    titulaireId: null,
-    titulaireNom: null,
+    titulaireId: undefined,
+    titulaireNom: undefined,
   },
 ]
 
@@ -153,13 +155,7 @@ describe('ClasseService', () => {
     it('cree une nouvelle classe', async () => {
       const newClasse = {
         nomClasse: '5eme-A',
-        niveau: 'COLLEGE' as const,
-        sousSysteme: 'FRANCOPHONE' as const,
-        section: 'A',
-        capacite: 50,
-        fraisScolarite: 45000,
-        description: 'Nouvelle classe',
-        ecoleId: 1,
+        niveau: Niveau.COLLEGE,
       }
 
       const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({
@@ -192,9 +188,7 @@ describe('ClasseService', () => {
       await expect(
         classeService.create({
           nomClasse: '6eme-A',
-          niveau: 'COLLEGE',
-          sousSysteme: 'FRANCOPHONE',
-          ecoleId: 1,
+          niveau: Niveau.COLLEGE,
         })
       ).rejects.toThrow()
     })
@@ -230,7 +224,7 @@ describe('ClasseService', () => {
         status: 200,
       } as Response)
 
-      const result = await classeService.update(1, { statut: 'ARCHIVEE' })
+      const result = await classeService.update(1, { statut: StatutClasse.ARCHIVEE })
 
       expect(result.statut).toBe('ARCHIVEE')
     })

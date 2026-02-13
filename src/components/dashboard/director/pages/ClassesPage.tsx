@@ -8,23 +8,78 @@ import {
   Plus,
   Eye,
   Edit,
-  UserPlus,
   Clock,
   TrendingUp,
   Award,
   Loader2,
+  Trash2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { classeService } from '@/services/classe.service'
-import type { ClasseDto } from '@/types/classe'
+import type { ClasseDto, CreateClasseRequest } from '@/types/classe'
+import { Niveau, SousSysteme } from '@/types/classe'
 import { toast } from 'sonner'
+
+const NIVEAU_LABELS: Record<string, string> = {
+  MATERNELLE: 'Maternelle',
+  PRIMAIRE: 'Primaire',
+  COLLEGE: 'Collège',
+  LYCEE: 'Lycée',
+  NURSERY: 'Nursery',
+  PRIMARY: 'Primary',
+  SECONDARY: 'Secondary',
+  HIGH_SCHOOL: 'High School',
+}
+
+const SOUS_SYSTEME_LABELS: Record<string, string> = {
+  FRANCOPHONE: 'Francophone',
+  ANGLOPHONE: 'Anglophone',
+  BILINGUE: 'Bilingue',
+}
+
+const emptyForm: CreateClasseRequest = {
+  nomClasse: '',
+  niveau: Niveau.PRIMAIRE,
+  sousSysteme: SousSysteme.FRANCOPHONE,
+  section: '',
+  capacite: undefined,
+  fraisScolarite: undefined,
+  description: '',
+}
 
 export function DirectorClassesPage() {
   const [classes, setClasses] = useState<ClasseDto[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [levelFilter, setLevelFilter] = useState('all')
+
+  // Dialog state
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [editingClasse, setEditingClasse] = useState<ClasseDto | null>(null)
+  const [formData, setFormData] = useState<CreateClasseRequest>({ ...emptyForm })
+  const [isSaving, setIsSaving] = useState(false)
+
+  // Delete confirmation
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [deletingClasse, setDeletingClasse] = useState<ClasseDto | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     loadClasses()
@@ -54,12 +109,78 @@ export function DirectorClassesPage() {
   // Calculate stats
   const totalStudents = classes.reduce((acc, cls) => acc + (cls.effectifActuel || 0), 0)
   const averageStudents = classes.length > 0 ? Math.round(totalStudents / classes.length) : 0
-
-  // Note: 'average' (grade) is not yet in the backend DTO, using placeholder for now
-  // const overallAverage = (
-  //   classes.reduce((acc, cls) => acc + (cls.average || 0), 0) / classes.length
-  // ).toFixed(1)
   const overallAverage = 'N/A'
+
+  const openCreateDialog = () => {
+    setEditingClasse(null)
+    setFormData({ ...emptyForm })
+    setDialogOpen(true)
+  }
+
+  const openEditDialog = (cls: ClasseDto) => {
+    setEditingClasse(cls)
+    setFormData({
+      nomClasse: cls.nomClasse,
+      niveau: cls.niveau,
+      sousSysteme: (cls.sousSysteme as SousSysteme) || SousSysteme.FRANCOPHONE,
+      section: cls.section || '',
+      capacite: cls.capacite,
+      fraisScolarite: cls.fraisScolarite,
+      description: cls.description || '',
+      anneeScolaireId: cls.anneeScolaireId,
+      titulaireId: cls.titulaireId,
+    })
+    setDialogOpen(true)
+  }
+
+  const handleSave = async () => {
+    if (!formData.nomClasse.trim()) {
+      toast.error('Le nom de la classe est requis')
+      return
+    }
+
+    setIsSaving(true)
+    try {
+      if (editingClasse) {
+        await classeService.update(editingClasse.id, formData)
+        toast.success('Classe modifiée avec succès')
+      } else {
+        await classeService.create(formData)
+        toast.success('Classe créée avec succès')
+      }
+      setDialogOpen(false)
+      await loadClasses()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Une erreur est survenue'
+      toast.error(editingClasse ? 'Erreur lors de la modification' : 'Erreur lors de la création', {
+        description: message,
+      })
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const openDeleteDialog = (cls: ClasseDto) => {
+    setDeletingClasse(cls)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleDelete = async () => {
+    if (!deletingClasse) return
+    setIsDeleting(true)
+    try {
+      await classeService.delete(deletingClasse.id)
+      toast.success('Classe supprimée avec succès')
+      setDeleteDialogOpen(false)
+      setDeletingClasse(null)
+      await loadClasses()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Une erreur est survenue'
+      toast.error('Erreur lors de la suppression', { description: message })
+    } finally {
+      setIsDeleting(false)
+    }
+  }
 
   if (isLoading) {
     return (
@@ -79,7 +200,7 @@ export function DirectorClassesPage() {
             {classes.length} classes • {totalStudents} élèves
           </p>
         </div>
-        <Button className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]">
+        <Button className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]" onClick={openCreateDialog}>
           <Plus className="h-4 w-4" />
           Nouvelle classe
         </Button>
@@ -221,18 +342,209 @@ export function DirectorClassesPage() {
                   <Eye className="h-4 w-4" />
                   Voir
                 </Button>
-                <Button variant="outline" size="sm" className="flex-1 gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 gap-1"
+                  onClick={() => openEditDialog(cls)}
+                >
                   <Edit className="h-4 w-4" />
                   Modifier
                 </Button>
-                <Button variant="outline" size="sm" className="gap-1">
-                  <UserPlus className="h-4 w-4" />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1 text-red-600 hover:bg-red-50 hover:text-red-700"
+                  onClick={() => openDeleteDialog(cls)}
+                >
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Create/Edit Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[550px]">
+          <DialogHeader>
+            <DialogTitle>{editingClasse ? 'Modifier la classe' : 'Nouvelle classe'}</DialogTitle>
+            <DialogDescription>
+              {editingClasse
+                ? `Modifier les informations de ${editingClasse.nomClasse}`
+                : 'Remplissez les informations pour créer une nouvelle classe'}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-4">
+            {/* Nom de la classe */}
+            <div className="grid gap-2">
+              <Label htmlFor="nomClasse">Nom de la classe *</Label>
+              <Input
+                id="nomClasse"
+                placeholder="Ex: CM2 A, 6ème B..."
+                value={formData.nomClasse}
+                onChange={(e) => setFormData((prev) => ({ ...prev, nomClasse: e.target.value }))}
+              />
+            </div>
+
+            {/* Niveau + Sous-système */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label>Niveau *</Label>
+                <Select
+                  value={formData.niveau}
+                  onValueChange={(val) =>
+                    setFormData((prev) => ({ ...prev, niveau: val as Niveau }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.values(Niveau).map((n) => (
+                      <SelectItem key={n} value={n}>
+                        {NIVEAU_LABELS[n] || n}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <Label>Sous-système</Label>
+                <Select
+                  value={formData.sousSysteme || ''}
+                  onValueChange={(val) =>
+                    setFormData((prev) => ({ ...prev, sousSysteme: val as SousSysteme }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.values(SousSysteme).map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {SOUS_SYSTEME_LABELS[s] || s}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Section */}
+            <div className="grid gap-2">
+              <Label htmlFor="section">Section</Label>
+              <Input
+                id="section"
+                placeholder="Ex: A, B, C..."
+                value={formData.section || ''}
+                onChange={(e) => setFormData((prev) => ({ ...prev, section: e.target.value }))}
+              />
+            </div>
+
+            {/* Capacité + Frais */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="capacite">Capacité</Label>
+                <Input
+                  id="capacite"
+                  type="number"
+                  placeholder="Ex: 40"
+                  value={formData.capacite ?? ''}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      capacite: e.target.value ? Number(e.target.value) : undefined,
+                    }))
+                  }
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="fraisScolarite">Frais de scolarité (FCFA)</Label>
+                <Input
+                  id="fraisScolarite"
+                  type="number"
+                  placeholder="Ex: 50000"
+                  value={formData.fraisScolarite ?? ''}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      fraisScolarite: e.target.value ? Number(e.target.value) : undefined,
+                    }))
+                  }
+                />
+              </div>
+            </div>
+
+            {/* Description */}
+            <div className="grid gap-2">
+              <Label htmlFor="description">Description</Label>
+              <Input
+                id="description"
+                placeholder="Description optionnelle..."
+                value={formData.description || ''}
+                onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={isSaving}>
+              Annuler
+            </Button>
+            <Button
+              className="bg-[#2302B3] hover:bg-[#1a0285]"
+              onClick={handleSave}
+              disabled={isSaving}
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {editingClasse ? 'Modification...' : 'Création...'}
+                </>
+              ) : editingClasse ? (
+                'Enregistrer'
+              ) : (
+                'Créer la classe'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Supprimer la classe</DialogTitle>
+            <DialogDescription>
+              Êtes-vous sûr de vouloir supprimer la classe{' '}
+              <strong>{deletingClasse?.nomClasse}</strong> ? Cette action est irréversible.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={isDeleting}
+            >
+              Annuler
+            </Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Suppression...
+                </>
+              ) : (
+                'Supprimer'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -3,7 +3,7 @@
  */
 
 // Rôles disponibles dans l'application
-export type UserRole = 'admin' | 'director' | 'teacher' | 'parent' | 'secretary'
+export type UserRole = 'admin' | 'director' | 'teacher' | 'parent' | 'secretary' | 'student'
 
 // Statut d'un compte utilisateur
 export type UserStatus = 'active' | 'inactive' | 'suspended' | 'pending'
@@ -116,6 +116,17 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canViewGrades: true,
     canManagePayments: true,
     canViewReports: true,
+    canSendMessages: true,
+  },
+  student: {
+    canManageSchools: false,
+    canManageUsers: false,
+    canManageClasses: false,
+    canManageStudents: false,
+    canEnterGrades: false,
+    canViewGrades: true,
+    canManagePayments: false,
+    canViewReports: false,
     canSendMessages: true,
   },
 }

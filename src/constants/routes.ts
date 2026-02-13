@@ -101,7 +101,7 @@ export const ROUTES = {
       REGISTER: '/api/auth/register',
       LOGOUT: '/api/auth/logout',
       ME: '/api/auth/me',
-      REFRESH: '/api/auth/refresh',
+      REFRESH: '/api/auth/refresh-token',
     },
     STUDENTS: '/api/students',
     TEACHERS: '/api/teachers',

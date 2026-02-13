@@ -163,7 +163,7 @@ async function tryRefreshToken(): Promise<string | null> {
 
   try {
     const baseURL = getBaseURL()
-    const response = await axios.post(`${baseURL}/auth/refresh`, { refreshToken })
+    const response = await axios.post(`${baseURL}/auth/refresh-token`, { refreshToken })
     const { accessToken, refreshToken: newRefreshToken } = response.data
 
     localStorage.setItem(TOKEN_KEY, accessToken)
@@ -216,7 +216,7 @@ axiosInstance.interceptors.response.use(
     // Auto-refresh sur 401 (token expiré)
     if (status === 401 && !config._retry) {
       // Ne pas refresh pour les endpoints d'auth
-      if (config.url?.includes('/auth/login') || config.url?.includes('/auth/refresh')) {
+      if (config.url?.includes('/auth/login') || config.url?.includes('/auth/refresh-token')) {
         removeAuthToken()
         if (typeof window !== 'undefined') {
           window.location.href = '/login'

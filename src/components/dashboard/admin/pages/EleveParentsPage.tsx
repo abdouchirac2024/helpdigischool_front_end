@@ -18,7 +18,8 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { parentService } from '@/services/parent.service'
-import { studentService, type Eleve } from '@/services/student.service'
+import { studentService } from '@/services/student.service'
+import type { EleveDto } from '@/types/student'
 import type { EleveParent, EleveParentFormData, Parent, TypeRelation } from '@/types'
 import { TypeRelationLabels } from '@/types/models/parent'
 
@@ -28,7 +29,7 @@ export function AdminEleveParentsPage() {
   const [error, setError] = useState<string | null>(null)
   const [relations, setRelations] = useState<EleveParent[]>([])
   const [parents, setParents] = useState<Parent[]>([])
-  const [eleves, setEleves] = useState<Eleve[]>([])
+  const [eleves, setEleves] = useState<EleveDto[]>([])
 
   // Modal state
   const [showModal, setShowModal] = useState(false)
@@ -74,7 +75,7 @@ export function AdminEleveParentsPage() {
 
   async function loadEleves() {
     try {
-      const data = await studentService.getEleves()
+      const data = await studentService.getAll()
       setEleves(data)
     } catch {
       console.error('Impossible de charger les élèves')
@@ -430,7 +431,7 @@ export function AdminEleveParentsPage() {
                 >
                   <option value="">Sélectionner un élève</option>
                   {eleves.map((eleve) => (
-                    <option key={eleve.idEleve} value={eleve.idEleve}>
+                    <option key={eleve.id} value={eleve.id}>
                       {eleve.prenom} {eleve.nom} ({eleve.matricule})
                     </option>
                   ))}

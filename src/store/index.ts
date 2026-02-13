@@ -4,11 +4,6 @@ export type { RootState, AppDispatch } from './store'
 
 // Hooks
 export { useAppDispatch, useAppSelector, useAppStore } from './hooks'
-export {
-  useReduxAuth,
-  ROLE_DASHBOARD_PATHS,
-  ROLE_DASHBOARD_PATHS_EXTENDED,
-} from './hooks/useReduxAuth'
 
 // Auth slice
 export {

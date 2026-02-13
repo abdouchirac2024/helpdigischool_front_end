@@ -4,9 +4,9 @@
 
 import type { User, UserRole } from '../models/user'
 
-// Requête de connexion
+// Requête de connexion (email ou téléphone)
 export interface LoginRequest {
-  email: string
+  login: string
   password: string
   rememberMe?: boolean
 }
