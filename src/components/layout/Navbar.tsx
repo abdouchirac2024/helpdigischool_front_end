@@ -36,7 +36,12 @@ import { useAuth } from '@/lib/auth/auth-context'
 import { useToast } from '@/hooks/use-toast'
 import { useLanguage } from '@/lib/i18n'
 import { useInstallPWA } from '@/hooks/use-install-pwa'
-import { InstallModal } from '@/components/pwa/InstallModal'
+import dynamic from 'next/dynamic'
+
+const InstallModal = dynamic(
+  () => import('@/components/pwa/InstallModal').then((m) => m.InstallModal),
+  { ssr: false }
+)
 
 const navLinks = [
   { href: '/', labelFr: 'Accueil', labelEn: 'Home', icon: Home },

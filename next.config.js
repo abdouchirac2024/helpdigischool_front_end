@@ -110,8 +110,7 @@ const nextConfig = {
         hostname: 'localhost',
       },
     ],
-    // Domaines autorises pour les images
-    domains: ['localhost', 'api.helpdigischool.com'],
+    formats: ['image/webp', 'image/avif'],
   },
 
   // Variables d'environnement exposees au client
@@ -219,7 +218,14 @@ const nextConfig = {
 
   // Optimisation des packages
   experimental: {
-    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+    optimizePackageImports: [
+      'lucide-react',
+      '@radix-ui/react-icons',
+      'recharts',
+      'framer-motion',
+      'date-fns',
+      'zod',
+    ],
   },
 }
 
