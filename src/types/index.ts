@@ -12,6 +12,9 @@
 // MODÈLES (Entités métier)
 // ============================================
 export * from './models'
+export * from './classe'
+export * from './student'
+export * from './teacher'
 
 // ============================================
 // API (Requêtes et Réponses)

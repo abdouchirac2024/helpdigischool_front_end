@@ -6,54 +6,7 @@
 
 import { apiClient } from '@/lib/api/client'
 import { API_ENDPOINTS } from '@/lib/api/config'
-
-// Types correspondant exactement au ClasseDto du backend
-export type Niveau =
-  | 'MATERNELLE'
-  | 'PRIMAIRE'
-  | 'COLLEGE'
-  | 'LYCEE'
-  | 'NURSERY'
-  | 'PRIMARY'
-  | 'SECONDARY'
-  | 'HIGH_SCHOOL'
-
-export type SousSysteme = 'FRANCOPHONE' | 'ANGLOPHONE' | 'BILINGUE'
-
-export type StatutClasse = 'ACTIVE' | 'INACTIVE' | 'ARCHIVEE'
-
-export interface ClasseDto {
-  id: number | null
-  nomClasse: string
-  niveau: Niveau
-  sousSysteme: SousSysteme
-  section: string | null
-  capacite: number | null
-  statut: StatutClasse
-  effectifActuel: number | null
-  fraisScolarite: number | null
-  description: string | null
-  ecoleId: number | null
-  ecoleNom: string | null
-  anneeScolaireId: number | null
-  anneeScolaireLibelle: string | null
-  titulaireId: number | null
-  titulaireNom: string | null
-}
-
-export interface CreateClasseRequest {
-  nomClasse: string
-  niveau: Niveau
-  sousSysteme: SousSysteme
-  section?: string
-  capacite?: number
-  fraisScolarite?: number
-  description?: string
-  // ecoleId est maintenant optionnel - auto-determiné côté backend depuis le contexte utilisateur
-  ecoleId?: number
-  anneeScolaireId?: number
-  titulaireId?: number
-}
+import type { ClasseDto, CreateClasseRequest, StatutClasse } from '@/types/classe'
 
 /**
  * Service de gestion des classes.

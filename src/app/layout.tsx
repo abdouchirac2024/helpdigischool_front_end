@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import localFont from 'next/font/local'
+import { Poppins } from 'next/font/google'
 import './globals.css'
 import { Providers } from '@/components/providers'
 import { MobileNav } from '@/components/layout/MobileNav'
@@ -7,42 +7,10 @@ import { InstallPrompt } from '@/components/pwa/InstallPrompt'
 import { PWARegister } from '@/components/pwa/PWARegister'
 import { OfflineBanner } from '@/components/pwa/OfflineBanner'
 
-// Font Poppins locale (évite les problèmes de réseau avec Google Fonts)
-const poppins = localFont({
-  src: [
-    {
-      path: '../../public/fonts/poppins-300.woff2',
-      weight: '300',
-      style: 'normal',
-    },
-    {
-      path: '../../public/fonts/poppins-400.woff2',
-      weight: '400',
-      style: 'normal',
-    },
-    {
-      path: '../../public/fonts/poppins-500.woff2',
-      weight: '500',
-      style: 'normal',
-    },
-    {
-      path: '../../public/fonts/poppins-600.woff2',
-      weight: '600',
-      style: 'normal',
-    },
-    {
-      path: '../../public/fonts/poppins-700.woff2',
-      weight: '700',
-      style: 'normal',
-    },
-    {
-      path: '../../public/fonts/poppins-800.woff2',
-      weight: '800',
-      style: 'normal',
-    },
-  ],
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800'],
   variable: '--font-poppins',
-  display: 'swap',
 })
 
 export const viewport: Viewport = {

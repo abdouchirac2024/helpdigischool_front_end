@@ -43,3 +43,6 @@ export * from './message'
 
 // Bulletins scolaires
 export * from './bulletin'
+
+// Localisation géographique
+export * from './location'

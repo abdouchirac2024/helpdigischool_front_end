@@ -21,6 +21,13 @@ import {
   UserPlus,
   Phone,
   Printer,
+  MapPin,
+  Globe,
+  Map,
+  Home,
+  Navigation,
+  UserCheck,
+  Link2,
 } from 'lucide-react'
 import { type MenuItem } from '@/components/dashboard/shared/Sidebar'
 
@@ -32,6 +39,35 @@ export const menuItemsByRole: Record<string, MenuItem[]> = {
     { icon: CreditCard, label: 'Abonnements', href: '/dashboard/admin/subscriptions' },
     { icon: TrendingUp, label: 'Revenus', href: '/dashboard/admin/revenue' },
     { icon: BarChart3, label: 'Analytiques', href: '/dashboard/admin/analytics' },
+    {
+      icon: MapPin,
+      label: 'Localisation',
+      href: '/dashboard/admin/localisation',
+      subItems: [
+        { icon: Globe, label: 'Regions', href: '/dashboard/admin/localisation/regions' },
+        { icon: Map, label: 'Departements', href: '/dashboard/admin/localisation/departements' },
+        {
+          icon: Navigation,
+          label: 'Arrondissements',
+          href: '/dashboard/admin/localisation/arrondissements',
+        },
+        { icon: Building2, label: 'Villes', href: '/dashboard/admin/localisation/villes' },
+        { icon: Home, label: 'Quartiers', href: '/dashboard/admin/localisation/quartiers' },
+      ],
+    },
+    {
+      icon: UserCheck,
+      label: 'Parents',
+      href: '/dashboard/admin/parents',
+      subItems: [
+        { icon: Users, label: 'Liste des parents', href: '/dashboard/admin/parents' },
+        {
+          icon: Link2,
+          label: 'Relations Eleve-Parent',
+          href: '/dashboard/admin/parents/relations',
+        },
+      ],
+    },
     { icon: Database, label: 'Base de données', href: '/dashboard/admin/database' },
     { icon: Shield, label: 'Sécurité', href: '/dashboard/admin/security' },
     { icon: Settings, label: 'Paramètres', href: '/dashboard/admin/settings' },
@@ -49,6 +85,35 @@ export const menuItemsByRole: Record<string, MenuItem[]> = {
     { icon: FileText, label: 'Notes & Bulletins', href: '/dashboard/director/grades' },
     { icon: CreditCard, label: 'Paiements', href: '/dashboard/director/payments' },
     { icon: Calendar, label: 'Emploi du temps', href: '/dashboard/director/schedule' },
+    {
+      icon: MapPin,
+      label: 'Localisation',
+      href: '/dashboard/director/localisation',
+      subItems: [
+        { icon: Globe, label: 'Regions', href: '/dashboard/director/localisation/regions' },
+        { icon: Map, label: 'Departements', href: '/dashboard/director/localisation/departements' },
+        {
+          icon: Navigation,
+          label: 'Arrondissements',
+          href: '/dashboard/director/localisation/arrondissements',
+        },
+        { icon: Building2, label: 'Villes', href: '/dashboard/director/localisation/villes' },
+        { icon: Home, label: 'Quartiers', href: '/dashboard/director/localisation/quartiers' },
+      ],
+    },
+    {
+      icon: UserCheck,
+      label: 'Parents',
+      href: '/dashboard/director/parents',
+      subItems: [
+        { icon: Users, label: 'Liste des parents', href: '/dashboard/director/parents' },
+        {
+          icon: Link2,
+          label: 'Relations Eleve-Parent',
+          href: '/dashboard/director/parents/relations',
+        },
+      ],
+    },
     { icon: BarChart3, label: 'Statistiques', href: '/dashboard/director/stats' },
     { icon: Bell, label: 'Notifications', href: '/dashboard/director/notifications', badge: '5' },
     { icon: Settings, label: 'Paramètres', href: '/dashboard/director/settings' },
@@ -94,4 +159,16 @@ export const menuItemsByRole: Record<string, MenuItem[]> = {
     { icon: Printer, label: 'Impressions', href: '/dashboard/secretary/printing' },
     { icon: Settings, label: 'Paramètres', href: '/dashboard/secretary/settings' },
   ],
+}
+
+export const roleDisplayInfo: Record<
+  string,
+  { userName: string; userRole: string; schoolName?: string }
+> = {
+  admin: { userName: 'Admin Principal', userRole: 'Super Admin', schoolName: 'Admin SaaS' },
+  director: { userName: 'Jean Dupont', userRole: 'Directeur' },
+  teacher: { userName: 'Marie Kouam', userRole: 'Enseignante CM2' },
+  student: { userName: 'Amina Talla', userRole: 'Élève - CM2-A' },
+  parent: { userName: 'Jean Talla', userRole: 'Parent' },
+  secretary: { userName: 'Sophie Mballa', userRole: 'Secrétaire' },
 }

@@ -21,91 +21,10 @@ import {
   Smartphone,
   Clock,
   AlertCircle,
-  XCircle,
-  AlertTriangle,
-  UserX,
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useAuth, ROLE_DASHBOARD_PATHS_EXTENDED } from '@/lib/auth'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-
-/**
- * SÉCURITÉ: Valide que la redirection est vers une URL interne
- * Prévient les attaques Open Redirect
- */
-/**
- * Configuration des messages d'erreur pour une meilleure UX
- */
-function getErrorConfig(backendMessage: string): { title: string; displayMessage: string } {
-  // Normaliser le message pour la comparaison
-  const normalizedMessage = backendMessage.toLowerCase()
-
-  // Identifiants incorrects (email/téléphone ou mot de passe)
-  if (normalizedMessage.includes('identifiant ou mot de passe incorrect')) {
-    return {
-      title: 'Identifiants incorrects',
-      displayMessage: 'Email/téléphone ou mot de passe incorrect. Vérifiez vos identifiants.',
-    }
-  }
-
-  // Compte en attente de validation
-  if (normalizedMessage.includes('attente') || normalizedMessage.includes('validation')) {
-    return {
-      title: 'Compte en attente',
-      displayMessage: 'Votre compte est en attente de validation par un administrateur.',
-    }
-  }
-
-  // Compte désactivé/inactif
-  if (normalizedMessage.includes('désactivé') || normalizedMessage.includes('inactif')) {
-    return {
-      title: 'Compte désactivé',
-      displayMessage: "Votre compte a été désactivé. Contactez l'administrateur.",
-    }
-  }
-
-  // Email ou téléphone requis
-  if (normalizedMessage.includes('requis') || normalizedMessage.includes('required')) {
-    return {
-      title: 'Champ requis',
-      displayMessage: 'Veuillez entrer votre email ou numéro de téléphone.',
-    }
-  }
-
-  // Erreur réseau
-  if (normalizedMessage.includes('network') || normalizedMessage.includes('réseau')) {
-    return {
-      title: 'Erreur de connexion',
-      displayMessage: 'Impossible de contacter le serveur. Vérifiez votre connexion internet.',
-    }
-  }
-
-  // Message par défaut - utiliser le message du backend
-  return {
-    title: 'Erreur de connexion',
-    displayMessage: backendMessage,
-  }
-}
-
-/**
- * SÉCURITÉ: Valide que la redirection est vers une URL interne
- * Prévient les attaques Open Redirect
- */
-function isValidRedirectUrl(url: string | null): boolean {
-  if (!url) return false
-
-  // Accepter uniquement les chemins relatifs commençant par /
-  if (url.startsWith('/') && !url.startsWith('//')) {
-    // Bloquer les chemins avec protocoles cachés
-    const decoded = decodeURIComponent(url)
-    if (decoded.includes('://') || decoded.startsWith('//')) {
-      return false
-    }
-    return true
-  }
-
-  return false
-}
 
 const slides = [
   {
@@ -166,26 +85,17 @@ export default function LoginForm() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [localError, setLocalError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
-    identifier: '', // Email ou numéro de téléphone
+    email: '',
     password: '',
     rememberMe: false,
   })
 
-  // SÉCURITÉ: Valider la callbackUrl pour éviter Open Redirect
-  const rawCallbackUrl = searchParams.get('callbackUrl')
-  const callbackUrl = isValidRedirectUrl(rawCallbackUrl) ? rawCallbackUrl : null
+  const callbackUrl = searchParams.get('callbackUrl')
 
   // Redirect if already authenticated
   useEffect(() => {
-    console.log('[LoginForm] Auth check useEffect', {
-      isAuthenticated,
-      hasUser: !!user,
-      userRole: user?.role,
-    })
-
     if (isAuthenticated && user) {
       const dashboardPath = ROLE_DASHBOARD_PATHS_EXTENDED[user.role] || '/dashboard'
-      console.log('[LoginForm] Already authenticated, redirecting to:', dashboardPath)
       router.push(callbackUrl || dashboardPath)
     }
   }, [isAuthenticated, user, router, callbackUrl])
@@ -202,13 +112,13 @@ export default function LoginForm() {
   useEffect(() => {
     if (localError) setLocalError(null)
     if (authError) clearError()
-  }, [formData.identifier, formData.password])
+  }, [formData.email, formData.password])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLocalError(null)
 
-    if (!formData.identifier || !formData.password) {
+    if (!formData.email || !formData.password) {
       toast({
         title: 'Champs requis',
         description: 'Veuillez remplir tous les champs.',
@@ -220,59 +130,26 @@ export default function LoginForm() {
     setIsSubmitting(true)
 
     try {
-      console.log('[LoginForm] handleSubmit: Starting login with', formData.identifier)
-
       const response = await login({
-        identifier: formData.identifier,
+        email: formData.email,
         password: formData.password,
         rememberMe: formData.rememberMe,
       })
 
-      console.log('[LoginForm] handleSubmit: Login response received', {
-        success: response.success,
-        userId: response.user?.id,
-        userRole: response.user?.role,
-      })
-
-      // Déterminer le chemin du dashboard basé sur le rôle
-      const userRole = response.user.role
-      const dashboardPath = ROLE_DASHBOARD_PATHS_EXTENDED[userRole] || '/dashboard/director'
-
-      console.log('[LoginForm] handleSubmit: Redirecting to dashboard', {
-        userRole,
-        dashboardPath,
-        callbackUrl,
-        finalPath: callbackUrl || dashboardPath,
-      })
-
       toast({
         title: 'Connexion réussie!',
-        description: `Bienvenue ${response.user.profile.firstName}! Redirection...`,
+        description: 'Redirection vers votre tableau de bord...',
       })
 
-      // Redirection vers le dashboard correspondant au rôle
-      // Utiliser replace pour éviter de revenir à la page login avec le bouton retour
-      router.replace(callbackUrl || dashboardPath)
-    } catch (err: unknown) {
-      // Extraire le message d'erreur du backend
-      let message = 'Une erreur est survenue'
-
-      if (err && typeof err === 'object') {
-        // ApiError du client API
-        if ('message' in err && typeof err.message === 'string') {
-          message = err.message
-        }
-      } else if (err instanceof Error) {
-        message = err.message
-      }
-
-      // Messages d'erreur personnalisés pour une meilleure UX
-      const errorConfig = getErrorConfig(message)
-
-      setLocalError(errorConfig.displayMessage)
+      // Redirect based on user role
+      const dashboardPath = ROLE_DASHBOARD_PATHS_EXTENDED[response.user.role] || '/dashboard'
+      router.push(callbackUrl || dashboardPath)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Identifiants incorrects'
+      setLocalError(message)
       toast({
-        title: errorConfig.title,
-        description: errorConfig.displayMessage,
+        title: 'Erreur de connexion',
+        description: message,
         variant: 'destructive',
       })
     } finally {
@@ -339,33 +216,17 @@ export default function LoginForm() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {displayError && (
-              <Alert
-                variant="destructive"
-                className={` ${displayError.includes('attente') ? 'border-amber-500 bg-amber-50 text-amber-900' : ''} ${displayError.includes('désactivé') ? 'border-red-600 bg-red-50 text-red-900' : ''} `}
-              >
-                {displayError.includes('attente') ? (
-                  <AlertTriangle className="h-4 w-4 text-amber-600" />
-                ) : displayError.includes('désactivé') ? (
-                  <UserX className="h-4 w-4 text-red-600" />
-                ) : (
-                  <XCircle className="h-4 w-4" />
-                )}
-                <AlertDescription className="font-medium">{displayError}</AlertDescription>
-              </Alert>
-            )}
-
             <div className="space-y-2">
-              <Label htmlFor="identifier">Email ou téléphone</Label>
+              <Label htmlFor="email">Email professionnel</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                 <Input
-                  id="identifier"
-                  type="text"
-                  placeholder="email@ecole.cm ou 6XXXXXXXX"
+                  id="email"
+                  type="email"
+                  placeholder="directeur@ecole.cm"
                   className="h-12 border-gray-200 bg-gray-50 pl-10 transition-all focus:bg-white"
-                  value={formData.identifier}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, identifier: e.target.value }))}
+                  value={formData.email}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
                   required
                 />
               </div>

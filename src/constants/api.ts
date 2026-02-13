@@ -1,10 +1,8 @@
 /**
  * Configuration API et endpoints
- * Note: Ce fichier est conservé pour la rétrocompatibilité.
- * Préférer utiliser @/lib/api/config pour les nouveaux développements.
  */
 
-// Configuration de l'API - Utilise la même URL que lib/api/config.ts
+// Configuration de l'API
 export const API_CONFIG = {
   BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api',
   TIMEOUT: Number(process.env.NEXT_PUBLIC_API_TIMEOUT) || 30000,
@@ -19,7 +17,7 @@ export const API_ENDPOINTS = {
     LOGIN: '/auth/login',
     REGISTER: '/auth/register',
     LOGOUT: '/auth/logout',
-    REFRESH: '/auth/refresh',
+    REFRESH: '/auth/refresh-token',
     ME: '/auth/me',
     FORGOT_PASSWORD: '/auth/forgot-password',
     RESET_PASSWORD: '/auth/reset-password',
@@ -127,6 +125,39 @@ export const API_ENDPOINTS = {
     SCHOOL: (id: string) => `/stats/school/${id}`,
     GRADES: '/stats/grades',
     PAYMENTS: '/stats/payments',
+  },
+
+  // Localisation
+  LOCALISATION: {
+    REGIONS: {
+      BASE: '/regions',
+      BY_ID: (id: number) => `/regions/${id}`,
+    },
+    DEPARTEMENTS: {
+      BASE: '/departements',
+      BY_ID: (id: number) => `/departements/${id}`,
+      BY_REGION: (regionId: number) => `/departements/region/${regionId}`,
+    },
+    ARRONDISSEMENTS: {
+      BASE: '/arrondissements',
+      BY_ID: (id: number) => `/arrondissements/${id}`,
+      BY_DEPARTEMENT: (deptId: number) => `/arrondissements/departement/${deptId}`,
+    },
+    VILLES: {
+      BASE: '/villes',
+      BY_ID: (id: number) => `/villes/${id}`,
+      BY_ARRONDISSEMENT: (arrId: number) => `/villes/arrondissement/${arrId}`,
+    },
+    QUARTIERS: {
+      BASE: '/quartiers',
+      BY_ID: (id: number) => `/quartiers/${id}`,
+      BY_VILLE: (villeId: number) => `/quartiers/ville/${villeId}`,
+    },
+    ADRESSES: {
+      BASE: '/adresses',
+      BY_ID: (id: number) => `/adresses/${id}`,
+      BY_QUARTIER: (quartierId: number) => `/adresses/quartier/${quartierId}`,
+    },
   },
 
   // Health

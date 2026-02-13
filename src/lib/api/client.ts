@@ -17,7 +17,7 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from 'axios'
-import { API_BASE_URL, API_CONFIG } from './config'
+import { API_CONFIG } from './config'
 import { toast } from 'sonner'
 
 // Types pour les réponses API
@@ -113,10 +113,21 @@ function sleep(ms: number): Promise<void> {
 }
 
 /**
+ * Fonction pour obtenir le baseURL dynamiquement
+ * Assure que le proxy est utilisé côté client même après SSR
+ */
+function getBaseURL(): string {
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return '/api/backend'
+  }
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
+}
+
+/**
  * Création de l'instance Axios avec configuration de base
+ * Note: Le tenant est extrait automatiquement du JWT token par le backend
  */
 const axiosInstance: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
   timeout: API_CONFIG.timeout,
   headers: {
     'Content-Type': 'application/json',
@@ -124,16 +135,60 @@ const axiosInstance: AxiosInstance = axios.create({
   },
 })
 
+// Flag pour éviter les boucles de refresh infinies
+let isRefreshing = false
+let failedQueue: Array<{
+  resolve: (value?: unknown) => void
+  reject: (reason?: unknown) => void
+}> = []
+
+function processQueue(error: unknown, token: string | null = null) {
+  failedQueue.forEach(({ resolve, reject }) => {
+    if (error) {
+      reject(error)
+    } else {
+      resolve(token)
+    }
+  })
+  failedQueue = []
+}
+
 /**
- * Intercepteur de requête - Injection automatique du token Authorization
- * Le token JWT est stocké dans localStorage après login
+ * Tente de rafraîchir le token JWT
+ */
+async function tryRefreshToken(): Promise<string | null> {
+  if (typeof window === 'undefined') return null
+  const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY)
+  if (!refreshToken) return null
+
+  try {
+    const baseURL = getBaseURL()
+    const response = await axios.post(`${baseURL}/auth/refresh`, { refreshToken })
+    const { accessToken, refreshToken: newRefreshToken } = response.data
+
+    localStorage.setItem(TOKEN_KEY, accessToken)
+    if (newRefreshToken) {
+      localStorage.setItem(REFRESH_TOKEN_KEY, newRefreshToken)
+    }
+    return accessToken
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Intercepteur de requête - Injection du token Authorization
+ * Le tenant est extrait automatiquement du JWT token par le backend (JwtAuthFilter)
  */
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    config.baseURL = getBaseURL()
+
     const token = getAuthToken()
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
+
     return config
   },
   (error) => {
@@ -142,37 +197,76 @@ axiosInstance.interceptors.request.use(
 )
 
 /**
- * Intercepteur de réponse - Gestion des erreurs et retry automatique
+ * Intercepteur de réponse - Gestion des erreurs, retry automatique et auto-refresh 401
  */
 axiosInstance.interceptors.response.use(
-  (response: AxiosResponse) => {
-    return response
-  },
+  (response: AxiosResponse) => response,
   async (error: AxiosError) => {
-    const config = error.config as InternalAxiosRequestConfig & { [RETRY_COUNT_KEY]?: number }
+    const config = error.config as InternalAxiosRequestConfig & {
+      [RETRY_COUNT_KEY]?: number
+      _retry?: boolean
+    }
 
     if (!config) {
       return Promise.reject(error)
     }
 
+    const status = error.response?.status || 0
+
+    // Auto-refresh sur 401 (token expiré)
+    if (status === 401 && !config._retry) {
+      // Ne pas refresh pour les endpoints d'auth
+      if (config.url?.includes('/auth/login') || config.url?.includes('/auth/refresh')) {
+        removeAuthToken()
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login'
+        }
+        return Promise.reject(error)
+      }
+
+      if (isRefreshing) {
+        // Mettre en file d'attente pendant le refresh
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject })
+        }).then((token) => {
+          config.headers.Authorization = `Bearer ${token}`
+          return axiosInstance(config)
+        })
+      }
+
+      config._retry = true
+      isRefreshing = true
+
+      const newToken = await tryRefreshToken()
+
+      if (newToken) {
+        config.headers.Authorization = `Bearer ${newToken}`
+        processQueue(null, newToken)
+        isRefreshing = false
+        return axiosInstance(config)
+      } else {
+        processQueue(new Error('Refresh failed'))
+        isRefreshing = false
+        removeAuthToken()
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login'
+        }
+        return Promise.reject(error)
+      }
+    }
+
     // Initialiser le compteur de retry
     config[RETRY_COUNT_KEY] = config[RETRY_COUNT_KEY] ?? 0
 
-    // Vérifier si on peut retenter
+    // Retry automatique pour erreurs réseau/serveur
     if (isRetryableError(error) && config[RETRY_COUNT_KEY] < API_CONFIG.retries) {
       config[RETRY_COUNT_KEY] += 1
-
       const delay = calculateRetryDelay(config[RETRY_COUNT_KEY] - 1)
-      console.warn(
-        `[API] Requête échouée (${error.response?.status || 'Network Error'}), retry ${config[RETRY_COUNT_KEY]}/${API_CONFIG.retries} dans ${Math.round(delay)}ms...`
-      )
-
       await sleep(delay)
       return axiosInstance(config)
     }
 
     // Gestion des erreurs finales
-    const status = error.response?.status || 0
     const responseData = error.response?.data as
       | { message?: string; code?: string; errors?: Record<string, string[]> }
       | undefined
@@ -184,17 +278,9 @@ axiosInstance.interceptors.response.use(
       errors: responseData?.errors,
     }
 
-    // Notification utilisateur (sauf pour 401)
+    // Notification utilisateur (sauf pour 401 déjà géré)
     if (status !== 401) {
       toast.error(apiError.message)
-    }
-
-    // Redirection vers login si non autorisé
-    if (status === 401) {
-      removeAuthToken()
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login'
-      }
     }
 
     return Promise.reject(apiError)

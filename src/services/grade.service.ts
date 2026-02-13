@@ -1,6 +1,6 @@
 /**
  * Service de gestion des notes
- * Utilise apiClient centralise pour les appels HTTP
+ * Utilise apiClient pour beneficier du retry, intercepteurs et proxy CORS
  */
 
 import { apiClient } from '@/lib/api/client'
@@ -20,19 +20,7 @@ class GradeService {
    * Recuperer les notes avec filtres
    */
   async getGrades(filters: GradeFilters = {}): Promise<Grade[]> {
-    const params = new URLSearchParams()
-
-    if (filters.studentId) params.append('studentId', filters.studentId)
-    if (filters.classId) params.append('classId', filters.classId)
-    if (filters.subjectId) params.append('subjectId', filters.subjectId)
-    if (filters.trimester) params.append('trimester', String(filters.trimester))
-
-    const queryString = params.toString()
-    const endpoint = queryString
-      ? `${API_ENDPOINTS.grades.base}?${queryString}`
-      : API_ENDPOINTS.grades.base
-
-    return apiClient.get<Grade[]>(endpoint)
+    return apiClient.get<Grade[]>(API_ENDPOINTS.grades.base, { params: filters })
   }
 
   /**
@@ -54,13 +42,6 @@ class GradeService {
    */
   async getGradesByClass(classId: string): Promise<Grade[]> {
     return apiClient.get<Grade[]>(API_ENDPOINTS.grades.byClass(classId))
-  }
-
-  /**
-   * Recuperer les notes d'une matiere
-   */
-  async getGradesBySubject(subjectId: string): Promise<Grade[]> {
-    return apiClient.get<Grade[]>(API_ENDPOINTS.grades.bySubject(subjectId))
   }
 
   /**
@@ -95,15 +76,9 @@ class GradeService {
    * Generer le bulletin d'un eleve
    */
   async generateBulletin(studentId: string, trimester?: number): Promise<Bulletin> {
-    const params = new URLSearchParams()
-    if (trimester) params.append('trimester', String(trimester))
-
-    const queryString = params.toString()
-    const endpoint = queryString
-      ? `${API_ENDPOINTS.grades.byStudent(studentId)}/bulletin?${queryString}`
-      : `${API_ENDPOINTS.grades.byStudent(studentId)}/bulletin`
-
-    return apiClient.get<Bulletin>(endpoint)
+    return apiClient.get<Bulletin>(API_ENDPOINTS.bulletins.byStudent(studentId), {
+      params: trimester ? { trimester } : undefined,
+    })
   }
 }
 

@@ -4,12 +4,9 @@
 
 import type { User, UserRole } from '../models/user'
 
-// Requête de connexion (accepte email OU téléphone)
+// Requête de connexion
 export interface LoginRequest {
-  /** Identifiant: peut être email ou numéro de téléphone */
-  identifier?: string
-  /** @deprecated Utiliser identifier - gardé pour compatibilité */
-  email?: string
+  email: string
   password: string
   rememberMe?: boolean
 }

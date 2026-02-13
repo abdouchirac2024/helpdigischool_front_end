@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8080'
+// Note : Le tenant est extrait automatiquement du JWT par le backend (JwtAuthFilter)
 
 export async function proxyToBackend(
   request: NextRequest,

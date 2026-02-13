@@ -4,12 +4,18 @@
  */
 
 // URL de base de l'API Gateway (point d'entrée unique)
+// En développement avec le navigateur, utiliser la route API Next.js pour éviter les problèmes CORS
+const isDev = typeof window !== 'undefined' && window.location.hostname === 'localhost'
+export const API_BASE_URL = isDev
+  ? '/api/backend'
+  : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
+// Note : Le tenant est extrait automatiquement du JWT par le backend (JwtAuthFilter)
+// Aucune variable TENANT_ID côté client n'est nécessaire
 
-// Configuration des timeouts
+// Configuration des timeouts et retry
 export const API_CONFIG = {
-  timeout: 30000, // 30 secondes
+  timeout: Number(process.env.NEXT_PUBLIC_API_TIMEOUT) || 30000,
   retries: 3,
   retryDelay: 1000,
 }
@@ -31,13 +37,6 @@ export const API_ENDPOINTS = {
     resetPassword: '/auth/reset-password',
     verifyEmail: '/auth/verify-email',
     me: '/auth/me',
-  },
-
-  // ============================================
-  // ROLES SERVICE - Gestion des rôles (dynamique)
-  // ============================================
-  roles: {
-    base: '/roles',
   },
 
   // ============================================
@@ -229,6 +228,29 @@ export const API_ENDPOINTS = {
     upload: '/files/upload',
     download: (id: string) => `/files/${id}/download`,
     delete: (id: string) => `/files/${id}`,
+  },
+
+  // ============================================
+  // LOCALISATION SERVICE - Gestion géographique
+  // ============================================
+  localisation: {
+    regions: '/regions',
+    regionById: (id: number) => `/regions/${id}`,
+    departements: '/departements',
+    departementById: (id: number) => `/departements/${id}`,
+    departementsByRegion: (regionId: number) => `/departements/region/${regionId}`,
+    arrondissements: '/arrondissements',
+    arrondissementById: (id: number) => `/arrondissements/${id}`,
+    arrondissementsByDepartement: (deptId: number) => `/arrondissements/departement/${deptId}`,
+    villes: '/villes',
+    villeById: (id: number) => `/villes/${id}`,
+    villesByArrondissement: (arrId: number) => `/villes/arrondissement/${arrId}`,
+    quartiers: '/quartiers',
+    quartierById: (id: number) => `/quartiers/${id}`,
+    quartiersByVille: (villeId: number) => `/quartiers/ville/${villeId}`,
+    adresses: '/adresses',
+    adresseById: (id: number) => `/adresses/${id}`,
+    adressesByQuartier: (quartierId: number) => `/adresses/quartier/${quartierId}`,
   },
 } as const
 
