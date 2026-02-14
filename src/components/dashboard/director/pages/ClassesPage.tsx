@@ -24,6 +24,8 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
+  ToggleLeft,
+  ToggleRight,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -274,6 +276,7 @@ export function DirectorClassesPage() {
       sousSysteme: (cls.sousSysteme as SousSysteme) || SousSysteme.FRANCOPHONE,
       section: cls.section || '',
       capacite: cls.capacite,
+      statut: cls.statut || StatutClasse.ACTIVE,
       fraisScolarite: cls.fraisScolarite,
       description: cls.description || '',
       anneeScolaireId: cls.anneeScolaireId,
@@ -310,6 +313,23 @@ export function DirectorClassesPage() {
     setDeletingClasse(cls)
     setDeleteDialogOpen(true)
   }
+  const handleToggleStatut = async (cls: ClasseDto) => {
+    const newStatut =
+      (cls.statut || 'ACTIVE') === 'ACTIVE' ? StatutClasse.INACTIVE : StatutClasse.ACTIVE
+    try {
+      await classeService.update(cls.id, { statut: newStatut })
+      toast.success(
+        newStatut === StatutClasse.ACTIVE
+          ? `${cls.nomClasse} activée`
+          : `${cls.nomClasse} désactivée`
+      )
+      await loadClasses()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Une erreur est survenue'
+      toast.error('Erreur lors du changement de statut', { description: message })
+    }
+  }
+
   const handleDelete = async () => {
     if (!deletingClasse) return
     setIsDeleting(true)
@@ -696,6 +716,19 @@ export function DirectorClassesPage() {
                             variant="ghost"
                             size="sm"
                             className="h-8 w-8 p-0"
+                            title={statut === 'ACTIVE' ? 'Désactiver' : 'Activer'}
+                            onClick={() => handleToggleStatut(cls)}
+                          >
+                            {statut === 'ACTIVE' ? (
+                              <ToggleRight className="h-4 w-4 text-green-500" />
+                            ) : (
+                              <ToggleLeft className="h-4 w-4 text-gray-400" />
+                            )}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
                             onClick={() => openDeleteDialog(cls)}
                           >
                             <Trash2 className="h-4 w-4 text-red-500" />
@@ -822,6 +855,23 @@ export function DirectorClassesPage() {
                       >
                         <Edit className="h-3.5 w-3.5" />
                         Modifier
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`gap-1 text-xs ${
+                          statut === 'ACTIVE'
+                            ? 'text-green-600 hover:bg-green-50 hover:text-green-700'
+                            : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
+                        }`}
+                        title={statut === 'ACTIVE' ? 'Désactiver' : 'Activer'}
+                        onClick={() => handleToggleStatut(cls)}
+                      >
+                        {statut === 'ACTIVE' ? (
+                          <ToggleRight className="h-3.5 w-3.5" />
+                        ) : (
+                          <ToggleLeft className="h-3.5 w-3.5" />
+                        )}
                       </Button>
                       <Button
                         variant="outline"
@@ -1019,6 +1069,42 @@ export function DirectorClassesPage() {
                 onChange={(e) => setFormData((prev) => ({ ...prev, section: e.target.value }))}
               />
             </div>
+
+            {editingClasse && (
+              <div className="grid gap-2">
+                <Label>Statut</Label>
+                <Select
+                  value={formData.statut || StatutClasse.ACTIVE}
+                  onValueChange={(val) =>
+                    setFormData((prev) => ({ ...prev, statut: val as StatutClasse }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner le statut" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={StatutClasse.ACTIVE}>
+                      <span className="flex items-center gap-2">
+                        <span className="h-2 w-2 rounded-full bg-green-500" />
+                        Active
+                      </span>
+                    </SelectItem>
+                    <SelectItem value={StatutClasse.INACTIVE}>
+                      <span className="flex items-center gap-2">
+                        <span className="h-2 w-2 rounded-full bg-gray-400" />
+                        Inactive
+                      </span>
+                    </SelectItem>
+                    <SelectItem value={StatutClasse.ARCHIVEE}>
+                      <span className="flex items-center gap-2">
+                        <span className="h-2 w-2 rounded-full bg-orange-500" />
+                        Archivée
+                      </span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">

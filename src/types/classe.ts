@@ -48,6 +48,7 @@ export interface CreateClasseRequest {
   sousSysteme?: SousSysteme
   section?: string
   capacite?: number
+  statut?: StatutClasse
   fraisScolarite?: number
   description?: string
   anneeScolaireId?: number
