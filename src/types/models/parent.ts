@@ -54,6 +54,7 @@ export interface Parent {
   createdAt?: string
   updatedAt?: string
   deletedAt?: string
+  generatedPassword?: string
 }
 
 // DTO pour création/modification de parent
