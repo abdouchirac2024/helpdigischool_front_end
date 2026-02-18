@@ -53,11 +53,13 @@ import { studentService } from '@/services/student.service'
 import { classeService } from '@/services/classe.service'
 import { parentService } from '@/services/parent.service'
 import { locationService } from '@/services/location.service'
+import { anneeScolaireService } from '@/services/anneeScolaire.service'
 import type { Inscription } from '@/types/models/inscription'
-import type { EleveDto, CreateEleveRequest } from '@/types/student'
+import type { EleveDto, CreateEleveRequest, AnneeScolaireResponse } from '@/types/student'
 import type { ClasseDto } from '@/types/classe'
 import type { Parent, ParentFormData, TypeRelation, Ville, Quartier } from '@/types'
 import { TypeRelationLabels } from '@/types/models/parent'
+import { useAuth } from '@/lib/auth/auth-context'
 import { toast } from 'sonner'
 
 // =====================
@@ -74,17 +76,13 @@ export function InscriptionsPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [isAnnulationOpen, setIsAnnulationOpen] = useState(false)
-  const [isCredentialsOpen, setIsCredentialsOpen] = useState(false)
+  const [isFactureOpen, setIsFactureOpen] = useState(false)
 
   // Selected inscription
   const [selectedInscription, setSelectedInscription] = useState<Inscription | null>(null)
 
-  // Credentials
-  const [credentials, setCredentials] = useState<{
-    email: string
-    password: string
-  } | null>(null)
-  const [copiedCredentials, setCopiedCredentials] = useState(false)
+  // Facture data (inscription result after creation)
+  const [factureData, setFactureData] = useState<Inscription | null>(null)
 
   useEffect(() => {
     loadInscriptions()
@@ -115,13 +113,8 @@ export function InscriptionsPage() {
   const handleCreationSuccess = (inscription: Inscription) => {
     setIsCreateOpen(false)
     loadInscriptions()
-    if (inscription.generatedPassword && inscription.generatedEmail) {
-      setCredentials({
-        email: inscription.generatedEmail,
-        password: inscription.generatedPassword,
-      })
-      setIsCredentialsOpen(true)
-    }
+    setFactureData(inscription)
+    setIsFactureOpen(true)
   }
 
   const handleViewDetails = (inscription: Inscription) => {
@@ -138,16 +131,6 @@ export function InscriptionsPage() {
     setIsAnnulationOpen(false)
     setSelectedInscription(null)
     loadInscriptions()
-  }
-
-  const copyCredentials = () => {
-    if (credentials) {
-      navigator.clipboard.writeText(
-        `Email: ${credentials.email}\nMot de passe: ${credentials.password}`
-      )
-      setCopiedCredentials(true)
-      setTimeout(() => setCopiedCredentials(false), 3000)
-    }
   }
 
   const getStatutBadge = (statut: string) => {
@@ -298,48 +281,14 @@ export function InscriptionsPage() {
         />
       )}
 
-      {/* Credentials Dialog */}
-      <Dialog open={isCredentialsOpen} onOpenChange={setIsCredentialsOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <KeyRound className="h-5 w-5 text-green-600" />
-              Compte eleve cree
-            </DialogTitle>
-            <DialogDescription>
-              Le compte de l&apos;eleve a ete cree. Partagez ces identifiants.
-            </DialogDescription>
-          </DialogHeader>
-          {credentials && (
-            <div className="space-y-4">
-              <div className="space-y-2 rounded-lg border bg-gray-50 p-4">
-                <div>
-                  <span className="text-sm text-gray-500">Email de connexion:</span>
-                  <p className="font-mono font-medium">{credentials.email}</p>
-                </div>
-                <div>
-                  <span className="text-sm text-gray-500">Mot de passe:</span>
-                  <p className="font-mono font-medium">{credentials.password}</p>
-                </div>
-              </div>
-              <Button onClick={copyCredentials} variant="outline" className="w-full">
-                {copiedCredentials ? (
-                  <>
-                    <CheckCircle className="mr-2 h-4 w-4 text-green-600" /> Copie !
-                  </>
-                ) : (
-                  <>
-                    <Copy className="mr-2 h-4 w-4" /> Copier les identifiants
-                  </>
-                )}
-              </Button>
-              <p className="text-center text-xs text-gray-500">
-                L&apos;eleve pourra changer son mot de passe apres sa premiere connexion.
-              </p>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Facture Dialog */}
+      {factureData && (
+        <FactureDialog
+          open={isFactureOpen}
+          onOpenChange={setIsFactureOpen}
+          inscription={factureData}
+        />
+      )}
     </div>
   )
 }
@@ -368,12 +317,15 @@ function CreateInscriptionDialog({
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  const { user } = useAuth()
+
   // Data
   const [students, setStudents] = useState<EleveDto[]>([])
   const [classes, setClasses] = useState<ClasseDto[]>([])
   const [parents, setParents] = useState<Parent[]>([])
   const [villes, setVilles] = useState<Ville[]>([])
   const [quartiers, setQuartiers] = useState<Quartier[]>([])
+  const [anneesScolaires, setAnneesScolaires] = useState<AnneeScolaireResponse[]>([])
   const [isLoadingData, setIsLoadingData] = useState(false)
 
   // Step 1: Student
@@ -386,7 +338,10 @@ function CreateInscriptionDialog({
     dateNaissance: '',
     sexe: 'M',
     lieuNaissance: '',
+    nationalite: 'Camerounaise',
   })
+  const [studentVilleId, setStudentVilleId] = useState<number | null>(null)
+  const [studentQuartiers, setStudentQuartiers] = useState<Quartier[]>([])
   const [isCreatingStudent, setIsCreatingStudent] = useState(false)
 
   // Step 2: Parent
@@ -406,8 +361,9 @@ function CreateInscriptionDialog({
   const [selectedVilleId, setSelectedVilleId] = useState<number | null>(null)
   const [isCreatingParent, setIsCreatingParent] = useState(false)
 
-  // Step 3: Classe
+  // Step 3: Classe + Annee scolaire
   const [selectedClasseId, setSelectedClasseId] = useState<number | null>(null)
+  const [selectedAnneeScolaireId, setSelectedAnneeScolaireId] = useState<number | null>(null)
 
   // Step 4: Tranches
   const [selectedTranches, setSelectedTranches] = useState<number[]>([1])
@@ -424,7 +380,7 @@ function CreateInscriptionDialog({
     }
   }, [open])
 
-  // Load quartiers when ville changes
+  // Load quartiers when ville changes (parent form)
   useEffect(() => {
     if (selectedVilleId) {
       loadQuartiersByVille(selectedVilleId)
@@ -432,6 +388,18 @@ function CreateInscriptionDialog({
       setQuartiers([])
     }
   }, [selectedVilleId])
+
+  // Load quartiers when student ville changes
+  useEffect(() => {
+    if (studentVilleId) {
+      locationService
+        .getQuartiersByVille(studentVilleId)
+        .then(setStudentQuartiers)
+        .catch(() => setStudentQuartiers([]))
+    } else {
+      setStudentQuartiers([])
+    }
+  }, [studentVilleId])
 
   // Check if selected parent is already linked to selected student
   useEffect(() => {
@@ -455,9 +423,20 @@ function CreateInscriptionDialog({
       setVilles(villesData)
     } catch {
       toast.error('Erreur lors du chargement des donnees')
-    } finally {
-      setIsLoadingData(false)
     }
+    // Load annees scolaires separately (different API pattern)
+    try {
+      const tenant = user?.schoolId || ''
+      const anneesData = await anneeScolaireService.getAll(tenant)
+      setAnneesScolaires(anneesData)
+      const activeYear = anneesData.find((a) => a.statut === true)
+      if (activeYear) {
+        setSelectedAnneeScolaireId(activeYear.id)
+      }
+    } catch {
+      console.warn('Impossible de charger les annees scolaires')
+    }
+    setIsLoadingData(false)
   }
 
   const loadQuartiersByVille = async (villeId: number) => {
@@ -485,7 +464,16 @@ function CreateInscriptionDialog({
     setSelectedStudentId(null)
     setStudentSearch('')
     setStudentMode('existing')
-    setNewStudentForm({ nom: '', prenom: '', dateNaissance: '', sexe: 'M', lieuNaissance: '' })
+    setNewStudentForm({
+      nom: '',
+      prenom: '',
+      dateNaissance: '',
+      sexe: 'M',
+      lieuNaissance: '',
+      nationalite: 'Camerounaise',
+    })
+    setStudentVilleId(null)
+    setStudentQuartiers([])
     setSelectedParentId(null)
     setParentSearch('')
     setParentMode('existing')
@@ -494,6 +482,7 @@ function CreateInscriptionDialog({
     setNewParentForm({ nom: '', prenom: '', email: '', telephone: '', adresse: '', quartierId: 0 })
     setSelectedVilleId(null)
     setSelectedClasseId(null)
+    setSelectedAnneeScolaireId(anneesScolaires.find((a) => a.statut)?.id || null)
     setSelectedTranches([1])
     setIsCreatingParent(false)
     setIsCreatingStudent(false)
@@ -576,7 +565,7 @@ function CreateInscriptionDialog({
   }
 
   // ---- Step 3 helpers ----
-  const canProceedStep3 = selectedClasseId !== null
+  const canProceedStep3 = selectedClasseId !== null && selectedAnneeScolaireId !== null
 
   // ---- Tranche toggle ----
   const handleTrancheToggle = (trancheNum: number) => {
@@ -621,6 +610,7 @@ function CreateInscriptionDialog({
       const result = await inscriptionService.create({
         eleveId: Number(selectedStudentId),
         classeId: selectedClasseId,
+        anneeScolaireId: selectedAnneeScolaireId || undefined,
         tranchesPayees: selectedTranches.length > 0 ? selectedTranches : undefined,
       })
       toast.success('Inscription creee avec succes')
@@ -804,32 +794,93 @@ function CreateInscriptionDialog({
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="new-sexe">Sexe *</Label>
-                        <Select
+                        <select
+                          id="new-sexe"
                           value={newStudentForm.sexe}
-                          onValueChange={(val) =>
-                            setNewStudentForm((prev) => ({ ...prev, sexe: val as 'M' | 'F' }))
+                          onChange={(e) =>
+                            setNewStudentForm((prev) => ({
+                              ...prev,
+                              sexe: e.target.value as 'M' | 'F',
+                            }))
                           }
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
-                          <SelectTrigger id="new-sexe">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="M">Masculin</SelectItem>
-                            <SelectItem value="F">Feminin</SelectItem>
-                          </SelectContent>
-                        </Select>
+                          <option value="M">Masculin</option>
+                          <option value="F">Feminin</option>
+                        </select>
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="new-lieu">Lieu de naissance</Label>
-                      <Input
-                        id="new-lieu"
-                        placeholder="Lieu de naissance"
-                        value={newStudentForm.lieuNaissance || ''}
-                        onChange={(e) =>
-                          setNewStudentForm((prev) => ({ ...prev, lieuNaissance: e.target.value }))
-                        }
-                      />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="new-lieu">Lieu de naissance</Label>
+                        <Input
+                          id="new-lieu"
+                          placeholder="Lieu de naissance"
+                          value={newStudentForm.lieuNaissance || ''}
+                          onChange={(e) =>
+                            setNewStudentForm((prev) => ({
+                              ...prev,
+                              lieuNaissance: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="new-nationalite">Nationalite</Label>
+                        <Input
+                          id="new-nationalite"
+                          placeholder="Nationalite"
+                          value={newStudentForm.nationalite || ''}
+                          onChange={(e) =>
+                            setNewStudentForm((prev) => ({ ...prev, nationalite: e.target.value }))
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Ville</Label>
+                        <select
+                          value={studentVilleId?.toString() || ''}
+                          onChange={(e) => {
+                            setStudentVilleId(e.target.value ? Number(e.target.value) : null)
+                            setNewStudentForm((prev) => ({ ...prev, quartierId: undefined }))
+                          }}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          <option value="">Selectionner une ville</option>
+                          {villes.map((v) => (
+                            <option key={v.id} value={v.id.toString()}>
+                              {v.nom}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Quartier</Label>
+                        <select
+                          value={newStudentForm.quartierId?.toString() || ''}
+                          onChange={(e) =>
+                            setNewStudentForm((prev) => ({
+                              ...prev,
+                              quartierId: e.target.value ? Number(e.target.value) : undefined,
+                            }))
+                          }
+                          disabled={!studentVilleId}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+                        >
+                          <option value="">
+                            {studentVilleId
+                              ? 'Selectionner un quartier'
+                              : "Choisir une ville d'abord"}
+                          </option>
+                          {studentQuartiers.map((q) => (
+                            <option key={q.id} value={q.id.toString()}>
+                              {q.nom}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -934,23 +985,19 @@ function CreateInscriptionDialog({
                     {selectedParentId && !parentAlreadyLinked && (
                       <div className="space-y-2">
                         <Label>Type de relation avec l&apos;eleve *</Label>
-                        <Select
+                        <select
                           value={typeRelation}
-                          onValueChange={(val) => setTypeRelation(val as TypeRelation)}
+                          onChange={(e) => setTypeRelation(e.target.value as TypeRelation)}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {(Object.entries(TypeRelationLabels) as [TypeRelation, string][]).map(
-                              ([key, label]) => (
-                                <SelectItem key={key} value={key}>
-                                  {label}
-                                </SelectItem>
-                              )
-                            )}
-                          </SelectContent>
-                        </Select>
+                          {(Object.entries(TypeRelationLabels) as [TypeRelation, string][]).map(
+                            ([key, label]) => (
+                              <option key={key} value={key}>
+                                {label}
+                              </option>
+                            )
+                          )}
+                        </select>
                       </div>
                     )}
 
@@ -1025,88 +1072,96 @@ function CreateInscriptionDialog({
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1.5">
                         <Label>Ville *</Label>
-                        <Select
+                        <select
                           value={selectedVilleId?.toString() || ''}
-                          onValueChange={(val) => {
-                            setSelectedVilleId(Number(val))
+                          onChange={(e) => {
+                            setSelectedVilleId(Number(e.target.value))
                             setNewParentForm((prev) => ({ ...prev, quartierId: 0 }))
                           }}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selectionner une ville" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {villes.map((v) => (
-                              <SelectItem key={v.id} value={v.id.toString()}>
-                                {v.nom}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          <option value="">Selectionner une ville</option>
+                          {villes.map((v) => (
+                            <option key={v.id} value={v.id.toString()}>
+                              {v.nom}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                       <div className="space-y-1.5">
                         <Label>Quartier *</Label>
-                        <Select
+                        <select
                           value={
                             newParentForm.quartierId ? newParentForm.quartierId.toString() : ''
                           }
-                          onValueChange={(val) =>
-                            setNewParentForm((prev) => ({ ...prev, quartierId: Number(val) }))
+                          onChange={(e) =>
+                            setNewParentForm((prev) => ({
+                              ...prev,
+                              quartierId: Number(e.target.value),
+                            }))
                           }
                           disabled={!selectedVilleId}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
                         >
-                          <SelectTrigger>
-                            <SelectValue
-                              placeholder={
-                                selectedVilleId ? 'Selectionner' : "Choisir une ville d'abord"
-                              }
-                            />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {quartiers.map((q) => (
-                              <SelectItem key={q.id} value={q.id.toString()}>
-                                {q.nom}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          <option value="">
+                            {selectedVilleId ? 'Selectionner' : "Choisir une ville d'abord"}
+                          </option>
+                          {quartiers.map((q) => (
+                            <option key={q.id} value={q.id.toString()}>
+                              {q.nom}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     </div>
                     <div className="space-y-1.5">
                       <Label>Type de relation avec l&apos;eleve *</Label>
-                      <Select
+                      <select
                         value={typeRelation}
-                        onValueChange={(val) => setTypeRelation(val as TypeRelation)}
+                        onChange={(e) => setTypeRelation(e.target.value as TypeRelation)}
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {(Object.entries(TypeRelationLabels) as [TypeRelation, string][]).map(
-                            ([key, label]) => (
-                              <SelectItem key={key} value={key}>
-                                {label}
-                              </SelectItem>
-                            )
-                          )}
-                        </SelectContent>
-                      </Select>
+                        {(Object.entries(TypeRelationLabels) as [TypeRelation, string][]).map(
+                          ([key, label]) => (
+                            <option key={key} value={key}>
+                              {label}
+                            </option>
+                          )
+                        )}
+                      </select>
                     </div>
                   </div>
                 )}
               </div>
             )}
 
-            {/* ========== Step 3: Select Class ========== */}
+            {/* ========== Step 3: Select Class + Annee scolaire ========== */}
             {step === 3 && (
               <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Annee scolaire *</Label>
+                  <select
+                    value={selectedAnneeScolaireId?.toString() || ''}
+                    onChange={(e) =>
+                      setSelectedAnneeScolaireId(e.target.value ? Number(e.target.value) : null)
+                    }
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <option value="">Selectionner une annee scolaire</option>
+                    {anneesScolaires.map((a) => (
+                      <option key={a.id} value={a.id.toString()}>
+                        {a.libelle} {a.statut ? '(En cours)' : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <p className="text-sm text-gray-500">
                   Selectionner la classe pour{' '}
                   <span className="font-medium">
                     {selectedStudent?.prenom} {selectedStudent?.nom}
                   </span>
                 </p>
-                <div className="grid max-h-80 gap-3 overflow-y-auto">
+                <div className="grid max-h-60 gap-3 overflow-y-auto">
                   {classes.map((classe) => {
                     const placesRestantes =
                       classe.capacite != null && classe.effectifActuel != null
@@ -1184,6 +1239,13 @@ function CreateInscriptionDialog({
                         <span className="text-sm text-gray-500">Classe</span>
                         <p className="font-medium">{selectedClasse.nomClasse}</p>
                         <p className="text-sm text-gray-500">{selectedClasse.niveau}</p>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-500">Annee scolaire</span>
+                        <p className="font-medium">
+                          {anneesScolaires.find((a) => a.id === selectedAnneeScolaireId)?.libelle ||
+                            '-'}
+                        </p>
                       </div>
                       <div>
                         <span className="text-sm text-gray-500">Frais de scolarite</span>
@@ -1651,6 +1713,270 @@ function AnnulationDialog({
               </>
             )}
           </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// =====================
+// Facture Dialog (after inscription)
+// =====================
+
+function FactureDialog({
+  open,
+  onOpenChange,
+  inscription,
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  inscription: Inscription
+}) {
+  const [copiedCredentials, setCopiedCredentials] = useState(false)
+
+  const formatMontant = (montant: number) => {
+    return new Intl.NumberFormat('fr-FR').format(montant) + ' FCFA'
+  }
+
+  const echeances = inscription.echeances || []
+  const totalPaye = echeances
+    .filter((e) => e.statut === 'PAYEE')
+    .reduce((sum, e) => sum + e.montant, 0)
+  const resteAPayer = inscription.montantTotal - totalPaye
+
+  const copyCredentials = () => {
+    if (inscription.generatedEmail && inscription.generatedPassword) {
+      navigator.clipboard.writeText(
+        `Email: ${inscription.generatedEmail}\nMot de passe: ${inscription.generatedPassword}`
+      )
+      setCopiedCredentials(true)
+      setTimeout(() => setCopiedCredentials(false), 3000)
+    }
+  }
+
+  const handlePrintFacture = () => {
+    const printWindow = window.open('', '_blank')
+    if (!printWindow) return
+
+    const echeancesRows = echeances
+      .map(
+        (e) => `
+        <tr>
+          <td style="padding:10px;border:1px solid #ddd;text-align:center">${e.numero}</td>
+          <td style="padding:10px;border:1px solid #ddd">${e.libelle}</td>
+          <td style="padding:10px;border:1px solid #ddd;text-align:right;font-weight:600">${formatMontant(e.montant)}</td>
+          <td style="padding:10px;border:1px solid #ddd;text-align:center">${e.dateEcheance}</td>
+          <td style="padding:10px;border:1px solid #ddd;text-align:center">
+            <span style="padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600;${
+              e.statut === 'PAYEE'
+                ? 'background:#dcfce7;color:#166534'
+                : 'background:#fef9c3;color:#854d0e'
+            }">${e.statut === 'PAYEE' ? 'Payee' : 'En attente'}</span>
+          </td>
+        </tr>`
+      )
+      .join('')
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html><head><title>Facture ${inscription.numeroInscription}</title>
+      <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Segoe UI',Arial,sans-serif; padding:30px; max-width:800px; margin:0 auto; color:#333; }
+        .header { text-align:center; border-bottom:3px solid #2563eb; padding-bottom:15px; margin-bottom:20px; }
+        .header h1 { font-size:22px; color:#2563eb; margin-bottom:4px; }
+        .header p { color:#666; font-size:13px; }
+        .facture-num { text-align:center; font-size:14px; color:#555; margin-bottom:20px; }
+        .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+        .info-box { background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; }
+        .info-box label { font-size:11px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:4px; }
+        .info-box span { font-size:15px; font-weight:600; }
+        table { width:100%; border-collapse:collapse; margin:16px 0; }
+        th { background:#2563eb; color:#fff; padding:10px; text-align:left; font-size:13px; }
+        .summary { margin-top:16px; }
+        .summary-row { display:flex; justify-content:space-between; padding:8px 12px; font-size:14px; }
+        .summary-row.total { background:#2563eb; color:#fff; border-radius:6px; font-size:16px; font-weight:700; }
+        .summary-row.paye { background:#dcfce7; color:#166534; border-radius:6px; font-weight:600; }
+        .summary-row.reste { background:#fef2f2; color:#991b1b; border-radius:6px; font-weight:600; }
+        .credentials { margin-top:20px; padding:12px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; }
+        .credentials h3 { font-size:13px; color:#2563eb; margin-bottom:8px; }
+        .credentials p { font-size:13px; margin:2px 0; }
+        .footer { margin-top:30px; text-align:center; font-size:11px; color:#999; border-top:1px solid #eee; padding-top:15px; }
+        .stamp { margin-top:25px; text-align:right; }
+        @media print { body { padding:15px; } }
+      </style></head><body>
+      <div class="header">
+        <h1>FACTURE D'INSCRIPTION</h1>
+        <p>DigiSchool - Systeme de gestion scolaire</p>
+      </div>
+      <div class="facture-num">N\u00b0 <strong>${inscription.numeroInscription}</strong> | Date: <strong>${inscription.dateInscription}</strong></div>
+      <div class="info-grid">
+        <div class="info-box"><label>Eleve</label><span>${inscription.elevePrenom} ${inscription.eleveNom}</span></div>
+        <div class="info-box"><label>Matricule</label><span>${inscription.eleveMatricule}</span></div>
+        <div class="info-box"><label>Classe</label><span>${inscription.classeNom} (${inscription.classeNiveau})</span></div>
+        <div class="info-box"><label>Annee scolaire</label><span>${inscription.anneeScolaireLibelle || '-'}</span></div>
+      </div>
+      <h3 style="font-size:14px;margin-bottom:8px;color:#333">Echeancier de paiement</h3>
+      <table>
+        <thead><tr>
+          <th style="text-align:center;width:50px">N\u00b0</th>
+          <th>Libelle</th>
+          <th style="text-align:right">Montant</th>
+          <th style="text-align:center">Date limite</th>
+          <th style="text-align:center">Statut</th>
+        </tr></thead>
+        <tbody>${echeancesRows}</tbody>
+      </table>
+      <div class="summary">
+        <div class="summary-row total"><span>Montant total</span><span>${formatMontant(inscription.montantTotal)}</span></div>
+        <div class="summary-row paye" style="margin-top:6px"><span>Total paye</span><span>${formatMontant(totalPaye)}</span></div>
+        ${resteAPayer > 0 ? `<div class="summary-row reste" style="margin-top:6px"><span>Reste a payer</span><span>${formatMontant(resteAPayer)}</span></div>` : ''}
+      </div>
+      ${
+        inscription.generatedEmail
+          ? `
+      <div class="credentials">
+        <h3>Identifiants du compte eleve</h3>
+        <p><strong>Email:</strong> ${inscription.generatedEmail}</p>
+        <p><strong>Mot de passe:</strong> ${inscription.generatedPassword || '-'}</p>
+      </div>`
+          : ''
+      }
+      <div class="stamp"><p>Fait le ${new Date().toLocaleDateString('fr-FR')}</p><br/><br/><p>_________________________</p><p>Signature du Directeur</p></div>
+      <div class="footer"><p>Document genere automatiquement par DigiSchool</p></div>
+      </body></html>
+    `)
+    printWindow.document.close()
+    printWindow.print()
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <CheckCircle className="h-5 w-5 text-green-600" />
+            Inscription confirmee - Facture
+          </DialogTitle>
+          <DialogDescription>
+            N° {inscription.numeroInscription} | {inscription.dateInscription}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          {/* Info eleve + classe */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-lg border bg-gray-50 p-3">
+              <span className="text-xs text-gray-500">Eleve</span>
+              <p className="font-semibold">
+                {inscription.elevePrenom} {inscription.eleveNom}
+              </p>
+              <p className="text-xs text-gray-500">{inscription.eleveMatricule}</p>
+            </div>
+            <div className="rounded-lg border bg-gray-50 p-3">
+              <span className="text-xs text-gray-500">Classe</span>
+              <p className="font-semibold">{inscription.classeNom}</p>
+              <p className="text-xs text-gray-500">
+                {inscription.classeNiveau} | {inscription.anneeScolaireLibelle}
+              </p>
+            </div>
+          </div>
+
+          {/* Echeancier */}
+          <div>
+            <h4 className="mb-2 text-sm font-semibold text-gray-700">Echeancier de paiement</h4>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-12">N°</TableHead>
+                  <TableHead>Libelle</TableHead>
+                  <TableHead className="text-right">Montant</TableHead>
+                  <TableHead className="text-center">Date limite</TableHead>
+                  <TableHead className="text-center">Statut</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {echeances.map((e) => (
+                  <TableRow key={e.idEcheance}>
+                    <TableCell className="text-center font-medium">{e.numero}</TableCell>
+                    <TableCell>{e.libelle}</TableCell>
+                    <TableCell className="text-right font-semibold">
+                      {formatMontant(e.montant)}
+                    </TableCell>
+                    <TableCell className="text-center">{e.dateEcheance}</TableCell>
+                    <TableCell className="text-center">
+                      {e.statut === 'PAYEE' ? (
+                        <Badge className="bg-green-100 text-green-800">Payee</Badge>
+                      ) : (
+                        <Badge className="bg-yellow-100 text-yellow-800">En attente</Badge>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Totaux */}
+          <div className="space-y-2 rounded-lg border p-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-600">Montant total</span>
+              <span className="text-lg font-bold text-blue-700">
+                {formatMontant(inscription.montantTotal)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between rounded-md bg-green-50 p-2">
+              <span className="text-sm font-medium text-green-700">Total paye</span>
+              <span className="font-bold text-green-700">{formatMontant(totalPaye)}</span>
+            </div>
+            {resteAPayer > 0 && (
+              <div className="flex items-center justify-between rounded-md bg-red-50 p-2">
+                <span className="text-sm font-medium text-red-700">Reste a payer</span>
+                <span className="font-bold text-red-700">{formatMontant(resteAPayer)}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Identifiants */}
+          {inscription.generatedEmail && inscription.generatedPassword && (
+            <div className="space-y-2 rounded-lg border border-blue-200 bg-blue-50 p-3">
+              <div className="flex items-center gap-2">
+                <KeyRound className="h-4 w-4 text-blue-600" />
+                <span className="text-sm font-semibold text-blue-800">
+                  Identifiants du compte eleve
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <span className="text-xs text-blue-600">Email</span>
+                  <p className="font-mono text-sm font-medium">{inscription.generatedEmail}</p>
+                </div>
+                <div>
+                  <span className="text-xs text-blue-600">Mot de passe</span>
+                  <p className="font-mono text-sm font-medium">{inscription.generatedPassword}</p>
+                </div>
+              </div>
+              <Button onClick={copyCredentials} variant="outline" size="sm" className="w-full">
+                {copiedCredentials ? (
+                  <>
+                    <CheckCircle className="mr-2 h-3 w-3 text-green-600" /> Copie !
+                  </>
+                ) : (
+                  <>
+                    <Copy className="mr-2 h-3 w-3" /> Copier les identifiants
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={handlePrintFacture}>
+            <Printer className="mr-2 h-4 w-4" />
+            Imprimer la facture
+          </Button>
+          <Button onClick={() => onOpenChange(false)}>Fermer</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

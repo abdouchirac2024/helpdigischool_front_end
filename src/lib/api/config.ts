@@ -238,6 +238,14 @@ export const API_ENDPOINTS = {
   },
 
   // ============================================
+  // ANNEE SCOLAIRE SERVICE - Gestion des années scolaires
+  // ============================================
+  anneesScolaires: {
+    base: '/annees-scolaires',
+    byId: (id: string) => `/annees-scolaires/${id}`,
+  },
+
+  // ============================================
   // INSCRIPTION SERVICE - Gestion des inscriptions
   // ============================================
   inscriptions: {

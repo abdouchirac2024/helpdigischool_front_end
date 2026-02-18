@@ -12,7 +12,10 @@ const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8080'
 
 async function handleRequest(request: NextRequest, path: string[]) {
   const backendPath = `/api/${path.join('/')}`
-  const url = `${BACKEND_URL}${backendPath}`
+  const searchParams = request.nextUrl.searchParams.toString()
+  const url = searchParams
+    ? `${BACKEND_URL}${backendPath}?${searchParams}`
+    : `${BACKEND_URL}${backendPath}`
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',

@@ -33,6 +33,14 @@ export interface CreateEleveRequest {
   dateNaissance: string
   lieuNaissance?: string
   sexe: 'M' | 'F'
+  nationalite?: string
   quartierId?: number
-  // Initial enrollment details could go here
+}
+
+export interface AnneeScolaireResponse {
+  id: number
+  libelle: string
+  dateDebut: string
+  dateFin: string
+  statut: boolean
 }
