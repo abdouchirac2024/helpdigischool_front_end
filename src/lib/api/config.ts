@@ -238,6 +238,16 @@ export const API_ENDPOINTS = {
   },
 
   // ============================================
+  // INSCRIPTION SERVICE - Gestion des inscriptions
+  // ============================================
+  inscriptions: {
+    base: '/inscriptions',
+    byId: (id: string) => `/inscriptions/${id}`,
+    annuler: (id: string) => `/inscriptions/${id}/annuler`,
+    checkParents: (eleveId: string) => `/inscriptions/eleve/${eleveId}/has-parents`,
+  },
+
+  // ============================================
   // LOCALISATION SERVICE - Gestion géographique
   // ============================================
   localisation: {

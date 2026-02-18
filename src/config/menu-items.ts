@@ -76,6 +76,7 @@ export const menuItemsByRole: Record<string, MenuItem[]> = {
     { icon: LayoutDashboard, label: "Vue d'ensemble", href: '/dashboard/director' },
     { icon: Users, label: 'Élèves', href: '/dashboard/director/students' },
     { icon: BookOpen, label: 'Classes', href: '/dashboard/director/classes' },
+    { icon: UserPlus, label: 'Inscriptions', href: '/dashboard/director/inscriptions' },
     {
       icon: GraduationCap,
       label: 'Enseignants',

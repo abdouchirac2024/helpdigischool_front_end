@@ -36,6 +36,7 @@ export const ROUTES = {
     STUDENTS: '/dashboard/director/students',
     TEACHERS: '/dashboard/director/teachers',
     CLASSES: '/dashboard/director/classes',
+    INSCRIPTIONS: '/dashboard/director/inscriptions',
     GRADES: '/dashboard/director/grades',
     PAYMENTS: '/dashboard/director/payments',
     SCHEDULE: '/dashboard/director/schedule',
