@@ -608,7 +608,7 @@ function CreateInscriptionDialog({
     // Link parent to student if not already linked
     const linkSuccess = await linkParentToStudent()
     if (!linkSuccess) return
-    setStep(step + 1)
+    setStep((prev) => prev + 1)
   }
 
   const handleNextStep = async () => {
