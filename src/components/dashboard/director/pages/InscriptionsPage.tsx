@@ -1464,18 +1464,56 @@ function CreateInscriptionDialog({
             </p>
 
             <div className="mb-4 space-y-3 rounded-xl bg-gray-50 p-4">
-              <div>
+              <div
+                className="cursor-pointer rounded-lg p-2 transition-colors hover:bg-gray-100"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(createdParentCredentials.email)
+                  } catch {
+                    const ta = document.createElement('textarea')
+                    ta.value = createdParentCredentials.email
+                    ta.style.position = 'fixed'
+                    ta.style.opacity = '0'
+                    document.body.appendChild(ta)
+                    ta.select()
+                    document.execCommand('copy')
+                    document.body.removeChild(ta)
+                  }
+                  toast.success('Email copie')
+                }}
+                title="Cliquer pour copier l'email"
+              >
                 <p className="text-xs font-medium text-gray-500">Email (identifiant)</p>
-                <p className="flex items-center gap-2 font-mono text-sm font-semibold text-gray-900">
-                  <Mail className="h-4 w-4 text-[#2302B3]" />
+                <p className="flex select-all items-center gap-2 font-mono text-sm font-semibold text-gray-900">
+                  <Mail className="h-4 w-4 shrink-0 text-[#2302B3]" />
                   {createdParentCredentials.email}
+                  <Copy className="ml-auto h-3 w-3 shrink-0 text-gray-400" />
                 </p>
               </div>
-              <div>
+              <div
+                className="cursor-pointer rounded-lg p-2 transition-colors hover:bg-gray-100"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(createdParentCredentials.password)
+                  } catch {
+                    const ta = document.createElement('textarea')
+                    ta.value = createdParentCredentials.password
+                    ta.style.position = 'fixed'
+                    ta.style.opacity = '0'
+                    document.body.appendChild(ta)
+                    ta.select()
+                    document.execCommand('copy')
+                    document.body.removeChild(ta)
+                  }
+                  toast.success('Mot de passe copie')
+                }}
+                title="Cliquer pour copier le mot de passe"
+              >
                 <p className="text-xs font-medium text-gray-500">Mot de passe</p>
-                <p className="flex items-center gap-2 font-mono text-sm font-semibold text-gray-900">
-                  <KeyRound className="h-4 w-4 text-[#2302B3]" />
+                <p className="flex select-all items-center gap-2 font-mono text-sm font-semibold text-gray-900">
+                  <KeyRound className="h-4 w-4 shrink-0 text-[#2302B3]" />
                   {createdParentCredentials.password}
+                  <Copy className="ml-auto h-3 w-3 shrink-0 text-gray-400" />
                 </p>
               </div>
             </div>
