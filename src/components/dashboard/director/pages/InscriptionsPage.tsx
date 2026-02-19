@@ -49,6 +49,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Label } from '@/components/ui/label'
+import { PhotoUpload } from '@/components/ui/photo-upload'
+import { fileService } from '@/services/file.service'
 import { inscriptionService } from '@/services/inscription.service'
 import { studentService } from '@/services/student.service'
 import { classeService } from '@/services/classe.service'
@@ -344,6 +346,7 @@ function CreateInscriptionDialog({
   const [studentVilleId, setStudentVilleId] = useState<number | null>(null)
   const [studentQuartiers, setStudentQuartiers] = useState<Quartier[]>([])
   const [isCreatingStudent, setIsCreatingStudent] = useState(false)
+  const [studentPhotoUrl, setStudentPhotoUrl] = useState<string | null>(null)
 
   // Step 2: Parent
   const [selectedParentId, setSelectedParentId] = useState<number | null>(null)
@@ -361,6 +364,7 @@ function CreateInscriptionDialog({
   })
   const [selectedVilleId, setSelectedVilleId] = useState<number | null>(null)
   const [isCreatingParent, setIsCreatingParent] = useState(false)
+  const [parentPhotoUrl, setParentPhotoUrl] = useState<string | null>(null)
   const [createdParentCredentials, setCreatedParentCredentials] = useState<{
     email: string
     password: string
@@ -496,6 +500,8 @@ function CreateInscriptionDialog({
     setIsCreatingStudent(false)
     setCreatedParentCredentials(null)
     setCopiedParentCredentials(false)
+    setStudentPhotoUrl(null)
+    setParentPhotoUrl(null)
   }
 
   // ---- Step 1 helpers ----
@@ -504,12 +510,17 @@ function CreateInscriptionDialog({
       ? selectedStudentId !== null
       : newStudentForm.nom.trim() !== '' &&
         newStudentForm.prenom.trim() !== '' &&
-        newStudentForm.dateNaissance !== ''
+        newStudentForm.dateNaissance !== '' &&
+        studentPhotoUrl !== null
 
   const handleCreateNewStudent = async (): Promise<boolean> => {
+    if (!studentPhotoUrl) {
+      toast.error("Veuillez ajouter une photo de l'élève")
+      return false
+    }
     setIsCreatingStudent(true)
     try {
-      const created = await studentService.create(newStudentForm)
+      const created = await studentService.create({ ...newStudentForm, photoUrl: studentPhotoUrl })
       setSelectedStudentId(created.id)
       setStudents((prev) => [...prev, created])
       toast.success(`Eleve ${created.prenom} ${created.nom} cree avec succes`)
@@ -537,9 +548,16 @@ function CreateInscriptionDialog({
       toast.error('Veuillez remplir tous les champs obligatoires du parent')
       return false
     }
+    if (!parentPhotoUrl) {
+      toast.error('Veuillez ajouter une photo du parent')
+      return false
+    }
     setIsCreatingParent(true)
     try {
-      const created = await parentService.createParent(newParentForm)
+      const created = await parentService.createParent({
+        ...newParentForm,
+        photoUrl: parentPhotoUrl,
+      })
       setSelectedParentId(created.idParent)
       setParents((prev) => [...prev, created])
       toast.success(`Parent ${created.prenom} ${created.nom} cree avec succes`)
@@ -781,6 +799,22 @@ function CreateInscriptionDialog({
                   </>
                 ) : (
                   <div className="space-y-4">
+                    <PhotoUpload
+                      label="Photo de l'élève"
+                      required
+                      currentPhotoUrl={studentPhotoUrl || undefined}
+                      initials={
+                        newStudentForm.prenom && newStudentForm.nom
+                          ? `${newStudentForm.prenom[0]}${newStudentForm.nom[0]}`
+                          : undefined
+                      }
+                      onPhotoSelected={async (file) => {
+                        const result = await fileService.upload(file)
+                        setStudentPhotoUrl(result.url)
+                        return result.url
+                      }}
+                      onPhotoRemoved={() => setStudentPhotoUrl(null)}
+                    />
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="new-nom">Nom *</Label>
@@ -1044,6 +1078,22 @@ function CreateInscriptionDialog({
                 ) : (
                   /* New parent form */
                   <div className="space-y-3">
+                    <PhotoUpload
+                      label="Photo du parent"
+                      required
+                      currentPhotoUrl={parentPhotoUrl || undefined}
+                      initials={
+                        newParentForm.prenom && newParentForm.nom
+                          ? `${newParentForm.prenom[0]}${newParentForm.nom[0]}`
+                          : undefined
+                      }
+                      onPhotoSelected={async (file) => {
+                        const result = await fileService.upload(file)
+                        setParentPhotoUrl(result.url)
+                        return result.url
+                      }}
+                      onPhotoRemoved={() => setParentPhotoUrl(null)}
+                    />
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1.5">
                         <Label>Prenom *</Label>

@@ -20,6 +20,7 @@ export interface EleveDto extends BaseEntity {
   prenom: string
   dateNaissance: string // ISO Date
   statut: StatutEleve
+  photoUrl?: string
 
   // Relations mapped flat for list display
   quartier?: QuartierDto
@@ -35,6 +36,7 @@ export interface CreateEleveRequest {
   sexe: 'M' | 'F'
   nationalite?: string
   quartierId?: number
+  photoUrl?: string
 }
 
 export interface AnneeScolaireResponse {

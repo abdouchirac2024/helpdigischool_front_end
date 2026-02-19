@@ -17,9 +17,14 @@ async function handleRequest(request: NextRequest, path: string[]) {
     ? `${BACKEND_URL}${backendPath}?${searchParams}`
     : `${BACKEND_URL}${backendPath}`
 
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
+  const contentType = request.headers.get('Content-Type') || ''
+  const isMultipart = contentType.includes('multipart/form-data')
+
+  const headers: Record<string, string> = {}
+
+  if (!isMultipart) {
+    headers['Content-Type'] = 'application/json'
+    headers['Accept'] = 'application/json'
   }
 
   // Forward authorization header if present (le backend extraira le tenant du JWT)
@@ -41,9 +46,15 @@ async function handleRequest(request: NextRequest, path: string[]) {
     // Add body for non-GET requests
     if (request.method !== 'GET' && request.method !== 'HEAD') {
       try {
-        const body = await request.text()
-        if (body) {
-          fetchOptions.body = body
+        if (isMultipart) {
+          // For multipart requests, forward the raw body and let fetch set the boundary
+          const formData = await request.formData()
+          fetchOptions.body = formData
+        } else {
+          const body = await request.text()
+          if (body) {
+            fetchOptions.body = body
+          }
         }
       } catch {
         // No body
