@@ -441,9 +441,29 @@ function CreateInscriptionDialog({
       const tenant = user?.schoolId || ''
       const anneesData = await anneeScolaireService.getAll(tenant)
       setAnneesScolaires(anneesData)
+
+      // Auto-select: priorité à l'année active, sinon match par date Cameroun (UTC+1)
       const activeYear = anneesData.find((a) => a.statut === true)
       if (activeYear) {
         setSelectedAnneeScolaireId(activeYear.id)
+      } else {
+        // Calculer l'année scolaire courante selon la date au Cameroun (UTC+1)
+        const nowCameroon = new Date(
+          new Date().toLocaleString('en-US', { timeZone: 'Africa/Douala' })
+        )
+        const month = nowCameroon.getMonth() + 1 // 1-12
+        const year = nowCameroon.getFullYear()
+        // Sept-Déc → année = year/(year+1), Jan-Août → année = (year-1)/year
+        const startYear = month >= 9 ? year : year - 1
+        const expectedLabel = `${startYear}-${startYear + 1}`
+
+        const matchedYear = anneesData.find((a) => a.libelle.includes(expectedLabel))
+        if (matchedYear) {
+          setSelectedAnneeScolaireId(matchedYear.id)
+        } else if (anneesData.length > 0) {
+          // Fallback: prendre la dernière année créée
+          setSelectedAnneeScolaireId(anneesData[anneesData.length - 1].id)
+        }
       }
     } catch {
       console.warn('Impossible de charger les annees scolaires')
@@ -1221,20 +1241,35 @@ function CreateInscriptionDialog({
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label>Annee scolaire *</Label>
-                  <select
-                    value={selectedAnneeScolaireId?.toString() || ''}
-                    onChange={(e) =>
-                      setSelectedAnneeScolaireId(e.target.value ? Number(e.target.value) : null)
-                    }
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    <option value="">Selectionner une annee scolaire</option>
-                    {anneesScolaires.map((a) => (
-                      <option key={a.id} value={a.id.toString()}>
-                        {a.libelle} {a.statut ? '(En cours)' : ''}
-                      </option>
-                    ))}
-                  </select>
+                  {(() => {
+                    const nowCameroon = new Date(
+                      new Date().toLocaleString('en-US', { timeZone: 'Africa/Douala' })
+                    )
+                    const m = nowCameroon.getMonth() + 1
+                    const y = nowCameroon.getFullYear()
+                    const currentLabel = `${m >= 9 ? y : y - 1}-${m >= 9 ? y + 1 : y}`
+                    return (
+                      <select
+                        value={selectedAnneeScolaireId?.toString() || ''}
+                        onChange={(e) =>
+                          setSelectedAnneeScolaireId(e.target.value ? Number(e.target.value) : null)
+                        }
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <option value="">Selectionner une annee scolaire</option>
+                        {anneesScolaires.map((a) => (
+                          <option key={a.id} value={a.id.toString()}>
+                            {a.libelle}{' '}
+                            {a.statut
+                              ? '(En cours)'
+                              : a.libelle.includes(currentLabel)
+                                ? '(Annee actuelle)'
+                                : ''}
+                          </option>
+                        ))}
+                      </select>
+                    )
+                  })()}
                 </div>
                 <p className="text-sm text-gray-500">
                   Selectionner la classe pour{' '}
