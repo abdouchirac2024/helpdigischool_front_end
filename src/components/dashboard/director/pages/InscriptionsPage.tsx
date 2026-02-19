@@ -678,475 +678,343 @@ function CreateInscriptionDialog({
   }
 
   return (
-    <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Nouvelle inscription</DialogTitle>
-            <DialogDescription>
-              Etape {step} sur {TOTAL_STEPS} - {STEP_LABELS[step - 1]}
-            </DialogDescription>
-          </DialogHeader>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="relative max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Nouvelle inscription</DialogTitle>
+          <DialogDescription>
+            Etape {step} sur {TOTAL_STEPS} - {STEP_LABELS[step - 1]}
+          </DialogDescription>
+        </DialogHeader>
 
-          {/* Progress bar */}
-          <div className="mb-4 flex gap-2">
-            {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map((s) => (
-              <div
-                key={s}
-                className={`h-2 flex-1 rounded-full transition-colors ${
-                  s <= step ? 'bg-blue-600' : 'bg-gray-200'
-                }`}
-              />
-            ))}
+        {/* Progress bar */}
+        <div className="mb-4 flex gap-2">
+          {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map((s) => (
+            <div
+              key={s}
+              className={`h-2 flex-1 rounded-full transition-colors ${
+                s <= step ? 'bg-blue-600' : 'bg-gray-200'
+              }`}
+            />
+          ))}
+        </div>
+
+        {isLoadingData ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
           </div>
-
-          {isLoadingData ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-            </div>
-          ) : (
-            <>
-              {/* ========== Step 1: Select or Create Student ========== */}
-              {step === 1 && (
-                <div className="space-y-4">
-                  <div className="flex overflow-hidden rounded-lg border">
-                    <button
-                      type="button"
-                      className={`flex-1 px-4 py-2.5 text-sm font-medium transition-colors ${
-                        studentMode === 'existing'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-white text-gray-600 hover:bg-gray-50'
-                      }`}
-                      onClick={() => {
-                        setStudentMode('existing')
-                        setSelectedStudentId(null)
-                      }}
-                    >
-                      Eleve existant
-                    </button>
-                    <button
-                      type="button"
-                      className={`flex-1 px-4 py-2.5 text-sm font-medium transition-colors ${
-                        studentMode === 'new'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-white text-gray-600 hover:bg-gray-50'
-                      }`}
-                      onClick={() => {
-                        setStudentMode('new')
-                        setSelectedStudentId(null)
-                      }}
-                    >
-                      Nouvel eleve
-                    </button>
-                  </div>
-
-                  {studentMode === 'existing' ? (
-                    <>
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                        <Input
-                          placeholder="Rechercher un eleve par nom ou matricule..."
-                          value={studentSearch}
-                          onChange={(e) => setStudentSearch(e.target.value)}
-                          className="pl-10"
-                          autoComplete="off"
-                        />
-                      </div>
-                      <div className="max-h-60 overflow-y-auto rounded-md border">
-                        {filteredStudents.length === 0 ? (
-                          <div className="p-4 text-center text-sm text-gray-500">
-                            Aucun eleve trouve
-                          </div>
-                        ) : (
-                          filteredStudents.map((student) => (
-                            <div
-                              key={student.id}
-                              className={`flex cursor-pointer items-center justify-between border-b p-3 last:border-b-0 hover:bg-gray-50 ${
-                                selectedStudentId === student.id ? 'border-blue-200 bg-blue-50' : ''
-                              }`}
-                              onClick={() => setSelectedStudentId(student.id)}
-                            >
-                              <div>
-                                <div className="font-medium">
-                                  {student.prenom} {student.nom}
-                                </div>
-                                <div className="text-sm text-gray-500">{student.matricule}</div>
-                              </div>
-                              {selectedStudentId === student.id && (
-                                <CheckCircle className="h-5 w-5 text-blue-600" />
-                              )}
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="new-nom">Nom *</Label>
-                          <Input
-                            id="new-nom"
-                            placeholder="Nom de famille"
-                            value={newStudentForm.nom}
-                            onChange={(e) =>
-                              setNewStudentForm((prev) => ({ ...prev, nom: e.target.value }))
-                            }
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="new-prenom">Prenom *</Label>
-                          <Input
-                            id="new-prenom"
-                            placeholder="Prenom"
-                            value={newStudentForm.prenom}
-                            onChange={(e) =>
-                              setNewStudentForm((prev) => ({ ...prev, prenom: e.target.value }))
-                            }
-                          />
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="new-date">Date de naissance *</Label>
-                          <Input
-                            id="new-date"
-                            type="date"
-                            value={newStudentForm.dateNaissance}
-                            onChange={(e) =>
-                              setNewStudentForm((prev) => ({
-                                ...prev,
-                                dateNaissance: e.target.value,
-                              }))
-                            }
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="new-sexe">Sexe *</Label>
-                          <select
-                            id="new-sexe"
-                            value={newStudentForm.sexe}
-                            onChange={(e) =>
-                              setNewStudentForm((prev) => ({
-                                ...prev,
-                                sexe: e.target.value as 'M' | 'F',
-                              }))
-                            }
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                          >
-                            <option value="M">Masculin</option>
-                            <option value="F">Feminin</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="new-lieu">Lieu de naissance</Label>
-                          <Input
-                            id="new-lieu"
-                            placeholder="Lieu de naissance"
-                            value={newStudentForm.lieuNaissance || ''}
-                            onChange={(e) =>
-                              setNewStudentForm((prev) => ({
-                                ...prev,
-                                lieuNaissance: e.target.value,
-                              }))
-                            }
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="new-nationalite">Nationalite</Label>
-                          <Input
-                            id="new-nationalite"
-                            placeholder="Nationalite"
-                            value={newStudentForm.nationalite || ''}
-                            onChange={(e) =>
-                              setNewStudentForm((prev) => ({
-                                ...prev,
-                                nationalite: e.target.value,
-                              }))
-                            }
-                          />
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label>Ville</Label>
-                          <select
-                            value={studentVilleId?.toString() || ''}
-                            onChange={(e) => {
-                              setStudentVilleId(e.target.value ? Number(e.target.value) : null)
-                              setNewStudentForm((prev) => ({ ...prev, quartierId: undefined }))
-                            }}
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                          >
-                            <option value="">Selectionner une ville</option>
-                            {villes.map((v) => (
-                              <option key={v.id} value={v.id.toString()}>
-                                {v.nom}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Quartier</Label>
-                          <select
-                            value={newStudentForm.quartierId?.toString() || ''}
-                            onChange={(e) =>
-                              setNewStudentForm((prev) => ({
-                                ...prev,
-                                quartierId: e.target.value ? Number(e.target.value) : undefined,
-                              }))
-                            }
-                            disabled={!studentVilleId}
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
-                          >
-                            <option value="">
-                              {studentVilleId
-                                ? 'Selectionner un quartier'
-                                : "Choisir une ville d'abord"}
-                            </option>
-                            {studentQuartiers.map((q) => (
-                              <option key={q.id} value={q.id.toString()}>
-                                {q.nom}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+        ) : (
+          <>
+            {/* ========== Step 1: Select or Create Student ========== */}
+            {step === 1 && (
+              <div className="space-y-4">
+                <div className="flex overflow-hidden rounded-lg border">
+                  <button
+                    type="button"
+                    className={`flex-1 px-4 py-2.5 text-sm font-medium transition-colors ${
+                      studentMode === 'existing'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-gray-600 hover:bg-gray-50'
+                    }`}
+                    onClick={() => {
+                      setStudentMode('existing')
+                      setSelectedStudentId(null)
+                    }}
+                  >
+                    Eleve existant
+                  </button>
+                  <button
+                    type="button"
+                    className={`flex-1 px-4 py-2.5 text-sm font-medium transition-colors ${
+                      studentMode === 'new'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-gray-600 hover:bg-gray-50'
+                    }`}
+                    onClick={() => {
+                      setStudentMode('new')
+                      setSelectedStudentId(null)
+                    }}
+                  >
+                    Nouvel eleve
+                  </button>
                 </div>
-              )}
 
-              {/* ========== Step 2: Select or Create Parent ========== */}
-              {step === 2 && (
-                <div className="space-y-4">
-                  <p className="text-sm text-gray-500">
-                    Associer un parent a{' '}
-                    <span className="font-medium">
-                      {selectedStudent?.prenom} {selectedStudent?.nom}
-                    </span>
-                  </p>
-
-                  <div className="flex overflow-hidden rounded-lg border">
-                    <button
-                      type="button"
-                      className={`flex-1 px-4 py-2.5 text-sm font-medium transition-colors ${
-                        parentMode === 'existing'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-white text-gray-600 hover:bg-gray-50'
-                      }`}
-                      onClick={() => {
-                        setParentMode('existing')
-                        setSelectedParentId(null)
-                      }}
-                    >
-                      <Users className="mr-1 inline-block h-4 w-4" />
-                      Parent existant
-                    </button>
-                    <button
-                      type="button"
-                      className={`flex-1 px-4 py-2.5 text-sm font-medium transition-colors ${
-                        parentMode === 'new'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-white text-gray-600 hover:bg-gray-50'
-                      }`}
-                      onClick={() => {
-                        setParentMode('new')
-                        setSelectedParentId(null)
-                      }}
-                    >
-                      <Plus className="mr-1 inline-block h-4 w-4" />
-                      Nouveau parent
-                    </button>
-                  </div>
-
-                  {parentMode === 'existing' ? (
-                    <>
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                        <Input
-                          placeholder="Rechercher un parent par nom, telephone ou matricule..."
-                          value={parentSearch}
-                          onChange={(e) => setParentSearch(e.target.value)}
-                          className="pl-10"
-                          autoComplete="off"
-                        />
-                      </div>
-                      <div className="max-h-48 overflow-y-auto rounded-md border">
-                        {filteredParents.length === 0 ? (
-                          <div className="p-4 text-center text-sm text-gray-500">
-                            Aucun parent trouve.{' '}
-                            <button
-                              type="button"
-                              className="text-blue-600 underline"
-                              onClick={() => setParentMode('new')}
-                            >
-                              Creer un nouveau parent
-                            </button>
-                          </div>
-                        ) : (
-                          filteredParents.map((parent) => (
-                            <div
-                              key={parent.idParent}
-                              className={`flex cursor-pointer items-center justify-between border-b p-3 last:border-b-0 hover:bg-gray-50 ${
-                                selectedParentId === parent.idParent
-                                  ? 'border-blue-200 bg-blue-50'
-                                  : ''
-                              }`}
-                              onClick={() => setSelectedParentId(parent.idParent)}
-                            >
-                              <div>
-                                <div className="font-medium">
-                                  {parent.prenom} {parent.nom}
-                                </div>
-                                <div className="text-sm text-gray-500">
-                                  {parent.telephone} - {parent.email}
-                                </div>
-                              </div>
-                              {selectedParentId === parent.idParent && (
-                                <CheckCircle className="h-5 w-5 text-blue-600" />
-                              )}
-                            </div>
-                          ))
-                        )}
-                      </div>
-
-                      {/* Type de relation */}
-                      {selectedParentId && !parentAlreadyLinked && (
-                        <div className="space-y-2">
-                          <Label>Type de relation avec l&apos;eleve *</Label>
-                          <select
-                            value={typeRelation}
-                            onChange={(e) => setTypeRelation(e.target.value as TypeRelation)}
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                {studentMode === 'existing' ? (
+                  <>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                      <Input
+                        placeholder="Rechercher un eleve par nom ou matricule..."
+                        value={studentSearch}
+                        onChange={(e) => setStudentSearch(e.target.value)}
+                        className="pl-10"
+                        autoComplete="off"
+                      />
+                    </div>
+                    <div className="max-h-60 overflow-y-auto rounded-md border">
+                      {filteredStudents.length === 0 ? (
+                        <div className="p-4 text-center text-sm text-gray-500">
+                          Aucun eleve trouve
+                        </div>
+                      ) : (
+                        filteredStudents.map((student) => (
+                          <div
+                            key={student.id}
+                            className={`flex cursor-pointer items-center justify-between border-b p-3 last:border-b-0 hover:bg-gray-50 ${
+                              selectedStudentId === student.id ? 'border-blue-200 bg-blue-50' : ''
+                            }`}
+                            onClick={() => setSelectedStudentId(student.id)}
                           >
-                            {(Object.entries(TypeRelationLabels) as [TypeRelation, string][]).map(
-                              ([key, label]) => (
-                                <option key={key} value={key}>
-                                  {label}
-                                </option>
-                              )
+                            <div>
+                              <div className="font-medium">
+                                {student.prenom} {student.nom}
+                              </div>
+                              <div className="text-sm text-gray-500">{student.matricule}</div>
+                            </div>
+                            {selectedStudentId === student.id && (
+                              <CheckCircle className="h-5 w-5 text-blue-600" />
                             )}
-                          </select>
-                        </div>
+                          </div>
+                        ))
                       )}
-
-                      {selectedParentId && parentAlreadyLinked && (
-                        <Alert className="border-green-200 bg-green-50">
-                          <CheckCircle className="h-4 w-4 text-green-600" />
-                          <AlertDescription className="text-green-800">
-                            Ce parent est deja associe a cet eleve.
-                          </AlertDescription>
-                        </Alert>
-                      )}
-                    </>
-                  ) : (
-                    /* New parent form */
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1.5">
-                          <Label>Prenom *</Label>
-                          <Input
-                            placeholder="Prenom"
-                            value={newParentForm.prenom}
-                            onChange={(e) =>
-                              setNewParentForm((prev) => ({ ...prev, prenom: e.target.value }))
-                            }
-                          />
-                        </div>
-                        <div className="space-y-1.5">
-                          <Label>Nom *</Label>
-                          <Input
-                            placeholder="Nom"
-                            value={newParentForm.nom}
-                            onChange={(e) =>
-                              setNewParentForm((prev) => ({ ...prev, nom: e.target.value }))
-                            }
-                          />
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1.5">
-                          <Label>Email *</Label>
-                          <Input
-                            type="email"
-                            placeholder="email@exemple.com"
-                            value={newParentForm.email}
-                            onChange={(e) =>
-                              setNewParentForm((prev) => ({ ...prev, email: e.target.value }))
-                            }
-                            autoComplete="off"
-                          />
-                        </div>
-                        <div className="space-y-1.5">
-                          <Label>Telephone *</Label>
-                          <Input
-                            placeholder="+237 6XX XXX XXX"
-                            value={newParentForm.telephone}
-                            onChange={(e) =>
-                              setNewParentForm((prev) => ({ ...prev, telephone: e.target.value }))
-                            }
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label>Adresse *</Label>
+                    </div>
+                  </>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="new-nom">Nom *</Label>
                         <Input
-                          placeholder="Adresse complete"
-                          value={newParentForm.adresse}
+                          id="new-nom"
+                          placeholder="Nom de famille"
+                          value={newStudentForm.nom}
                           onChange={(e) =>
-                            setNewParentForm((prev) => ({ ...prev, adresse: e.target.value }))
+                            setNewStudentForm((prev) => ({ ...prev, nom: e.target.value }))
                           }
                         />
                       </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1.5">
-                          <Label>Ville *</Label>
-                          <select
-                            value={selectedVilleId?.toString() || ''}
-                            onChange={(e) => {
-                              setSelectedVilleId(Number(e.target.value))
-                              setNewParentForm((prev) => ({ ...prev, quartierId: 0 }))
-                            }}
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                          >
-                            <option value="">Selectionner une ville</option>
-                            {villes.map((v) => (
-                              <option key={v.id} value={v.id.toString()}>
-                                {v.nom}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="space-y-1.5">
-                          <Label>Quartier *</Label>
-                          <select
-                            value={
-                              newParentForm.quartierId ? newParentForm.quartierId.toString() : ''
-                            }
-                            onChange={(e) =>
-                              setNewParentForm((prev) => ({
-                                ...prev,
-                                quartierId: Number(e.target.value),
-                              }))
-                            }
-                            disabled={!selectedVilleId}
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
-                          >
-                            <option value="">
-                              {selectedVilleId ? 'Selectionner' : "Choisir une ville d'abord"}
-                            </option>
-                            {quartiers.map((q) => (
-                              <option key={q.id} value={q.id.toString()}>
-                                {q.nom}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="new-prenom">Prenom *</Label>
+                        <Input
+                          id="new-prenom"
+                          placeholder="Prenom"
+                          value={newStudentForm.prenom}
+                          onChange={(e) =>
+                            setNewStudentForm((prev) => ({ ...prev, prenom: e.target.value }))
+                          }
+                        />
                       </div>
-                      <div className="space-y-1.5">
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="new-date">Date de naissance *</Label>
+                        <Input
+                          id="new-date"
+                          type="date"
+                          value={newStudentForm.dateNaissance}
+                          onChange={(e) =>
+                            setNewStudentForm((prev) => ({
+                              ...prev,
+                              dateNaissance: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="new-sexe">Sexe *</Label>
+                        <select
+                          id="new-sexe"
+                          value={newStudentForm.sexe}
+                          onChange={(e) =>
+                            setNewStudentForm((prev) => ({
+                              ...prev,
+                              sexe: e.target.value as 'M' | 'F',
+                            }))
+                          }
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          <option value="M">Masculin</option>
+                          <option value="F">Feminin</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="new-lieu">Lieu de naissance</Label>
+                        <Input
+                          id="new-lieu"
+                          placeholder="Lieu de naissance"
+                          value={newStudentForm.lieuNaissance || ''}
+                          onChange={(e) =>
+                            setNewStudentForm((prev) => ({
+                              ...prev,
+                              lieuNaissance: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="new-nationalite">Nationalite</Label>
+                        <Input
+                          id="new-nationalite"
+                          placeholder="Nationalite"
+                          value={newStudentForm.nationalite || ''}
+                          onChange={(e) =>
+                            setNewStudentForm((prev) => ({
+                              ...prev,
+                              nationalite: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Ville</Label>
+                        <select
+                          value={studentVilleId?.toString() || ''}
+                          onChange={(e) => {
+                            setStudentVilleId(e.target.value ? Number(e.target.value) : null)
+                            setNewStudentForm((prev) => ({ ...prev, quartierId: undefined }))
+                          }}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          <option value="">Selectionner une ville</option>
+                          {villes.map((v) => (
+                            <option key={v.id} value={v.id.toString()}>
+                              {v.nom}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Quartier</Label>
+                        <select
+                          value={newStudentForm.quartierId?.toString() || ''}
+                          onChange={(e) =>
+                            setNewStudentForm((prev) => ({
+                              ...prev,
+                              quartierId: e.target.value ? Number(e.target.value) : undefined,
+                            }))
+                          }
+                          disabled={!studentVilleId}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+                        >
+                          <option value="">
+                            {studentVilleId
+                              ? 'Selectionner un quartier'
+                              : "Choisir une ville d'abord"}
+                          </option>
+                          {studentQuartiers.map((q) => (
+                            <option key={q.id} value={q.id.toString()}>
+                              {q.nom}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ========== Step 2: Select or Create Parent ========== */}
+            {step === 2 && (
+              <div className="space-y-4">
+                <p className="text-sm text-gray-500">
+                  Associer un parent a{' '}
+                  <span className="font-medium">
+                    {selectedStudent?.prenom} {selectedStudent?.nom}
+                  </span>
+                </p>
+
+                <div className="flex overflow-hidden rounded-lg border">
+                  <button
+                    type="button"
+                    className={`flex-1 px-4 py-2.5 text-sm font-medium transition-colors ${
+                      parentMode === 'existing'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-gray-600 hover:bg-gray-50'
+                    }`}
+                    onClick={() => {
+                      setParentMode('existing')
+                      setSelectedParentId(null)
+                    }}
+                  >
+                    <Users className="mr-1 inline-block h-4 w-4" />
+                    Parent existant
+                  </button>
+                  <button
+                    type="button"
+                    className={`flex-1 px-4 py-2.5 text-sm font-medium transition-colors ${
+                      parentMode === 'new'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-gray-600 hover:bg-gray-50'
+                    }`}
+                    onClick={() => {
+                      setParentMode('new')
+                      setSelectedParentId(null)
+                    }}
+                  >
+                    <Plus className="mr-1 inline-block h-4 w-4" />
+                    Nouveau parent
+                  </button>
+                </div>
+
+                {parentMode === 'existing' ? (
+                  <>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                      <Input
+                        placeholder="Rechercher un parent par nom, telephone ou matricule..."
+                        value={parentSearch}
+                        onChange={(e) => setParentSearch(e.target.value)}
+                        className="pl-10"
+                        autoComplete="off"
+                      />
+                    </div>
+                    <div className="max-h-48 overflow-y-auto rounded-md border">
+                      {filteredParents.length === 0 ? (
+                        <div className="p-4 text-center text-sm text-gray-500">
+                          Aucun parent trouve.{' '}
+                          <button
+                            type="button"
+                            className="text-blue-600 underline"
+                            onClick={() => setParentMode('new')}
+                          >
+                            Creer un nouveau parent
+                          </button>
+                        </div>
+                      ) : (
+                        filteredParents.map((parent) => (
+                          <div
+                            key={parent.idParent}
+                            className={`flex cursor-pointer items-center justify-between border-b p-3 last:border-b-0 hover:bg-gray-50 ${
+                              selectedParentId === parent.idParent
+                                ? 'border-blue-200 bg-blue-50'
+                                : ''
+                            }`}
+                            onClick={() => setSelectedParentId(parent.idParent)}
+                          >
+                            <div>
+                              <div className="font-medium">
+                                {parent.prenom} {parent.nom}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {parent.telephone} - {parent.email}
+                              </div>
+                            </div>
+                            {selectedParentId === parent.idParent && (
+                              <CheckCircle className="h-5 w-5 text-blue-600" />
+                            )}
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    {/* Type de relation */}
+                    {selectedParentId && !parentAlreadyLinked && (
+                      <div className="space-y-2">
                         <Label>Type de relation avec l&apos;eleve *</Label>
                         <select
                           value={typeRelation}
@@ -1162,419 +1030,544 @@ function CreateInscriptionDialog({
                           )}
                         </select>
                       </div>
+                    )}
+
+                    {selectedParentId && parentAlreadyLinked && (
+                      <Alert className="border-green-200 bg-green-50">
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                        <AlertDescription className="text-green-800">
+                          Ce parent est deja associe a cet eleve.
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </>
+                ) : (
+                  /* New parent form */
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <Label>Prenom *</Label>
+                        <Input
+                          placeholder="Prenom"
+                          value={newParentForm.prenom}
+                          onChange={(e) =>
+                            setNewParentForm((prev) => ({ ...prev, prenom: e.target.value }))
+                          }
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>Nom *</Label>
+                        <Input
+                          placeholder="Nom"
+                          value={newParentForm.nom}
+                          onChange={(e) =>
+                            setNewParentForm((prev) => ({ ...prev, nom: e.target.value }))
+                          }
+                        />
+                      </div>
                     </div>
-                  )}
-                </div>
-              )}
-
-              {/* ========== Step 3: Select Class + Annee scolaire ========== */}
-              {step === 3 && (
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Annee scolaire *</Label>
-                    <select
-                      value={selectedAnneeScolaireId?.toString() || ''}
-                      onChange={(e) =>
-                        setSelectedAnneeScolaireId(e.target.value ? Number(e.target.value) : null)
-                      }
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    >
-                      <option value="">Selectionner une annee scolaire</option>
-                      {anneesScolaires.map((a) => (
-                        <option key={a.id} value={a.id.toString()}>
-                          {a.libelle} {a.statut ? '(En cours)' : ''}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    Selectionner la classe pour{' '}
-                    <span className="font-medium">
-                      {selectedStudent?.prenom} {selectedStudent?.nom}
-                    </span>
-                  </p>
-                  <div className="grid max-h-60 gap-3 overflow-y-auto">
-                    {classes.map((classe) => {
-                      const placesRestantes =
-                        classe.capacite != null && classe.effectifActuel != null
-                          ? classe.capacite - classe.effectifActuel
-                          : null
-                      const isFull = placesRestantes !== null && placesRestantes <= 0
-
-                      return (
-                        <Card
-                          key={classe.id}
-                          className={`cursor-pointer transition-colors ${
-                            isFull
-                              ? 'cursor-not-allowed opacity-50'
-                              : selectedClasseId === classe.id
-                                ? 'border-blue-500 bg-blue-50'
-                                : 'hover:border-gray-400'
-                          }`}
-                          onClick={() => !isFull && setSelectedClasseId(classe.id)}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <Label>Email *</Label>
+                        <Input
+                          type="email"
+                          placeholder="email@exemple.com"
+                          value={newParentForm.email}
+                          onChange={(e) =>
+                            setNewParentForm((prev) => ({ ...prev, email: e.target.value }))
+                          }
+                          autoComplete="off"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>Telephone *</Label>
+                        <Input
+                          placeholder="+237 6XX XXX XXX"
+                          value={newParentForm.telephone}
+                          onChange={(e) =>
+                            setNewParentForm((prev) => ({ ...prev, telephone: e.target.value }))
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>Adresse *</Label>
+                      <Input
+                        placeholder="Adresse complete"
+                        value={newParentForm.adresse}
+                        onChange={(e) =>
+                          setNewParentForm((prev) => ({ ...prev, adresse: e.target.value }))
+                        }
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <Label>Ville *</Label>
+                        <select
+                          value={selectedVilleId?.toString() || ''}
+                          onChange={(e) => {
+                            setSelectedVilleId(Number(e.target.value))
+                            setNewParentForm((prev) => ({ ...prev, quartierId: 0 }))
+                          }}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
-                          <CardContent className="p-4">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <div className="font-medium">{classe.nomClasse}</div>
-                                <div className="text-sm text-gray-500">
-                                  {classe.niveau}{' '}
-                                  {classe.sousSysteme ? `- ${classe.sousSysteme}` : ''}
-                                </div>
-                              </div>
-                              <div className="text-right">
-                                <div className="font-semibold text-blue-600">
-                                  {classe.fraisScolarite
-                                    ? formatMontant(classe.fraisScolarite)
-                                    : 'Non defini'}
-                                </div>
-                                <div className="text-sm text-gray-500">
-                                  {classe.effectifActuel || 0}/{classe.capacite || '?'} places
-                                  {isFull && (
-                                    <Badge className="ml-2 bg-red-100 text-red-800">Complet</Badge>
-                                  )}
-                                </div>
+                          <option value="">Selectionner une ville</option>
+                          {villes.map((v) => (
+                            <option key={v.id} value={v.id.toString()}>
+                              {v.nom}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>Quartier *</Label>
+                        <select
+                          value={
+                            newParentForm.quartierId ? newParentForm.quartierId.toString() : ''
+                          }
+                          onChange={(e) =>
+                            setNewParentForm((prev) => ({
+                              ...prev,
+                              quartierId: Number(e.target.value),
+                            }))
+                          }
+                          disabled={!selectedVilleId}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+                        >
+                          <option value="">
+                            {selectedVilleId ? 'Selectionner' : "Choisir une ville d'abord"}
+                          </option>
+                          {quartiers.map((q) => (
+                            <option key={q.id} value={q.id.toString()}>
+                              {q.nom}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>Type de relation avec l&apos;eleve *</Label>
+                      <select
+                        value={typeRelation}
+                        onChange={(e) => setTypeRelation(e.target.value as TypeRelation)}
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        {(Object.entries(TypeRelationLabels) as [TypeRelation, string][]).map(
+                          ([key, label]) => (
+                            <option key={key} value={key}>
+                              {label}
+                            </option>
+                          )
+                        )}
+                      </select>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ========== Step 3: Select Class + Annee scolaire ========== */}
+            {step === 3 && (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Annee scolaire *</Label>
+                  <select
+                    value={selectedAnneeScolaireId?.toString() || ''}
+                    onChange={(e) =>
+                      setSelectedAnneeScolaireId(e.target.value ? Number(e.target.value) : null)
+                    }
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <option value="">Selectionner une annee scolaire</option>
+                    {anneesScolaires.map((a) => (
+                      <option key={a.id} value={a.id.toString()}>
+                        {a.libelle} {a.statut ? '(En cours)' : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <p className="text-sm text-gray-500">
+                  Selectionner la classe pour{' '}
+                  <span className="font-medium">
+                    {selectedStudent?.prenom} {selectedStudent?.nom}
+                  </span>
+                </p>
+                <div className="grid max-h-60 gap-3 overflow-y-auto">
+                  {classes.map((classe) => {
+                    const placesRestantes =
+                      classe.capacite != null && classe.effectifActuel != null
+                        ? classe.capacite - classe.effectifActuel
+                        : null
+                    const isFull = placesRestantes !== null && placesRestantes <= 0
+
+                    return (
+                      <Card
+                        key={classe.id}
+                        className={`cursor-pointer transition-colors ${
+                          isFull
+                            ? 'cursor-not-allowed opacity-50'
+                            : selectedClasseId === classe.id
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'hover:border-gray-400'
+                        }`}
+                        onClick={() => !isFull && setSelectedClasseId(classe.id)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="font-medium">{classe.nomClasse}</div>
+                              <div className="text-sm text-gray-500">
+                                {classe.niveau}{' '}
+                                {classe.sousSysteme ? `- ${classe.sousSysteme}` : ''}
                               </div>
                             </div>
-                          </CardContent>
-                        </Card>
-                      )
-                    })}
-                  </div>
+                            <div className="text-right">
+                              <div className="font-semibold text-blue-600">
+                                {classe.fraisScolarite
+                                  ? formatMontant(classe.fraisScolarite)
+                                  : 'Non defini'}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {classe.effectifActuel || 0}/{classe.capacite || '?'} places
+                                {isFull && (
+                                  <Badge className="ml-2 bg-red-100 text-red-800">Complet</Badge>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )
+                  })}
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* ========== Step 4: Confirmation & Tranche Selection ========== */}
-              {step === 4 && selectedStudent && selectedClasse && (
-                <div className="space-y-4">
+            {/* ========== Step 4: Confirmation & Tranche Selection ========== */}
+            {step === 4 && selectedStudent && selectedClasse && (
+              <div className="space-y-4">
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg">Recapitulatif</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <span className="text-sm text-gray-500">Eleve</span>
+                        <p className="font-medium">
+                          {selectedStudent.prenom} {selectedStudent.nom}
+                        </p>
+                        <p className="text-sm text-gray-500">{selectedStudent.matricule}</p>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-500">Parent</span>
+                        <p className="font-medium">
+                          {selectedParent ? `${selectedParent.prenom} ${selectedParent.nom}` : '-'}
+                        </p>
+                        <p className="text-sm text-gray-500">{selectedParent?.telephone}</p>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-500">Classe</span>
+                        <p className="font-medium">{selectedClasse.nomClasse}</p>
+                        <p className="text-sm text-gray-500">{selectedClasse.niveau}</p>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-500">Annee scolaire</span>
+                        <p className="font-medium">
+                          {anneesScolaires.find((a) => a.id === selectedAnneeScolaireId)?.libelle ||
+                            '-'}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-500">Frais de scolarite</span>
+                        <p className="text-xl font-bold text-blue-600">
+                          {selectedClasse.fraisScolarite
+                            ? formatMontant(selectedClasse.fraisScolarite)
+                            : 'Non defini'}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Tranche selection */}
+                {selectedClasse.fraisScolarite && (
                   <Card>
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-lg">Recapitulatif</CardTitle>
+                      <CardTitle className="text-lg">Paiement des tranches</CardTitle>
+                      <p className="text-sm text-gray-500">
+                        Cochez les tranches que l&apos;eleve paie maintenant
+                      </p>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <span className="text-sm text-gray-500">Eleve</span>
-                          <p className="font-medium">
-                            {selectedStudent.prenom} {selectedStudent.nom}
-                          </p>
-                          <p className="text-sm text-gray-500">{selectedStudent.matricule}</p>
-                        </div>
-                        <div>
-                          <span className="text-sm text-gray-500">Parent</span>
-                          <p className="font-medium">
-                            {selectedParent
-                              ? `${selectedParent.prenom} ${selectedParent.nom}`
-                              : '-'}
-                          </p>
-                          <p className="text-sm text-gray-500">{selectedParent?.telephone}</p>
-                        </div>
-                        <div>
-                          <span className="text-sm text-gray-500">Classe</span>
-                          <p className="font-medium">{selectedClasse.nomClasse}</p>
-                          <p className="text-sm text-gray-500">{selectedClasse.niveau}</p>
-                        </div>
-                        <div>
-                          <span className="text-sm text-gray-500">Annee scolaire</span>
-                          <p className="font-medium">
-                            {anneesScolaires.find((a) => a.id === selectedAnneeScolaireId)
-                              ?.libelle || '-'}
-                          </p>
-                        </div>
-                        <div>
-                          <span className="text-sm text-gray-500">Frais de scolarite</span>
-                          <p className="text-xl font-bold text-blue-600">
-                            {selectedClasse.fraisScolarite
-                              ? formatMontant(selectedClasse.fraisScolarite)
-                              : 'Non defini'}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      {[
+                        { num: 1, label: "Frais d'inscription", pct: 0.4 },
+                        { num: 2, label: '1er versement trimestriel', pct: 0.3 },
+                        { num: 3, label: '2eme versement trimestriel', pct: 0.3 },
+                      ].map((tranche) => {
+                        const montant = Math.round(selectedClasse.fraisScolarite! * tranche.pct)
+                        const isChecked = selectedTranches.includes(tranche.num)
+                        const isDisabled =
+                          tranche.num > 1 && !selectedTranches.includes(tranche.num - 1)
 
-                  {/* Tranche selection */}
-                  {selectedClasse.fraisScolarite && (
-                    <Card>
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-lg">Paiement des tranches</CardTitle>
-                        <p className="text-sm text-gray-500">
-                          Cochez les tranches que l&apos;eleve paie maintenant
-                        </p>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        {[
-                          { num: 1, label: "Frais d'inscription", pct: 0.4 },
-                          { num: 2, label: '1er versement trimestriel', pct: 0.3 },
-                          { num: 3, label: '2eme versement trimestriel', pct: 0.3 },
-                        ].map((tranche) => {
-                          const montant = Math.round(selectedClasse.fraisScolarite! * tranche.pct)
-                          const isChecked = selectedTranches.includes(tranche.num)
-                          const isDisabled =
-                            tranche.num > 1 && !selectedTranches.includes(tranche.num - 1)
-
-                          return (
-                            <div
-                              key={tranche.num}
-                              className={`flex items-center justify-between rounded-lg border p-3 transition-colors ${
-                                isChecked
-                                  ? 'border-green-300 bg-green-50'
-                                  : isDisabled
-                                    ? 'opacity-50'
-                                    : ''
-                              }`}
-                            >
-                              <div className="flex items-center gap-3">
-                                <Checkbox
-                                  id={`tranche-${tranche.num}`}
-                                  checked={isChecked}
-                                  disabled={isDisabled}
-                                  onCheckedChange={() => handleTrancheToggle(tranche.num)}
-                                />
-                                <label
-                                  htmlFor={`tranche-${tranche.num}`}
-                                  className="cursor-pointer"
-                                >
-                                  <div className="text-sm font-medium">
-                                    Tranche {tranche.num}: {tranche.label}
-                                  </div>
-                                  <div className="text-xs text-gray-500">
-                                    {Math.round(tranche.pct * 100)}% du montant total
-                                  </div>
-                                </label>
-                              </div>
-                              <div
-                                className={`font-semibold ${isChecked ? 'text-green-700' : 'text-gray-600'}`}
-                              >
-                                {formatMontant(montant)}
-                              </div>
+                        return (
+                          <div
+                            key={tranche.num}
+                            className={`flex items-center justify-between rounded-lg border p-3 transition-colors ${
+                              isChecked
+                                ? 'border-green-300 bg-green-50'
+                                : isDisabled
+                                  ? 'opacity-50'
+                                  : ''
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <Checkbox
+                                id={`tranche-${tranche.num}`}
+                                checked={isChecked}
+                                disabled={isDisabled}
+                                onCheckedChange={() => handleTrancheToggle(tranche.num)}
+                              />
+                              <label htmlFor={`tranche-${tranche.num}`} className="cursor-pointer">
+                                <div className="text-sm font-medium">
+                                  Tranche {tranche.num}: {tranche.label}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  {Math.round(tranche.pct * 100)}% du montant total
+                                </div>
+                              </label>
                             </div>
-                          )
-                        })}
+                            <div
+                              className={`font-semibold ${isChecked ? 'text-green-700' : 'text-gray-600'}`}
+                            >
+                              {formatMontant(montant)}
+                            </div>
+                          </div>
+                        )
+                      })}
 
-                        <div className="flex items-center justify-between border-t pt-3">
-                          <span className="text-sm font-medium text-gray-700">
-                            Total a payer maintenant
-                          </span>
-                          <span className="text-lg font-bold text-green-700">
+                      <div className="flex items-center justify-between border-t pt-3">
+                        <span className="text-sm font-medium text-gray-700">
+                          Total a payer maintenant
+                        </span>
+                        <span className="text-lg font-bold text-green-700">
+                          {formatMontant(
+                            selectedTranches.reduce((sum, t) => {
+                              const pct = t === 1 ? 0.4 : 0.3
+                              return sum + Math.round(selectedClasse.fraisScolarite! * pct)
+                            }, 0)
+                          )}
+                        </span>
+                      </div>
+
+                      {selectedTranches.length < 3 && (
+                        <div className="text-xs text-gray-500">
+                          Reste a payer:{' '}
+                          <span className="font-medium">
                             {formatMontant(
-                              selectedTranches.reduce((sum, t) => {
-                                const pct = t === 1 ? 0.4 : 0.3
-                                return sum + Math.round(selectedClasse.fraisScolarite! * pct)
-                              }, 0)
+                              selectedClasse.fraisScolarite! -
+                                selectedTranches.reduce((sum, t) => {
+                                  const pct = t === 1 ? 0.4 : 0.3
+                                  return sum + Math.round(selectedClasse.fraisScolarite! * pct)
+                                }, 0)
                             )}
                           </span>
                         </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
 
-                        {selectedTranches.length < 3 && (
-                          <div className="text-xs text-gray-500">
-                            Reste a payer:{' '}
-                            <span className="font-medium">
-                              {formatMontant(
-                                selectedClasse.fraisScolarite! -
-                                  selectedTranches.reduce((sum, t) => {
-                                    const pct = t === 1 ? 0.4 : 0.3
-                                    return sum + Math.round(selectedClasse.fraisScolarite! * pct)
-                                  }, 0)
-                              )}
-                            </span>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  )}
+                <Alert className="border-blue-200 bg-blue-50">
+                  <AlertDescription className="text-sm text-blue-800">
+                    Un compte eleve sera automatiquement cree. Les identifiants de connexion seront
+                    affiches apres validation. Le parent sera notifie.
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
+          </>
+        )}
 
-                  <Alert className="border-blue-200 bg-blue-50">
-                    <AlertDescription className="text-sm text-blue-800">
-                      Un compte eleve sera automatiquement cree. Les identifiants de connexion
-                      seront affiches apres validation. Le parent sera notifie.
-                    </AlertDescription>
-                  </Alert>
-                </div>
-              )}
-            </>
-          )}
-
-          <DialogFooter className="flex justify-between">
-            <div>
-              {step > 1 && (
-                <Button variant="outline" onClick={() => setStep(step - 1)}>
-                  <ChevronLeft className="mr-1 h-4 w-4" />
-                  Precedent
-                </Button>
-              )}
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Annuler
+        <DialogFooter className="flex justify-between">
+          <div>
+            {step > 1 && (
+              <Button variant="outline" onClick={() => setStep(step - 1)}>
+                <ChevronLeft className="mr-1 h-4 w-4" />
+                Precedent
               </Button>
-              {step < TOTAL_STEPS ? (
-                <Button
-                  onClick={handleNextStep}
-                  disabled={!canProceedCurrentStep() || isCreatingStudent || isCreatingParent}
-                >
-                  {isCreatingStudent || isCreatingParent ? (
-                    <>
-                      <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-                      Creation...
-                    </>
-                  ) : (
-                    <>
-                      Suivant
-                      <ChevronRight className="ml-1 h-4 w-4" />
-                    </>
-                  )}
-                </Button>
-              ) : (
-                <Button onClick={handleSubmit} disabled={isSubmitting}>
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Inscription en cours...
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle className="mr-2 h-4 w-4" />
-                      Confirmer l&apos;inscription
-                    </>
-                  )}
-                </Button>
-              )}
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Annuler
+            </Button>
+            {step < TOTAL_STEPS ? (
+              <Button
+                onClick={handleNextStep}
+                disabled={!canProceedCurrentStep() || isCreatingStudent || isCreatingParent}
+              >
+                {isCreatingStudent || isCreatingParent ? (
+                  <>
+                    <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                    Creation...
+                  </>
+                ) : (
+                  <>
+                    Suivant
+                    <ChevronRight className="ml-1 h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            ) : (
+              <Button onClick={handleSubmit} disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Inscription en cours...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                    Confirmer l&apos;inscription
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+        </DialogFooter>
 
-      {/* Modal identifiants parent - affiché après création */}
-      {createdParentCredentials && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-            <div className="mb-3 flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
+        {/* Modal identifiants parent - à l'intérieur du DialogContent pour éviter le focus trap */}
+        {createdParentCredentials && (
+          <div className="absolute inset-0 z-[70] flex items-center justify-center bg-white/95 p-6 duration-300 animate-in fade-in zoom-in">
+            <div className="w-full max-w-md space-y-5">
+              {/* Header avec boutons en haut - comme demandé */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 shadow-sm">
+                    <CheckCircle className="h-6 w-6 text-green-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold leading-tight text-gray-900">
+                      Compte parent créé
+                    </h3>
+                    <p className="text-sm font-medium text-gray-500">
+                      {createdParentCredentials.prenom} {createdParentCredentials.nom}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-base font-semibold text-gray-900">
-                    Compte parent cree avec succes
-                  </h3>
-                  <p className="text-xs text-gray-500">
-                    {createdParentCredentials.prenom} {createdParentCredentials.nom}
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 gap-2 border-2 font-semibold transition-all hover:bg-gray-50 active:scale-95"
+                    onClick={async () => {
+                      const text = `Identifiants DigiSchool\nEmail: ${createdParentCredentials.email}\nMot de passe: ${createdParentCredentials.password}`
+                      try {
+                        await navigator.clipboard.writeText(text)
+                      } catch {
+                        const textarea = document.createElement('textarea')
+                        textarea.value = text
+                        textarea.style.position = 'fixed'
+                        textarea.style.opacity = '0'
+                        document.body.appendChild(textarea)
+                        textarea.select()
+                        document.execCommand('copy')
+                        document.body.removeChild(textarea)
+                      }
+                      setCopiedParentCredentials(true)
+                      toast.success('Identifiants copiés avec succès')
+                      setTimeout(() => setCopiedParentCredentials(false), 3000)
+                    }}
+                  >
+                    {copiedParentCredentials ? (
+                      <>
+                        <CheckCircle className="h-4 w-4 text-green-500" />
+                        Copié
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-4 w-4" />
+                        Copier
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="h-9 gap-2 bg-[#2302B3] font-semibold shadow-md transition-all hover:bg-[#1a0185] active:scale-95"
+                    onClick={async () => {
+                      // On copie aussi au clic sur continuer comme suggéré
+                      const text = `Identifiants DigiSchool\nEmail: ${createdParentCredentials.email}\nMot de passe: ${createdParentCredentials.password}`
+                      try {
+                        await navigator.clipboard.writeText(text)
+                      } catch {
+                        /* ignore */
+                      }
+                      proceedAfterParentCredentials()
+                    }}
+                  >
+                    Continuer
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-3 rounded-2xl border border-gray-100 bg-gray-50/80 p-5 shadow-inner">
+                <div
+                  className="group cursor-pointer rounded-xl border border-transparent bg-white p-3 transition-all hover:border-[#2302B3]/20 hover:shadow-sm"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(createdParentCredentials.email)
+                    } catch {
+                      /* ignore */
+                    }
+                    toast.success('Email copié')
+                  }}
+                >
+                  <p className="mb-1 text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                    Email (Identifiant)
+                  </p>
+                  <p className="flex items-center gap-3 font-mono text-sm font-bold text-gray-900">
+                    <Mail className="h-4 w-4 text-[#2302B3]" />
+                    <span className="truncate">{createdParentCredentials.email}</span>
+                    <Copy className="ml-auto h-3.5 w-3.5 text-gray-300 transition-colors group-hover:text-[#2302B3]" />
+                  </p>
+                </div>
+
+                <div
+                  className="group cursor-pointer rounded-xl border border-transparent bg-white p-3 transition-all hover:border-[#2302B3]/20 hover:shadow-sm"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(createdParentCredentials.password)
+                    } catch {
+                      /* ignore */
+                    }
+                    toast.success('Mot de passe copié')
+                  }}
+                >
+                  <p className="mb-1 text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                    Mot de passe
+                  </p>
+                  <p className="flex items-center gap-3 font-mono text-sm font-bold text-gray-900">
+                    <KeyRound className="h-4 w-4 text-[#2302B3]" />
+                    <span>{createdParentCredentials.password}</span>
+                    <Copy className="ml-auto h-3.5 w-3.5 text-gray-300 transition-colors group-hover:text-[#2302B3]" />
                   </p>
                 </div>
               </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-1.5"
-                  onClick={async () => {
-                    const text = `Identifiants DigiSchool\nEmail: ${createdParentCredentials.email}\nMot de passe: ${createdParentCredentials.password}`
-                    try {
-                      await navigator.clipboard.writeText(text)
-                    } catch {
-                      const textarea = document.createElement('textarea')
-                      textarea.value = text
-                      textarea.style.position = 'fixed'
-                      textarea.style.opacity = '0'
-                      document.body.appendChild(textarea)
-                      textarea.select()
-                      document.execCommand('copy')
-                      document.body.removeChild(textarea)
-                    }
-                    setCopiedParentCredentials(true)
-                    toast.success('Identifiants copies')
-                    setTimeout(() => setCopiedParentCredentials(false), 3000)
-                  }}
-                >
-                  {copiedParentCredentials ? (
-                    <>
-                      <CheckCircle className="h-3.5 w-3.5 text-green-500" />
-                      Copie
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-3.5 w-3.5" />
-                      Copier
-                    </>
-                  )}
-                </Button>
-                <Button
-                  size="sm"
-                  className="gap-1.5 bg-[#2302B3] hover:bg-[#1a0185]"
-                  onClick={proceedAfterParentCredentials}
-                >
-                  Continuer
-                  <ChevronRight className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            </div>
 
-            <div className="mb-3 space-y-2 rounded-xl bg-gray-50 p-4">
-              <div
-                className="cursor-pointer rounded-lg p-2 transition-colors hover:bg-gray-100"
-                onClick={async () => {
-                  try {
-                    await navigator.clipboard.writeText(createdParentCredentials.email)
-                  } catch {
-                    const ta = document.createElement('textarea')
-                    ta.value = createdParentCredentials.email
-                    ta.style.position = 'fixed'
-                    ta.style.opacity = '0'
-                    document.body.appendChild(ta)
-                    ta.select()
-                    document.execCommand('copy')
-                    document.body.removeChild(ta)
-                  }
-                  toast.success('Email copie')
-                }}
-                title="Cliquer pour copier l'email"
-              >
-                <p className="text-xs font-medium text-gray-500">Email (identifiant)</p>
-                <p className="flex select-all items-center gap-2 font-mono text-sm font-semibold text-gray-900">
-                  <Mail className="h-4 w-4 shrink-0 text-[#2302B3]" />
-                  {createdParentCredentials.email}
-                  <Copy className="ml-auto h-3 w-3 shrink-0 text-gray-400" />
+              <div className="rounded-xl border-l-4 border-amber-400 bg-amber-50 p-4 shadow-sm">
+                <p className="text-xs font-medium leading-relaxed text-amber-900">
+                  <span className="font-bold underline">Important :</span> Communiquez ces
+                  identifiants au parent pour qu&apos;il puisse accéder à son espace personnel
+                  DigiSchool.
                 </p>
               </div>
-              <div
-                className="cursor-pointer rounded-lg p-2 transition-colors hover:bg-gray-100"
-                onClick={async () => {
-                  try {
-                    await navigator.clipboard.writeText(createdParentCredentials.password)
-                  } catch {
-                    const ta = document.createElement('textarea')
-                    ta.value = createdParentCredentials.password
-                    ta.style.position = 'fixed'
-                    ta.style.opacity = '0'
-                    document.body.appendChild(ta)
-                    ta.select()
-                    document.execCommand('copy')
-                    document.body.removeChild(ta)
-                  }
-                  toast.success('Mot de passe copie')
-                }}
-                title="Cliquer pour copier le mot de passe"
-              >
-                <p className="text-xs font-medium text-gray-500">Mot de passe</p>
-                <p className="flex select-all items-center gap-2 font-mono text-sm font-semibold text-gray-900">
-                  <KeyRound className="h-4 w-4 shrink-0 text-[#2302B3]" />
-                  {createdParentCredentials.password}
-                  <Copy className="ml-auto h-3 w-3 shrink-0 text-gray-400" />
-                </p>
-              </div>
-            </div>
-
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
-              <p className="text-xs text-amber-800">
-                Partagez ces identifiants avec le parent. Il pourra se connecter et acceder a son
-                espace parent.
-              </p>
             </div>
           </div>
-        </div>
-      )}
-    </>
+        )}
+      </DialogContent>
+    </Dialog>
   )
 }
 
