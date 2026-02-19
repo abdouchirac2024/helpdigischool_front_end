@@ -238,25 +238,17 @@ export function DirectorStudentsPage() {
                   >
                     <td className="p-4 text-center">
                       {student.photoUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={student.photoUrl}
-                          alt={`${student.nom} ${student.prenom}`}
+                          alt=""
                           className="mx-auto h-10 w-10 rounded-full object-cover"
-                          referrerPolicy="no-referrer"
-                          crossOrigin="anonymous"
-                          onError={(e) => {
-                            const target = e.currentTarget
-                            target.style.display = 'none'
-                            const fallback = target.nextElementSibling as HTMLElement
-                            if (fallback) fallback.style.display = 'flex'
-                          }}
                         />
-                      ) : null}
-                      <div
-                        className={`mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] font-semibold text-white ${student.photoUrl ? 'hidden' : ''}`}
-                      >
-                        {student.nom.charAt(0)}
-                      </div>
+                      ) : (
+                        <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] font-semibold text-white">
+                          {student.nom.charAt(0)}
+                        </div>
+                      )}
                     </td>
                     <td className="p-4">
                       <p className="font-semibold text-gray-900">
