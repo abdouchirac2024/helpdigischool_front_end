@@ -237,9 +237,17 @@ export function DirectorStudentsPage() {
                   >
                     <td className="p-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] font-semibold text-white">
-                          {student.nom.charAt(0)}
-                        </div>
+                        {student.photoUrl ? (
+                          <img
+                            src={student.photoUrl}
+                            alt={`${student.nom} ${student.prenom}`}
+                            className="h-10 w-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] font-semibold text-white">
+                            {student.nom.charAt(0)}
+                          </div>
+                        )}
                         <div>
                           <p className="font-semibold text-gray-900">
                             {student.nom} {student.prenom}
