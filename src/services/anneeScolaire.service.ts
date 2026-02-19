@@ -8,4 +8,14 @@ export const anneeScolaireService = {
       params: { tenant },
     })
   },
+
+  create: async (data: {
+    label: string
+    from: string
+    to: string
+    current: boolean
+    tenantId: string
+  }): Promise<AnneeScolaireResponse> => {
+    return apiClient.post<AnneeScolaireResponse>(API_ENDPOINTS.anneesScolaires.base, data)
+  },
 }

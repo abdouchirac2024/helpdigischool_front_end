@@ -439,29 +439,44 @@ function CreateInscriptionDialog({
     // Load annees scolaires separately (different API pattern)
     try {
       const tenant = user?.schoolId || ''
-      const anneesData = await anneeScolaireService.getAll(tenant)
+      let anneesData = await anneeScolaireService.getAll(tenant)
+
+      // Calculer l'année scolaire courante selon la date au Cameroun (UTC+1)
+      const nowCameroon = new Date(
+        new Date().toLocaleString('en-US', { timeZone: 'Africa/Douala' })
+      )
+      const month = nowCameroon.getMonth() + 1
+      const year = nowCameroon.getFullYear()
+      const startYear = month >= 9 ? year : year - 1
+      const currentLabel = `${startYear}-${startYear + 1}`
+
+      // Si aucune année scolaire n'existe, créer automatiquement l'année courante
+      if (anneesData.length === 0 && tenant) {
+        try {
+          await anneeScolaireService.create({
+            label: currentLabel,
+            from: `${startYear}-09-01`,
+            to: `${startYear + 1}-07-31`,
+            current: true,
+            tenantId: tenant,
+          })
+          anneesData = await anneeScolaireService.getAll(tenant)
+        } catch {
+          console.warn("Impossible de creer l'annee scolaire automatiquement")
+        }
+      }
+
       setAnneesScolaires(anneesData)
 
-      // Auto-select: priorité à l'année active, sinon match par date Cameroun (UTC+1)
+      // Auto-select: priorité à l'année active, sinon match par date Cameroun
       const activeYear = anneesData.find((a) => a.statut === true)
       if (activeYear) {
         setSelectedAnneeScolaireId(activeYear.id)
       } else {
-        // Calculer l'année scolaire courante selon la date au Cameroun (UTC+1)
-        const nowCameroon = new Date(
-          new Date().toLocaleString('en-US', { timeZone: 'Africa/Douala' })
-        )
-        const month = nowCameroon.getMonth() + 1 // 1-12
-        const year = nowCameroon.getFullYear()
-        // Sept-Déc → année = year/(year+1), Jan-Août → année = (year-1)/year
-        const startYear = month >= 9 ? year : year - 1
-        const expectedLabel = `${startYear}-${startYear + 1}`
-
-        const matchedYear = anneesData.find((a) => a.libelle.includes(expectedLabel))
+        const matchedYear = anneesData.find((a) => a.libelle.includes(currentLabel))
         if (matchedYear) {
           setSelectedAnneeScolaireId(matchedYear.id)
         } else if (anneesData.length > 0) {
-          // Fallback: prendre la dernière année créée
           setSelectedAnneeScolaireId(anneesData[anneesData.length - 1].id)
         }
       }
