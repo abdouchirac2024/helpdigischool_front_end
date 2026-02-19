@@ -679,7 +679,7 @@ function CreateInscriptionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="relative max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Nouvelle inscription</DialogTitle>
           <DialogDescription>
@@ -1439,7 +1439,7 @@ function CreateInscriptionDialog({
 
         {/* Modal identifiants parent - à l'intérieur du DialogContent pour éviter le focus trap */}
         {createdParentCredentials && (
-          <div className="absolute inset-0 z-[70] flex items-center justify-center bg-white/95 p-6 duration-300 animate-in fade-in zoom-in">
+          <div className="fixed inset-0 z-[70] flex items-center justify-center bg-white/95 p-6 duration-300 animate-in fade-in zoom-in">
             <div className="w-full max-w-md space-y-5">
               {/* Header avec boutons en haut - comme demandé */}
               <div className="flex items-center justify-between">
