@@ -1491,9 +1491,20 @@ function CreateInscriptionDialog({
               <Button
                 variant="outline"
                 className="gap-2"
-                onClick={() => {
+                onClick={async () => {
                   const text = `Identifiants DigiSchool\nEmail: ${createdParentCredentials.email}\nMot de passe: ${createdParentCredentials.password}`
-                  navigator.clipboard.writeText(text)
+                  try {
+                    await navigator.clipboard.writeText(text)
+                  } catch {
+                    const textarea = document.createElement('textarea')
+                    textarea.value = text
+                    textarea.style.position = 'fixed'
+                    textarea.style.opacity = '0'
+                    document.body.appendChild(textarea)
+                    textarea.select()
+                    document.execCommand('copy')
+                    document.body.removeChild(textarea)
+                  }
                   setCopiedParentCredentials(true)
                   toast.success('Identifiants copies dans le presse-papiers')
                   setTimeout(() => setCopiedParentCredentials(false), 3000)
