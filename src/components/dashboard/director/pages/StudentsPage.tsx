@@ -25,6 +25,7 @@ import {
 import { studentService } from '@/services/student.service'
 import type { EleveDto } from '@/types/student'
 import { toast } from 'sonner'
+import Image from 'next/image'
 import Link from 'next/link'
 
 import { StudentForm } from '../forms/StudentForm'
@@ -238,12 +239,16 @@ export function DirectorStudentsPage() {
                   >
                     <td className="p-4 text-center">
                       {student.photoUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={student.photoUrl}
-                          alt=""
-                          className="mx-auto h-10 w-10 rounded-full object-cover"
-                        />
+                        <div className="relative mx-auto h-10 w-10 overflow-hidden rounded-full">
+                          <Image
+                            src={student.photoUrl}
+                            alt={`${student.nom} ${student.prenom}`}
+                            fill
+                            sizes="40px"
+                            className="object-cover"
+                            unoptimized
+                          />
+                        </div>
                       ) : (
                         <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] font-semibold text-white">
                           {student.nom.charAt(0)}
