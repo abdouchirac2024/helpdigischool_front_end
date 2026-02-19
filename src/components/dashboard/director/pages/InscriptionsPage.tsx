@@ -1449,21 +1449,68 @@ function CreateInscriptionDialog({
       {createdParentCredentials && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-              <CheckCircle className="h-6 w-6 text-green-600" />
+            <div className="mb-3 flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-gray-900">
+                    Compte parent cree avec succes
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    {createdParentCredentials.prenom} {createdParentCredentials.nom}
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={async () => {
+                    const text = `Identifiants DigiSchool\nEmail: ${createdParentCredentials.email}\nMot de passe: ${createdParentCredentials.password}`
+                    try {
+                      await navigator.clipboard.writeText(text)
+                    } catch {
+                      const textarea = document.createElement('textarea')
+                      textarea.value = text
+                      textarea.style.position = 'fixed'
+                      textarea.style.opacity = '0'
+                      document.body.appendChild(textarea)
+                      textarea.select()
+                      document.execCommand('copy')
+                      document.body.removeChild(textarea)
+                    }
+                    setCopiedParentCredentials(true)
+                    toast.success('Identifiants copies')
+                    setTimeout(() => setCopiedParentCredentials(false), 3000)
+                  }}
+                >
+                  {copiedParentCredentials ? (
+                    <>
+                      <CheckCircle className="h-3.5 w-3.5 text-green-500" />
+                      Copie
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3.5 w-3.5" />
+                      Copier
+                    </>
+                  )}
+                </Button>
+                <Button
+                  size="sm"
+                  className="gap-1.5 bg-[#2302B3] hover:bg-[#1a0185]"
+                  onClick={proceedAfterParentCredentials}
+                >
+                  Continuer
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </Button>
+              </div>
             </div>
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
-              Compte parent cree avec succes
-            </h3>
-            <p className="mb-4 text-sm text-gray-600">
-              Un compte a ete cree pour{' '}
-              <strong>
-                {createdParentCredentials.prenom} {createdParentCredentials.nom}
-              </strong>
-              . Voici les identifiants de connexion :
-            </p>
 
-            <div className="mb-4 space-y-3 rounded-xl bg-gray-50 p-4">
+            <div className="mb-3 space-y-2 rounded-xl bg-gray-50 p-4">
               <div
                 className="cursor-pointer rounded-lg p-2 transition-colors hover:bg-gray-100"
                 onClick={async () => {
@@ -1518,55 +1565,11 @@ function CreateInscriptionDialog({
               </div>
             </div>
 
-            <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
               <p className="text-xs text-amber-800">
                 Partagez ces identifiants avec le parent. Il pourra se connecter et acceder a son
                 espace parent.
               </p>
-            </div>
-
-            <div className="flex justify-end gap-3">
-              <Button
-                variant="outline"
-                className="gap-2"
-                onClick={async () => {
-                  const text = `Identifiants DigiSchool\nEmail: ${createdParentCredentials.email}\nMot de passe: ${createdParentCredentials.password}`
-                  try {
-                    await navigator.clipboard.writeText(text)
-                  } catch {
-                    const textarea = document.createElement('textarea')
-                    textarea.value = text
-                    textarea.style.position = 'fixed'
-                    textarea.style.opacity = '0'
-                    document.body.appendChild(textarea)
-                    textarea.select()
-                    document.execCommand('copy')
-                    document.body.removeChild(textarea)
-                  }
-                  setCopiedParentCredentials(true)
-                  toast.success('Identifiants copies dans le presse-papiers')
-                  setTimeout(() => setCopiedParentCredentials(false), 3000)
-                }}
-              >
-                {copiedParentCredentials ? (
-                  <>
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    Copie
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-4 w-4" />
-                    Copier
-                  </>
-                )}
-              </Button>
-              <Button
-                className="bg-[#2302B3] hover:bg-[#1a0185]"
-                onClick={proceedAfterParentCredentials}
-              >
-                Continuer
-                <ChevronRight className="ml-1 h-4 w-4" />
-              </Button>
             </div>
           </div>
         </div>
