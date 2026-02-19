@@ -214,6 +214,7 @@ export function DirectorStudentsPage() {
           <table className="w-full">
             <thead className="border-b border-gray-100 bg-gray-50">
               <tr>
+                <th className="p-4 text-center font-semibold text-gray-600">Photo</th>
                 <th className="p-4 text-left font-semibold text-gray-600">Élève</th>
                 <th className="p-4 text-left font-semibold text-gray-600">Matricule</th>
                 <th className="p-4 text-left font-semibold text-gray-600">Date Naissance</th>
@@ -225,7 +226,7 @@ export function DirectorStudentsPage() {
             <tbody>
               {filteredStudents.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-gray-500">
+                  <td colSpan={7} className="p-8 text-center text-gray-500">
                     Aucun élève trouvé.
                   </td>
                 </tr>
@@ -235,25 +236,23 @@ export function DirectorStudentsPage() {
                     key={student.id}
                     className="border-b border-gray-50 transition-colors hover:bg-gray-50"
                   >
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        {student.photoUrl ? (
-                          <img
-                            src={student.photoUrl}
-                            alt={`${student.nom} ${student.prenom}`}
-                            className="h-10 w-10 rounded-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] font-semibold text-white">
-                            {student.nom.charAt(0)}
-                          </div>
-                        )}
-                        <div>
-                          <p className="font-semibold text-gray-900">
-                            {student.nom} {student.prenom}
-                          </p>
+                    <td className="p-4 text-center">
+                      {student.photoUrl ? (
+                        <img
+                          src={student.photoUrl}
+                          alt={`${student.nom} ${student.prenom}`}
+                          className="mx-auto h-10 w-10 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] font-semibold text-white">
+                          {student.nom.charAt(0)}
                         </div>
-                      </div>
+                      )}
+                    </td>
+                    <td className="p-4">
+                      <p className="font-semibold text-gray-900">
+                        {student.nom} {student.prenom}
+                      </p>
                     </td>
                     <td className="p-4">
                       <code className="rounded bg-gray-100 px-2 py-1 text-sm">
