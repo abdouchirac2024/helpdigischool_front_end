@@ -25,6 +25,7 @@ const BACKEND_ROLE_MAP: Record<string, UserRole> = {
   PARENT: 'parent',
   SECRETAIRE: 'secretary',
   COMPTABLE: 'secretary', // Map comptable to secretary for now
+  ELEVE: 'student',
 }
 
 // Convert backend user response to frontend User type
