@@ -45,6 +45,12 @@ export interface Inscription {
   fraisScolarite: number
   anneeScolaireId: number
   anneeScolaireLibelle: string
+  // Finances
+  remise?: number
+  fraisTransport?: number
+  fraisCantine?: number
+  fraisAssurance?: number
+  // Echeancier
   echeances: Echeance[]
   generatedPassword?: string
   generatedEmail?: string
@@ -57,6 +63,11 @@ export interface InscriptionCreateRequest {
   dateInscription?: string
   /** Numeros des tranches a marquer comme payees (ex: [1], [1,2], [1,2,3]) */
   tranchesPayees?: number[]
+  // Finances
+  remise?: number
+  fraisTransport?: number
+  fraisCantine?: number
+  fraisAssurance?: number
 }
 
 export interface AnnulationRequest {

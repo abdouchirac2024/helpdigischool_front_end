@@ -34,7 +34,24 @@ export const studentService = {
   /**
    * Supprime un élève
    */
-  delete: async (id: number): Promise<void> => {
-    return apiClient.delete(API_ENDPOINTS.students.byId(id.toString()))
+  /**
+   * Télécharge la carte scolaire en PDF
+   */
+  downloadCard: async (id: number): Promise<void> => {
+    const response = await fetch(`${API_ENDPOINTS.students.byId(id.toString())}/card`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('auth-storage') ? JSON.parse(localStorage.getItem('auth-storage')!).state.token : ''}`,
+      },
+    })
+    if (!response.ok) throw new Error('Erreur lors du téléchargement de la carte')
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `carte_scolaire_${id}.pdf`
+    document.body.appendChild(a)
+    a.click()
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(a)
   },
 }

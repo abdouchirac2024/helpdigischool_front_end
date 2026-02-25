@@ -17,6 +17,8 @@ import {
   Plus,
   Users,
   Mail,
+  FileUp,
+  CreditCard,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -80,6 +82,7 @@ export function InscriptionsPage() {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [isAnnulationOpen, setIsAnnulationOpen] = useState(false)
   const [isFactureOpen, setIsFactureOpen] = useState(false)
+  const [isImportOpen, setIsImportOpen] = useState(false)
 
   // Selected inscription
   const [selectedInscription, setSelectedInscription] = useState<Inscription | null>(null)
@@ -163,10 +166,16 @@ export function InscriptionsPage() {
             {inscriptions.length} inscription{inscriptions.length > 1 ? 's' : ''} au total
           </p>
         </div>
-        <Button onClick={() => setIsCreateOpen(true)}>
-          <UserPlus className="mr-2 h-4 w-4" />
-          Nouvelle inscription
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setIsImportOpen(true)}>
+            <FileUp className="mr-2 h-4 w-4" />
+            Import
+          </Button>
+          <Button onClick={() => setIsCreateOpen(true)}>
+            <UserPlus className="mr-2 h-4 w-4" />
+            Nouvelle inscription
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -342,6 +351,9 @@ function CreateInscriptionDialog({
     sexe: 'M',
     lieuNaissance: '',
     nationalite: 'Camerounaise',
+    acteNaissanceUrl: '',
+    certificatMedicalUrl: '',
+    bulletinUrl: '',
   })
   const [studentVilleId, setStudentVilleId] = useState<number | null>(null)
   const [studentQuartiers, setStudentQuartiers] = useState<Quartier[]>([])
@@ -377,8 +389,12 @@ function CreateInscriptionDialog({
   const [selectedClasseId, setSelectedClasseId] = useState<number | null>(null)
   const [selectedAnneeScolaireId, setSelectedAnneeScolaireId] = useState<number | null>(null)
 
-  // Step 4: Tranches
+  // Step 4: Tranches & Finances
   const [selectedTranches, setSelectedTranches] = useState<number[]>([1])
+  const [remise, setRemise] = useState(0)
+  const [transport, setTransport] = useState(0)
+  const [cantine, setCantine] = useState(0)
+  const [assurance, setAssurance] = useState(0)
 
   const selectedStudent = students.find((s) => s.id === selectedStudentId)
   const selectedParent = parents.find((p) => p.idParent === selectedParentId)
@@ -531,6 +547,10 @@ function CreateInscriptionDialog({
     setSelectedClasseId(null)
     setSelectedAnneeScolaireId(anneesScolaires.find((a) => a.statut)?.id || null)
     setSelectedTranches([1])
+    setRemise(0)
+    setTransport(0)
+    setCantine(0)
+    setAssurance(0)
     setIsCreatingParent(false)
     setIsCreatingStudent(false)
     setCreatedParentCredentials(null)
@@ -693,6 +713,10 @@ function CreateInscriptionDialog({
         classeId: selectedClasseId,
         anneeScolaireId: selectedAnneeScolaireId || undefined,
         tranchesPayees: selectedTranches.length > 0 ? selectedTranches : undefined,
+        remise: remise > 0 ? remise : undefined,
+        fraisTransport: transport > 0 ? transport : undefined,
+        fraisCantine: cantine > 0 ? cantine : undefined,
+        fraisAssurance: assurance > 0 ? assurance : undefined,
       })
       toast.success('Inscription creee avec succes')
       onSuccess(result)
@@ -980,6 +1004,55 @@ function CreateInscriptionDialog({
                             </option>
                           ))}
                         </select>
+                      </div>
+                    </div>
+                    <div className="space-y-4 border-t pt-4">
+                      <Label className="text-sm font-semibold text-gray-700">
+                        Documents numérisés
+                      </Label>
+                      <div className="grid grid-cols-2 gap-4">
+                        <PhotoUpload
+                          label="Acte de naissance"
+                          onPhotoSelected={async (file) => {
+                            const result = await fileService.upload(file)
+                            setNewStudentForm((prev: any) => ({
+                              ...prev,
+                              acteNaissanceUrl: result.url,
+                            }))
+                            return result.url
+                          }}
+                          onPhotoRemoved={() =>
+                            setNewStudentForm((prev: any) => ({ ...prev, acteNaissanceUrl: '' }))
+                          }
+                        />
+                        <PhotoUpload
+                          label="Certificat médical"
+                          onPhotoSelected={async (file) => {
+                            const result = await fileService.upload(file)
+                            setNewStudentForm((prev: any) => ({
+                              ...prev,
+                              certificatMedicalUrl: result.url,
+                            }))
+                            return result.url
+                          }}
+                          onPhotoRemoved={() =>
+                            setNewStudentForm((prev: any) => ({
+                              ...prev,
+                              certificatMedicalUrl: '',
+                            }))
+                          }
+                        />
+                        <PhotoUpload
+                          label="Dernier bulletin"
+                          onPhotoSelected={async (file) => {
+                            const result = await fileService.upload(file)
+                            setNewStudentForm((prev: any) => ({ ...prev, bulletinUrl: result.url }))
+                            return result.url
+                          }}
+                          onPhotoRemoved={() =>
+                            setNewStudentForm((prev: any) => ({ ...prev, bulletinUrl: '' }))
+                          }
+                        />
                       </div>
                     </div>
                   </div>
@@ -1400,12 +1473,61 @@ function CreateInscriptionDialog({
                       </p>
                     </CardHeader>
                     <CardContent className="space-y-3">
+                      <div className="grid grid-cols-2 gap-4 border-t pt-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="remise">Remise / Bourse (FCFA)</Label>
+                          <Input
+                            id="remise"
+                            type="number"
+                            min="0"
+                            value={remise}
+                            onChange={(e) => setRemise(Number(e.target.value))}
+                            placeholder="Ex: 5000"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="transport">Frais transport (FCFA)</Label>
+                          <Input
+                            id="transport"
+                            type="number"
+                            min="0"
+                            value={transport}
+                            onChange={(e) => setTransport(Number(e.target.value))}
+                            placeholder="Ex: 10000"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="cantine">Frais cantine (FCFA)</Label>
+                          <Input
+                            id="cantine"
+                            type="number"
+                            min="0"
+                            value={cantine}
+                            onChange={(e) => setCantine(Number(e.target.value))}
+                            placeholder="Ex: 15000"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="assurance">Frais assurance (FCFA)</Label>
+                          <Input
+                            id="assurance"
+                            type="number"
+                            min="0"
+                            value={assurance}
+                            onChange={(e) => setAssurance(Number(e.target.value))}
+                            placeholder="Ex: 2000"
+                          />
+                        </div>
+                      </div>
+
                       {[
                         { num: 1, label: "Frais d'inscription", pct: 0.4 },
                         { num: 2, label: '1er versement trimestriel', pct: 0.3 },
                         { num: 3, label: '2eme versement trimestriel', pct: 0.3 },
                       ].map((tranche) => {
-                        const montant = Math.round(selectedClasse.fraisScolarite! * tranche.pct)
+                        const totalCalculated =
+                          selectedClasse.fraisScolarite! - remise + transport + cantine + assurance
+                        const montant = Math.round(totalCalculated * tranche.pct)
                         const isChecked = selectedTranches.includes(tranche.num)
                         const isDisabled =
                           tranche.num > 1 && !selectedTranches.includes(tranche.num - 1)
@@ -1454,7 +1576,13 @@ function CreateInscriptionDialog({
                           {formatMontant(
                             selectedTranches.reduce((sum, t) => {
                               const pct = t === 1 ? 0.4 : 0.3
-                              return sum + Math.round(selectedClasse.fraisScolarite! * pct)
+                              const totalCalc =
+                                selectedClasse.fraisScolarite! -
+                                remise +
+                                transport +
+                                cantine +
+                                assurance
+                              return sum + Math.round(totalCalc * pct)
                             }, 0)
                           )}
                         </span>
@@ -1466,9 +1594,19 @@ function CreateInscriptionDialog({
                           <span className="font-medium">
                             {formatMontant(
                               selectedClasse.fraisScolarite! -
+                                remise +
+                                transport +
+                                cantine +
+                                assurance -
                                 selectedTranches.reduce((sum, t) => {
                                   const pct = t === 1 ? 0.4 : 0.3
-                                  return sum + Math.round(selectedClasse.fraisScolarite! * pct)
+                                  const totalCalc =
+                                    selectedClasse.fraisScolarite! -
+                                    remise +
+                                    transport +
+                                    cantine +
+                                    assurance
+                                  return sum + Math.round(totalCalc * pct)
                                 }, 0)
                             )}
                           </span>
@@ -1875,7 +2013,20 @@ function DetailsDialog({
           </div>
         )}
 
-        <DialogFooter>
+        <DialogFooter className="gap-2">
+          <Button
+            variant="outline"
+            onClick={async () => {
+              try {
+                await studentService.downloadCard(Number(data.eleveId))
+              } catch {
+                toast.error('Erreur lors du téléchargement de la carte')
+              }
+            }}
+          >
+            <CreditCard className="mr-2 h-4 w-4" />
+            Télécharger la carte
+          </Button>
           <Button variant="outline" onClick={handlePrint}>
             <Printer className="mr-2 h-4 w-4" />
             Imprimer certificat
@@ -2238,6 +2389,156 @@ function FactureDialog({
             Imprimer la facture
           </Button>
           <Button onClick={() => onOpenChange(false)}>Fermer</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// =====================
+// Import Dialog
+// =====================
+
+function ImportDialog({
+  open,
+  onOpenChange,
+  onSuccess,
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onSuccess: () => void
+}) {
+  const [file, setFile] = useState<File | null>(null)
+  const [isImporting, setIsImporting] = useState(false)
+  const [results, setResults] = useState<
+    { status: string; message: string; matricule?: string }[] | null
+  >(null)
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0])
+    }
+  }
+
+  const handleImport = async () => {
+    if (!file) return
+    setIsImporting(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/students/import`,
+        {
+          method: 'POST',
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('auth-storage') ? JSON.parse(localStorage.getItem('auth-storage')!).state.token : ''}`,
+          },
+        }
+      )
+
+      if (!res.ok) throw new Error("Erreur lors de l'importation")
+      const data = await res.json()
+      setResults(data)
+      toast.success('Importation terminee')
+    } catch {
+      toast.error("Une erreur s'est produite lors de l'importation")
+    } finally {
+      setIsImporting(false)
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Importation massive d&apos;eleves</DialogTitle>
+          <DialogDescription>
+            Telechargez un fichier Excel (.xlsx) contenant les colonnes: nom, prenom, sexe (M/F),
+            date de naissance (AAAA-MM-JJ), lieu de naissance, nationalite.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-4">
+          {!results ? (
+            <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 p-8">
+              <input
+                type="file"
+                accept=".xlsx"
+                onChange={handleFileChange}
+                className="hidden"
+                id="excel-upload"
+              />
+              <label
+                htmlFor="excel-upload"
+                className="flex cursor-pointer flex-col items-center hover:text-blue-600"
+              >
+                <Printer className="mb-2 h-10 w-10 text-gray-400" />
+                <span className="text-sm font-medium">
+                  {file ? file.name : 'Cliquez pour choisir un fichier Excel'}
+                </span>
+                <span className="mt-1 text-xs text-gray-500">Format supporte: .xlsx</span>
+              </label>
+            </div>
+          ) : (
+            <div className="max-h-60 overflow-y-auto rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Statut</TableHead>
+                    <TableHead>Message</TableHead>
+                    <TableHead>Matricule</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {results.map((r, i) => (
+                    <TableRow key={i}>
+                      <TableCell>
+                        {r.status === 'SUCCESS' ? (
+                          <Badge className="bg-green-100 text-green-800">Succes</Badge>
+                        ) : (
+                          <Badge className="bg-red-100 text-red-800">Erreur</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-sm">{r.message}</TableCell>
+                      <TableCell className="font-mono text-xs">{r.matricule || '-'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </div>
+
+        <DialogFooter>
+          {results ? (
+            <Button
+              onClick={() => {
+                setResults(null)
+                setFile(null)
+                onSuccess()
+              }}
+            >
+              Terminer
+            </Button>
+          ) : (
+            <>
+              <Button variant="outline" onClick={() => onOpenChange(false)}>
+                Annuler
+              </Button>
+              <Button onClick={handleImport} disabled={!file || isImporting}>
+                {isImporting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Importation...
+                  </>
+                ) : (
+                  "Lancer l'importation"
+                )}
+              </Button>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
