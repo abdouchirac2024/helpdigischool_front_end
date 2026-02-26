@@ -29,6 +29,13 @@ import { toast } from 'sonner'
 import Image from 'next/image'
 import Link from 'next/link'
 
+const ensureAbsoluteUrl = (url: string | null | undefined): string => {
+  if (!url) return ''
+  if (url.startsWith('http://') || url.startsWith('https://')) return url
+  if (url.startsWith('//')) return `https:${url}`
+  return `https://${url}`
+}
+
 export function DirectorStudentsPage() {
   const [students, setStudents] = useState<EleveDto[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -241,7 +248,7 @@ export function DirectorStudentsPage() {
                       {student.photoUrl ? (
                         <div className="relative mx-auto h-10 w-10 overflow-hidden rounded-full">
                           <Image
-                            src={student.photoUrl}
+                            src={ensureAbsoluteUrl(student.photoUrl)}
                             alt={`${student.nom} ${student.prenom}`}
                             fill
                             sizes="40px"

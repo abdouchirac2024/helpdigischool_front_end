@@ -81,6 +81,13 @@ import { toast } from 'sonner'
 // Main Page Component
 // =====================
 
+const ensureAbsoluteUrl = (url: string | null | undefined): string => {
+  if (!url) return ''
+  if (url.startsWith('http://') || url.startsWith('https://')) return url
+  if (url.startsWith('//')) return `https:${url}`
+  return `https://${url}`
+}
+
 export function InscriptionsPage() {
   const [inscriptions, setInscriptions] = useState<Inscription[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -246,7 +253,7 @@ export function InscriptionsPage() {
                       {ins.elevePhotoUrl ? (
                         <div className="group relative">
                           <img
-                            src={ins.elevePhotoUrl}
+                            src={ensureAbsoluteUrl(ins.elevePhotoUrl)}
                             alt=""
                             className="h-10 w-10 rounded-full border border-gray-100 object-cover shadow-sm transition-transform group-hover:scale-110"
                             onError={(e) => {
@@ -269,7 +276,7 @@ export function InscriptionsPage() {
                           <div className="flex items-center gap-1">
                             {ins.eleveActeNaissanceUrl && (
                               <a
-                                href={ins.eleveActeNaissanceUrl}
+                                href={ensureAbsoluteUrl(ins.eleveActeNaissanceUrl)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 title="Acte de naissance"
@@ -280,7 +287,7 @@ export function InscriptionsPage() {
                             )}
                             {ins.eleveCertificatMedicalUrl && (
                               <a
-                                href={ins.eleveCertificatMedicalUrl}
+                                href={ensureAbsoluteUrl(ins.eleveCertificatMedicalUrl)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 title="Certificat médical"
@@ -291,7 +298,7 @@ export function InscriptionsPage() {
                             )}
                             {ins.eleveBulletinUrl && (
                               <a
-                                href={ins.eleveBulletinUrl}
+                                href={ensureAbsoluteUrl(ins.eleveBulletinUrl)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 title="Dernier bulletin"
@@ -2023,7 +2030,7 @@ function DetailsDialog({
                 <div className="flex items-center gap-4 border-b pb-4">
                   {data.elevePhotoUrl ? (
                     <img
-                      src={data.elevePhotoUrl}
+                      src={ensureAbsoluteUrl(data.elevePhotoUrl)}
                       alt="Photo eleve"
                       className="h-20 w-20 rounded-full border-2 border-white object-cover shadow-md"
                       onError={(e) => {
@@ -2280,7 +2287,7 @@ function DetailsDialog({
                 <div className="grid grid-cols-2 gap-4">
                   {data.eleveActeNaissanceUrl && (
                     <a
-                      href={data.eleveActeNaissanceUrl}
+                      href={ensureAbsoluteUrl(data.eleveActeNaissanceUrl)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="group flex flex-col items-center gap-3 rounded-xl border p-4 transition-all hover:bg-gray-50"
@@ -2293,7 +2300,7 @@ function DetailsDialog({
                   )}
                   {data.eleveCertificatMedicalUrl && (
                     <a
-                      href={data.eleveCertificatMedicalUrl}
+                      href={ensureAbsoluteUrl(data.eleveCertificatMedicalUrl)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="group flex flex-col items-center gap-3 rounded-xl border p-4 transition-all hover:bg-gray-50"
@@ -2306,7 +2313,7 @@ function DetailsDialog({
                   )}
                   {data.eleveBulletinUrl && (
                     <a
-                      href={data.eleveBulletinUrl}
+                      href={ensureAbsoluteUrl(data.eleveBulletinUrl)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="group flex flex-col items-center gap-3 rounded-xl border p-4 transition-all hover:bg-gray-50"
