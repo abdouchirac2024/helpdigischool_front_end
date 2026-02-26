@@ -2159,7 +2159,7 @@ function FactureDialog({
   const copyCredentials = () => {
     if (inscription.generatedEmail && inscription.generatedPassword) {
       navigator.clipboard.writeText(
-        `Email: ${inscription.generatedEmail}\nMot de passe: ${inscription.generatedPassword}`
+        `Matricule: ${inscription.eleveMatricule}\nEmail: ${inscription.generatedEmail}\nMot de passe: ${inscription.generatedPassword}`
       )
       setCopiedCredentials(true)
       setTimeout(() => setCopiedCredentials(false), 3000)
@@ -2169,6 +2169,24 @@ function FactureDialog({
   const handlePrintFacture = () => {
     const printWindow = window.open('', '_blank')
     if (!printWindow) return
+
+    const extraFeesRows = [
+      { label: 'Frais de scolarité', amount: inscription.fraisScolarite || 0 },
+      { label: 'Remise', amount: -(inscription.remise || 0) },
+      { label: 'Transport', amount: inscription.fraisTransport || 0 },
+      { label: 'Cantine', amount: inscription.fraisCantine || 0 },
+      { label: 'Assurance', amount: inscription.fraisAssurance || 0 },
+    ]
+      .filter((f) => f.amount !== 0)
+      .map(
+        (f) => `
+        <tr style="background:#f8fafc">
+          <td colspan="2" style="padding:8px 10px;border:1px solid #ddd;font-size:12px;color:#666">${f.label}</td>
+          <td style="padding:8px 10px;border:1px solid #ddd;text-align:right;font-size:12px;font-weight:600;${f.amount < 0 ? 'color:#dc2626' : ''}">${formatMontant(f.amount)}</td>
+          <td colspan="2" style="border:1px solid #ddd"></td>
+        </tr>`
+      )
+      .join('')
 
     const echeancesRows = echeances
       .map(
@@ -2237,7 +2255,11 @@ function FactureDialog({
           <th style="text-align:center">Date limite</th>
           <th style="text-align:center">Statut</th>
         </tr></thead>
-        <tbody>${echeancesRows}</tbody>
+        <tbody>
+          ${extraFeesRows}
+          <tr style="height:10px"><td colspan="5" style="border:none"></td></tr>
+          ${echeancesRows}
+        </tbody>
       </table>
       <div class="summary">
         <div class="summary-row total"><span>Montant total</span><span>${formatMontant(inscription.montantTotal)}</span></div>
@@ -2249,6 +2271,7 @@ function FactureDialog({
           ? `
       <div class="credentials">
         <h3>Identifiants du compte eleve</h3>
+        <p><strong>Matricule:</strong> ${inscription.eleveMatricule}</p>
         <p><strong>Email:</strong> ${inscription.generatedEmail}</p>
         <p><strong>Mot de passe:</strong> ${inscription.generatedPassword || '-'}</p>
       </div>`
@@ -2349,6 +2372,45 @@ function FactureDialog({
             )}
           </div>
 
+          {/* Détail des frais */}
+          <div className="rounded-lg border bg-gray-50/50 p-3">
+            <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+              Détail des frais
+            </h4>
+            <div className="space-y-1.5">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Frais de scolarité</span>
+                <span className="font-medium">
+                  {formatMontant(inscription.fraisScolarite || 0)}
+                </span>
+              </div>
+              {inscription.remise ? (
+                <div className="flex justify-between text-sm text-red-600">
+                  <span>Remise</span>
+                  <span className="font-medium">- {formatMontant(inscription.remise)}</span>
+                </div>
+              ) : null}
+              {inscription.fraisTransport ? (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Transport</span>
+                  <span className="font-medium">{formatMontant(inscription.fraisTransport)}</span>
+                </div>
+              ) : null}
+              {inscription.fraisCantine ? (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Cantine</span>
+                  <span className="font-medium">{formatMontant(inscription.fraisCantine)}</span>
+                </div>
+              ) : null}
+              {inscription.fraisAssurance ? (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Assurance</span>
+                  <span className="font-medium">{formatMontant(inscription.fraisAssurance)}</span>
+                </div>
+              ) : null}
+            </div>
+          </div>
+
           {/* Identifiants */}
           {inscription.generatedEmail && inscription.generatedPassword && (
             <div className="space-y-2 rounded-lg border border-blue-200 bg-blue-50 p-3">
@@ -2359,6 +2421,12 @@ function FactureDialog({
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-2">
+                <div className="col-span-2">
+                  <span className="text-xs text-blue-600">Matricule</span>
+                  <p className="font-mono text-sm font-bold text-blue-900">
+                    {inscription.eleveMatricule}
+                  </p>
+                </div>
                 <div>
                   <span className="text-xs text-blue-600">Email</span>
                   <p className="font-mono text-sm font-medium">{inscription.generatedEmail}</p>
