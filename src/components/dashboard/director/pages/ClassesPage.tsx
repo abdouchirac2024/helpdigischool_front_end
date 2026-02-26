@@ -57,6 +57,8 @@ import {
 import { classeService } from '@/services/classe.service'
 import type { ClasseDto, CreateClasseRequest } from '@/types/classe'
 import { Niveau, SousSysteme, StatutClasse } from '@/types/classe'
+import { anneeScolaireService } from '@/services/anneeScolaire.service'
+import { useAuth } from '@/lib/auth/auth-context'
 import { toast } from 'sonner'
 
 // ── Labels ──────────────────────────────────────────────────
@@ -104,8 +106,10 @@ type ViewMode = 'grid' | 'table'
 
 // ── Component ───────────────────────────────────────────────
 export function DirectorClassesPage() {
+  const { user } = useAuth()
   const [classes, setClasses] = useState<ClasseDto[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [currentAnneeScolaireId, setCurrentAnneeScolaireId] = useState<number | undefined>()
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('')
@@ -143,6 +147,18 @@ export function DirectorClassesPage() {
       setIsLoading(true)
       const data = await classeService.getAll()
       setClasses(data)
+
+      // Récupérer l'année scolaire active pour la création
+      if (user?.schoolId) {
+        const annees = await anneeScolaireService.getAll(user.schoolId)
+        const activeYear = annees.find((a) => a.statut === true)
+        if (activeYear) {
+          setCurrentAnneeScolaireId(activeYear.id)
+        } else if (annees.length > 0) {
+          // Fallback sur la dernière année par défaut si aucune n'est explicitement active
+          setCurrentAnneeScolaireId(annees[annees.length - 1].id)
+        }
+      }
     } catch (error) {
       console.error('Failed to load classes:', error)
       toast.error('Impossible de charger les classes')
@@ -268,7 +284,10 @@ export function DirectorClassesPage() {
   }
   const openCreateDialog = () => {
     setEditingClasse(null)
-    setFormData({ ...emptyForm })
+    setFormData({
+      ...emptyForm,
+      anneeScolaireId: currentAnneeScolaireId,
+    })
     setDialogOpen(true)
   }
   const openEditDialog = (cls: ClasseDto) => {
