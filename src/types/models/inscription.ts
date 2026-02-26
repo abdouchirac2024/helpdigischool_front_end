@@ -39,6 +39,10 @@ export interface Inscription {
   eleveMatricule: string
   eleveNom: string
   elevePrenom: string
+  elevePhotoUrl?: string
+  eleveActeNaissanceUrl?: string
+  eleveCertificatMedicalUrl?: string
+  eleveBulletinUrl?: string
   classeId: number
   classeNom: string
   classeNiveau: string

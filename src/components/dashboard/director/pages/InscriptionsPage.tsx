@@ -17,6 +17,7 @@ import {
   Plus,
   Users,
   Mail,
+  FileText,
   FileUp,
   CreditCard,
 } from 'lucide-react'
@@ -52,6 +53,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Label } from '@/components/ui/label'
 import { PhotoUpload } from '@/components/ui/photo-upload'
+import { DocumentUpload } from '@/components/ui/document-upload'
 import { fileService } from '@/services/file.service'
 import { inscriptionService } from '@/services/inscription.service'
 import { studentService } from '@/services/student.service'
@@ -1011,9 +1013,9 @@ function CreateInscriptionDialog({
                         Documents numérisés
                       </Label>
                       <div className="grid grid-cols-2 gap-4">
-                        <PhotoUpload
+                        <DocumentUpload
                           label="Acte de naissance"
-                          onPhotoSelected={async (file) => {
+                          onFileSelected={async (file) => {
                             const result = await fileService.upload(file)
                             setNewStudentForm((prev: any) => ({
                               ...prev,
@@ -1021,13 +1023,13 @@ function CreateInscriptionDialog({
                             }))
                             return result.url
                           }}
-                          onPhotoRemoved={() =>
+                          onFileRemoved={() =>
                             setNewStudentForm((prev: any) => ({ ...prev, acteNaissanceUrl: '' }))
                           }
                         />
-                        <PhotoUpload
+                        <DocumentUpload
                           label="Certificat médical"
-                          onPhotoSelected={async (file) => {
+                          onFileSelected={async (file) => {
                             const result = await fileService.upload(file)
                             setNewStudentForm((prev: any) => ({
                               ...prev,
@@ -1035,21 +1037,21 @@ function CreateInscriptionDialog({
                             }))
                             return result.url
                           }}
-                          onPhotoRemoved={() =>
+                          onFileRemoved={() =>
                             setNewStudentForm((prev: any) => ({
                               ...prev,
                               certificatMedicalUrl: '',
                             }))
                           }
                         />
-                        <PhotoUpload
+                        <DocumentUpload
                           label="Dernier bulletin"
-                          onPhotoSelected={async (file) => {
+                          onFileSelected={async (file) => {
                             const result = await fileService.upload(file)
                             setNewStudentForm((prev: any) => ({ ...prev, bulletinUrl: result.url }))
                             return result.url
                           }}
-                          onPhotoRemoved={() =>
+                          onFileRemoved={() =>
                             setNewStudentForm((prev: any) => ({ ...prev, bulletinUrl: '' }))
                           }
                         />
@@ -1979,6 +1981,80 @@ function DetailsDialog({
               <div className="border-t pt-3">
                 <span className="text-sm text-gray-500">Motif d&apos;annulation</span>
                 <p className="text-red-600">{data.motifAnnulation}</p>
+              </div>
+            )}
+
+            {/* Documents */}
+            {(data.eleveActeNaissanceUrl ||
+              data.eleveCertificatMedicalUrl ||
+              data.eleveBulletinUrl) && (
+              <div className="border-t pt-3">
+                <h4 className="mb-2 text-sm font-medium text-gray-700">Documents numérisés</h4>
+                <div className="grid grid-cols-3 gap-3">
+                  {data.eleveActeNaissanceUrl && (
+                    <a
+                      href={data.eleveActeNaissanceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex flex-col items-center gap-2 rounded-lg border p-2 transition-colors hover:bg-gray-50"
+                    >
+                      {data.eleveActeNaissanceUrl.toLowerCase().endsWith('.pdf') ? (
+                        <FileText className="h-8 w-8 text-red-500" />
+                      ) : (
+                        <div className="h-8 w-8 overflow-hidden rounded bg-gray-100">
+                          <img
+                            src={data.eleveActeNaissanceUrl}
+                            alt="Acte naissance"
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <span className="text-[10px] font-medium">Acte naissance</span>
+                    </a>
+                  )}
+                  {data.eleveCertificatMedicalUrl && (
+                    <a
+                      href={data.eleveCertificatMedicalUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex flex-col items-center gap-2 rounded-lg border p-2 transition-colors hover:bg-gray-50"
+                    >
+                      {data.eleveCertificatMedicalUrl.toLowerCase().endsWith('.pdf') ? (
+                        <FileText className="h-8 w-8 text-red-500" />
+                      ) : (
+                        <div className="h-8 w-8 overflow-hidden rounded bg-gray-100">
+                          <img
+                            src={data.eleveCertificatMedicalUrl}
+                            alt="Certificat medical"
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <span className="text-[10px] font-medium">Certificat méd.</span>
+                    </a>
+                  )}
+                  {data.eleveBulletinUrl && (
+                    <a
+                      href={data.eleveBulletinUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex flex-col items-center gap-2 rounded-lg border p-2 transition-colors hover:bg-gray-50"
+                    >
+                      {data.eleveBulletinUrl.toLowerCase().endsWith('.pdf') ? (
+                        <FileText className="h-8 w-8 text-red-500" />
+                      ) : (
+                        <div className="h-8 w-8 overflow-hidden rounded bg-gray-100">
+                          <img
+                            src={data.eleveBulletinUrl}
+                            alt="Bulletin"
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <span className="text-[10px] font-medium">Dernier bulletin</span>
+                    </a>
+                  )}
+                </div>
               </div>
             )}
 
