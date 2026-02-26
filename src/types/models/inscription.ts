@@ -28,6 +28,16 @@ export interface Echeance {
   statut: StatutEcheance
 }
 
+export interface ParentSummary {
+  matricule: string
+  nom: string
+  prenom: string
+  email: string
+  telephone: string
+  relation: string
+  principal: boolean
+}
+
 export interface Inscription {
   idInscription: number
   numeroInscription: string
@@ -58,6 +68,15 @@ export interface Inscription {
   echeances: Echeance[]
   generatedPassword?: string
   generatedEmail?: string
+  // Bio & Location
+  eleveDateNaissance?: string
+  eleveLieuNaissance?: string
+  eleveNationalite?: string
+  eleveSexe?: string
+  eleveQuartier?: string
+  eleveVille?: string
+  // Parents
+  parents?: ParentSummary[]
 }
 
 export interface InscriptionCreateRequest {

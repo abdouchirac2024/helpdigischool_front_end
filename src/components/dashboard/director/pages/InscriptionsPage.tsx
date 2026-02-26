@@ -20,6 +20,11 @@ import {
   FileText,
   FileUp,
   CreditCard,
+  User,
+  Phone,
+  MapPin,
+  Calendar,
+  Info,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -41,6 +46,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Table,
   TableBody,
@@ -234,16 +240,39 @@ export function InscriptionsPage() {
                 <TableRow key={ins.idInscription}>
                   <TableCell className="font-mono text-sm">{ins.numeroInscription}</TableCell>
                   <TableCell>
-                    <div>
-                      <div className="font-medium">
-                        {ins.elevePrenom} {ins.eleveNom}
+                    <div className="flex items-center gap-3">
+                      {ins.elevePhotoUrl ? (
+                        <img
+                          src={ins.elevePhotoUrl}
+                          alt=""
+                          className="h-8 w-8 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-[10px] font-bold text-gray-400">
+                          {ins.elevePrenom[0]}
+                          {ins.eleveNom[0]}
+                        </div>
+                      )}
+                      <div>
+                        <div className="font-medium">
+                          {ins.elevePrenom} {ins.eleveNom}
+                        </div>
+                        <div className="font-mono text-[11px] text-gray-500">
+                          {ins.eleveMatricule}
+                        </div>
                       </div>
-                      <div className="text-sm text-gray-500">{ins.eleveMatricule}</div>
                     </div>
                   </TableCell>
-                  <TableCell>{ins.classeNom}</TableCell>
-                  <TableCell>{ins.dateInscription}</TableCell>
-                  <TableCell>{formatMontant(ins.montantTotal)}</TableCell>
+                  <TableCell>
+                    <div>
+                      <div className="font-medium text-gray-900">{ins.classeNom}</div>
+                      <div className="text-[11px] text-gray-500">{ins.classeNiveau}</div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-sm">{ins.dateInscription}</TableCell>
+                  <TableCell className="font-semibold text-gray-900">
+                    {formatMontant(ins.montantTotal)}
+                  </TableCell>
                   <TableCell>{getStatutBadge(ins.statutInscription)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
@@ -1936,80 +1965,281 @@ function DetailsDialog({
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <span className="text-sm text-gray-500">Eleve</span>
-                <p className="font-medium">
-                  {data.elevePrenom} {data.eleveNom}
-                </p>
-                <p className="text-sm text-gray-500">{data.eleveMatricule}</p>
-              </div>
-              <div>
-                <span className="text-sm text-gray-500">Classe</span>
-                <p className="font-medium">{data.classeNom}</p>
-                <p className="text-sm text-gray-500">{data.classeNiveau}</p>
-              </div>
-              <div>
-                <span className="text-sm text-gray-500">Annee scolaire</span>
-                <p className="font-medium">{data.anneeScolaireLibelle || '-'}</p>
-              </div>
-              <div>
-                <span className="text-sm text-gray-500">Date d&apos;inscription</span>
-                <p className="font-medium">{data.dateInscription}</p>
-              </div>
-              <div>
-                <span className="text-sm text-gray-500">Montant total</span>
-                <p className="font-medium text-blue-600">{formatMontant(data.montantTotal)}</p>
-              </div>
-              <div>
-                <span className="text-sm text-gray-500">Statut</span>
-                <p>
-                  {data.statutInscription === 'VALIDEE' && (
-                    <Badge className="bg-green-100 text-green-800">Validee</Badge>
-                  )}
-                  {data.statutInscription === 'ANNULEE' && (
-                    <Badge className="bg-red-100 text-red-800">Annulee</Badge>
-                  )}
-                  {data.statutInscription === 'EN_ATTENTE' && (
-                    <Badge className="bg-yellow-100 text-yellow-800">En attente</Badge>
-                  )}
-                </p>
-              </div>
-            </div>
+            <Tabs defaultValue="eleve" className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="eleve">Eleve</TabsTrigger>
+                <TabsTrigger value="parents">Parents</TabsTrigger>
+                <TabsTrigger value="finances">Finances</TabsTrigger>
+                <TabsTrigger value="documents">Documents</TabsTrigger>
+              </TabsList>
 
-            {data.motifAnnulation && (
-              <div className="border-t pt-3">
-                <span className="text-sm text-gray-500">Motif d&apos;annulation</span>
-                <p className="text-red-600">{data.motifAnnulation}</p>
-              </div>
-            )}
+              {/* Onglet Eleve */}
+              <TabsContent value="eleve" className="space-y-4 pt-4">
+                <div className="flex items-center gap-4 border-b pb-4">
+                  {data.elevePhotoUrl ? (
+                    <img
+                      src={data.elevePhotoUrl}
+                      alt="Photo eleve"
+                      className="h-20 w-20 rounded-full object-cover shadow-sm"
+                    />
+                  ) : (
+                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 shadow-inner">
+                      <User className="h-10 w-10 text-gray-400" />
+                    </div>
+                  )}
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">
+                      {data.elevePrenom} {data.eleveNom}
+                    </h3>
+                    <p className="font-mono text-sm text-gray-500">{data.eleveMatricule}</p>
+                    <div className="mt-1">
+                      {data.statutInscription === 'VALIDEE' && (
+                        <Badge className="bg-green-100 text-green-800">Validee</Badge>
+                      )}
+                      {data.statutInscription === 'ANNULEE' && (
+                        <Badge className="bg-red-100 text-red-800">Annulee</Badge>
+                      )}
+                      {data.statutInscription === 'EN_ATTENTE' && (
+                        <Badge className="bg-yellow-100 text-yellow-800">En attente</Badge>
+                      )}
+                    </div>
+                  </div>
+                </div>
 
-            {/* Documents */}
-            {(data.eleveActeNaissanceUrl ||
-              data.eleveCertificatMedicalUrl ||
-              data.eleveBulletinUrl) && (
-              <div className="border-t pt-3">
-                <h4 className="mb-2 text-sm font-medium text-gray-700">Documents numérisés</h4>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                  <div className="space-y-1">
+                    <Label className="flex items-center gap-2 text-gray-500">
+                      <Calendar className="h-4 w-4" /> Date de naissance
+                    </Label>
+                    <p className="font-medium">{data.eleveDateNaissance || '-'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="flex items-center gap-2 text-gray-500">
+                      <MapPin className="h-4 w-4" /> Lieu de naissance
+                    </Label>
+                    <p className="font-medium">{data.eleveLieuNaissance || '-'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="flex items-center gap-2 text-gray-500">
+                      <User className="h-4 w-4" /> Sexe
+                    </Label>
+                    <p className="font-medium">{data.eleveSexe || '-'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="flex items-center gap-2 text-gray-500">
+                      <Info className="h-4 w-4" /> Nationalite
+                    </Label>
+                    <p className="font-medium">{data.eleveNationalite || '-'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="flex items-center gap-2 text-gray-500">
+                      <MapPin className="h-4 w-4" /> Adresse / Quartier
+                    </Label>
+                    <p className="font-medium">
+                      {data.eleveQuartier}
+                      {data.eleveVille ? `, ${data.eleveVille}` : ''}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="flex items-center gap-2 text-gray-500">
+                      <Calendar className="h-4 w-4" /> Inscrit le
+                    </Label>
+                    <p className="font-medium">{data.dateInscription}</p>
+                  </div>
+                </div>
+
+                <div className="rounded-lg bg-blue-50 p-4">
+                  <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-blue-800">
+                    Informations Académiques
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-xs text-blue-600">Classe</span>
+                      <p className="font-bold text-blue-900">{data.classeNom}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-blue-600">Niveau</span>
+                      <p className="font-bold text-blue-900">{data.classeNiveau}</p>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Onglet Parents */}
+              <TabsContent value="parents" className="space-y-4 pt-4">
+                {data.parents && data.parents.length > 0 ? (
+                  <div className="space-y-4">
+                    {data.parents.map((p, idx) => (
+                      <div key={idx} className="rounded-xl border bg-white p-4 shadow-sm">
+                        <div className="mb-2 flex items-center justify-between">
+                          <h4 className="flex items-center gap-2 font-bold text-gray-900">
+                            <Users className="h-4 w-4 text-gray-400" />
+                            {p.prenom} {p.nom}
+                          </h4>
+                          {p.principal && (
+                            <Badge className="bg-amber-100 text-amber-800">Principal</Badge>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-2 gap-y-2 text-sm">
+                          <p className="flex items-center gap-2 text-gray-600">
+                            <Info className="h-3.5 w-3.5" /> {p.relation || 'Relation'}
+                          </p>
+                          <p className="flex items-center gap-2 font-mono text-xs text-gray-500">
+                            ID: {p.matricule}
+                          </p>
+                          <p className="flex items-center gap-2 text-gray-600">
+                            <Phone className="h-3.5 w-3.5" /> {p.telephone}
+                          </p>
+                          <p className="flex items-center gap-2 text-gray-600">
+                            <Mail className="h-3.5 w-3.5" /> {p.email}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+                    <Users className="mb-2 h-12 w-12 opacity-20" />
+                    <p>Aucun parent associe</p>
+                  </div>
+                )}
+              </TabsContent>
+
+              {/* Onglet Finances */}
+              <TabsContent value="finances" className="space-y-6 pt-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="rounded-lg bg-gray-50 p-3 text-center">
+                    <span className="text-[10px] font-bold uppercase text-gray-400">Total</span>
+                    <p className="font-bold text-gray-900">{formatMontant(data.montantTotal)}</p>
+                  </div>
+                  <div className="rounded-lg bg-green-50 p-3 text-center">
+                    <span className="text-[10px] font-bold uppercase text-green-600">Payé</span>
+                    <p className="font-bold text-green-700">
+                      {formatMontant(
+                        (data.echeances || [])
+                          .filter((e) => e.statut === 'PAYEE')
+                          .reduce((sum, e) => sum + e.montant, 0)
+                      )}
+                    </p>
+                  </div>
+                  <div className="rounded-lg bg-red-50 p-3 text-center">
+                    <span className="text-[10px] font-bold uppercase text-red-600">Reste</span>
+                    <p className="font-bold text-red-700">
+                      {formatMontant(
+                        data.montantTotal -
+                          (data.echeances || [])
+                            .filter((e) => e.statut === 'PAYEE')
+                            .reduce((sum, e) => sum + e.montant, 0)
+                      )}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <h4 className="text-sm font-bold text-gray-700">Détails de la scolarité</h4>
+                  <div className="overflow-hidden rounded-lg border bg-white">
+                    <Table>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="py-2 text-sm text-gray-500">
+                            Frais de scolarité
+                          </TableCell>
+                          <TableCell className="py-2 text-right font-medium">
+                            {formatMontant(data.fraisScolarite || 0)}
+                          </TableCell>
+                        </TableRow>
+                        {data.remise && (
+                          <TableRow>
+                            <TableCell className="py-2 text-sm text-red-500">
+                              Remise / Bourse
+                            </TableCell>
+                            <TableCell className="py-2 text-right font-medium text-red-600">
+                              -{formatMontant(data.remise)}
+                            </TableCell>
+                          </TableRow>
+                        )}
+                        {data.fraisTransport && (
+                          <TableRow>
+                            <TableCell className="py-2 text-sm text-gray-500">
+                              Frais transport
+                            </TableCell>
+                            <TableCell className="py-2 text-right font-medium">
+                              {formatMontant(data.fraisTransport)}
+                            </TableCell>
+                          </TableRow>
+                        )}
+                        {data.fraisCantine && (
+                          <TableRow>
+                            <TableCell className="py-2 text-sm text-gray-500">
+                              Frais cantine
+                            </TableCell>
+                            <TableCell className="py-2 text-right font-medium">
+                              {formatMontant(data.fraisCantine)}
+                            </TableCell>
+                          </TableRow>
+                        )}
+                        {data.fraisAssurance && (
+                          <TableRow>
+                            <TableCell className="py-2 text-sm text-gray-500">
+                              Frais assurance
+                            </TableCell>
+                            <TableCell className="py-2 text-right font-medium">
+                              {formatMontant(data.fraisAssurance)}
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <h4 className="text-sm font-bold text-gray-700">Echéancier</h4>
+                  <div className="overflow-hidden rounded-lg border bg-white">
+                    <Table>
+                      <TableHeader className="bg-gray-50">
+                        <TableRow>
+                          <TableHead className="h-9 py-0">Libelle</TableHead>
+                          <TableHead className="h-9 py-0 text-right">Montant</TableHead>
+                          <TableHead className="h-9 py-0 text-center">Echeance</TableHead>
+                          <TableHead className="h-9 py-0 text-center">Statut</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {(data.echeances || []).map((echeance) => (
+                          <TableRow key={echeance.idEcheance}>
+                            <TableCell className="py-2 text-sm">{echeance.libelle}</TableCell>
+                            <TableCell className="py-2 text-right text-sm">
+                              {formatMontant(echeance.montant)}
+                            </TableCell>
+                            <TableCell className="py-2 text-center text-xs">
+                              {echeance.dateEcheance}
+                            </TableCell>
+                            <TableCell className="py-2 text-center">
+                              {getEcheanceStatutBadge(echeance.statut)}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Onglet Documents */}
+              <TabsContent value="documents" className="pt-4">
+                <div className="grid grid-cols-2 gap-4">
                   {data.eleveActeNaissanceUrl && (
                     <a
                       href={data.eleveActeNaissanceUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex flex-col items-center gap-2 rounded-lg border p-2 transition-colors hover:bg-gray-50"
+                      className="group flex flex-col items-center gap-3 rounded-xl border p-4 transition-all hover:bg-gray-50"
                     >
-                      {data.eleveActeNaissanceUrl.toLowerCase().endsWith('.pdf') ? (
-                        <FileText className="h-8 w-8 text-red-500" />
-                      ) : (
-                        <div className="h-8 w-8 overflow-hidden rounded bg-gray-100">
-                          <img
-                            src={data.eleveActeNaissanceUrl}
-                            alt="Acte naissance"
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
-                      )}
-                      <span className="text-[10px] font-medium">Acte naissance</span>
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500 transition-colors group-hover:bg-red-100">
+                        <FileText className="h-6 w-6" />
+                      </div>
+                      <span className="text-xs font-bold text-gray-700">Acte de naissance</span>
                     </a>
                   )}
                   {data.eleveCertificatMedicalUrl && (
@@ -2017,20 +2247,12 @@ function DetailsDialog({
                       href={data.eleveCertificatMedicalUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex flex-col items-center gap-2 rounded-lg border p-2 transition-colors hover:bg-gray-50"
+                      className="group flex flex-col items-center gap-3 rounded-xl border p-4 transition-all hover:bg-gray-50"
                     >
-                      {data.eleveCertificatMedicalUrl.toLowerCase().endsWith('.pdf') ? (
-                        <FileText className="h-8 w-8 text-red-500" />
-                      ) : (
-                        <div className="h-8 w-8 overflow-hidden rounded bg-gray-100">
-                          <img
-                            src={data.eleveCertificatMedicalUrl}
-                            alt="Certificat medical"
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
-                      )}
-                      <span className="text-[10px] font-medium">Certificat méd.</span>
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-blue-500 transition-colors group-hover:bg-blue-100">
+                        <FileText className="h-6 w-6" />
+                      </div>
+                      <span className="text-xs font-bold text-gray-700">Certificat médical</span>
                     </a>
                   )}
                   {data.eleveBulletinUrl && (
@@ -2038,53 +2260,33 @@ function DetailsDialog({
                       href={data.eleveBulletinUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex flex-col items-center gap-2 rounded-lg border p-2 transition-colors hover:bg-gray-50"
+                      className="group flex flex-col items-center gap-3 rounded-xl border p-4 transition-all hover:bg-gray-50"
                     >
-                      {data.eleveBulletinUrl.toLowerCase().endsWith('.pdf') ? (
-                        <FileText className="h-8 w-8 text-red-500" />
-                      ) : (
-                        <div className="h-8 w-8 overflow-hidden rounded bg-gray-100">
-                          <img
-                            src={data.eleveBulletinUrl}
-                            alt="Bulletin"
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
-                      )}
-                      <span className="text-[10px] font-medium">Dernier bulletin</span>
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-500 transition-colors group-hover:bg-emerald-100">
+                        <FileText className="h-6 w-6" />
+                      </div>
+                      <span className="text-xs font-bold text-gray-700">Dernier bulletin</span>
                     </a>
                   )}
+                  {!data.eleveActeNaissanceUrl &&
+                    !data.eleveCertificatMedicalUrl &&
+                    !data.eleveBulletinUrl && (
+                      <div className="col-span-2 flex flex-col items-center justify-center py-10 text-gray-400">
+                        <FileUp className="mb-2 h-12 w-12 opacity-20" />
+                        <p>Aucun document numerise</p>
+                      </div>
+                    )}
                 </div>
-              </div>
-            )}
+              </TabsContent>
+            </Tabs>
 
-            {/* Echeancier */}
-            {data.echeances && data.echeances.length > 0 && (
-              <div className="border-t pt-3">
-                <h4 className="mb-2 text-sm font-medium text-gray-700">Echeancier de paiement</h4>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>N°</TableHead>
-                      <TableHead>Libelle</TableHead>
-                      <TableHead>Montant</TableHead>
-                      <TableHead>Echeance</TableHead>
-                      <TableHead>Statut</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {data.echeances.map((echeance) => (
-                      <TableRow key={echeance.idEcheance}>
-                        <TableCell>{echeance.numero}</TableCell>
-                        <TableCell>{echeance.libelle}</TableCell>
-                        <TableCell>{formatMontant(echeance.montant)}</TableCell>
-                        <TableCell>{echeance.dateEcheance}</TableCell>
-                        <TableCell>{getEcheanceStatutBadge(echeance.statut)}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+            {data.motifAnnulation && (
+              <Alert variant="destructive" className="mt-4">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Motif d&apos;annulation :</strong> {data.motifAnnulation}
+                </AlertDescription>
+              </Alert>
             )}
           </div>
         )}
