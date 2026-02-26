@@ -2248,10 +2248,10 @@ function FactureDialog({
 
     const extraFeesRows = [
       { label: 'Frais de scolarité', amount: inscription.fraisScolarite || 0 },
-      { label: 'Remise', amount: -(inscription.remise || 0) },
-      { label: 'Transport', amount: inscription.fraisTransport || 0 },
-      { label: 'Cantine', amount: inscription.fraisCantine || 0 },
-      { label: 'Assurance', amount: inscription.fraisAssurance || 0 },
+      { label: 'Remise / Bourse (FCFA)', amount: -(inscription.remise || 0) },
+      { label: 'Frais transport (FCFA)', amount: inscription.fraisTransport || 0 },
+      { label: 'Frais cantine (FCFA)', amount: inscription.fraisCantine || 0 },
+      { label: 'Frais assurance (FCFA)', amount: inscription.fraisAssurance || 0 },
     ]
       .filter((f) => f.amount !== 0)
       .map(
