@@ -25,6 +25,9 @@ export interface ClasseDto {
   statut?: StatutClasse
   effectifActuel?: number
   fraisScolarite?: number
+  fraisInscription?: number
+  premierVersement?: number
+  deuxiemeVersement?: number
   description?: string
 
   // Relations
@@ -50,6 +53,9 @@ export interface CreateClasseRequest {
   capacite?: number
   statut?: StatutClasse
   fraisScolarite?: number
+  fraisInscription?: number
+  premierVersement?: number
+  deuxiemeVersement?: number
   description?: string
   anneeScolaireId?: number
   titulaireId?: number

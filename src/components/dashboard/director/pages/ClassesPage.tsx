@@ -92,6 +92,9 @@ const emptyForm: CreateClasseRequest = {
   section: '',
   capacite: undefined,
   fraisScolarite: undefined,
+  fraisInscription: undefined,
+  premierVersement: undefined,
+  deuxiemeVersement: undefined,
   description: '',
 }
 
@@ -278,6 +281,9 @@ export function DirectorClassesPage() {
       capacite: cls.capacite,
       statut: cls.statut || StatutClasse.ACTIVE,
       fraisScolarite: cls.fraisScolarite,
+      fraisInscription: cls.fraisInscription,
+      premierVersement: cls.premierVersement,
+      deuxiemeVersement: cls.deuxiemeVersement,
       description: cls.description || '',
       anneeScolaireId: cls.anneeScolaireId,
       titulaireId: cls.titulaireId,
@@ -1139,6 +1145,54 @@ export function DirectorClassesPage() {
               </div>
             </div>
 
+            <div className="grid grid-cols-3 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="fraisInscription">Frais d'inscription</Label>
+                <Input
+                  id="fraisInscription"
+                  type="number"
+                  placeholder="Ex: 10000"
+                  value={formData.fraisInscription ?? ''}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      fraisInscription: e.target.value ? Number(e.target.value) : undefined,
+                    }))
+                  }
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="premierVersement">1er versement</Label>
+                <Input
+                  id="premierVersement"
+                  type="number"
+                  placeholder="Ex: 30000"
+                  value={formData.premierVersement ?? ''}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      premierVersement: e.target.value ? Number(e.target.value) : undefined,
+                    }))
+                  }
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="deuxiemeVersement">2ème versement</Label>
+                <Input
+                  id="deuxiemeVersement"
+                  type="number"
+                  placeholder="Ex: 30000"
+                  value={formData.deuxiemeVersement ?? ''}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      deuxiemeVersement: e.target.value ? Number(e.target.value) : undefined,
+                    }))
+                  }
+                />
+              </div>
+            </div>
+
             <div className="grid gap-2">
               <Label htmlFor="description">Description</Label>
               <Input
@@ -1223,7 +1277,32 @@ export function DirectorClassesPage() {
                       : '-'}
                   </p>
                 </div>
+                <div className="rounded-lg bg-gray-50 p-3">
+                  <p className="text-xs text-gray-500">Frais d'inscription</p>
+                  <p className="font-semibold text-gray-900">
+                    {viewingClasse.fraisInscription
+                      ? `${viewingClasse.fraisInscription.toLocaleString()} FCFA`
+                      : '-'}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-gray-50 p-3">
+                  <p className="text-xs text-gray-500">1er versement</p>
+                  <p className="font-semibold text-gray-900">
+                    {viewingClasse.premierVersement
+                      ? `${viewingClasse.premierVersement.toLocaleString()} FCFA`
+                      : '-'}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-gray-50 p-3">
+                  <p className="text-xs text-gray-500">2ème versement</p>
+                  <p className="font-semibold text-gray-900">
+                    {viewingClasse.deuxiemeVersement
+                      ? `${viewingClasse.deuxiemeVersement.toLocaleString()} FCFA`
+                      : '-'}
+                  </p>
+                </div>
               </div>
+
               <div className="rounded-lg bg-gray-50 p-3">
                 <p className="text-xs text-gray-500">Professeur principal</p>
                 <p className="font-semibold text-gray-900">
