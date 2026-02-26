@@ -25,6 +25,8 @@ import {
   MapPin,
   Calendar,
   Info,
+  Stethoscope,
+  GraduationCap,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -242,20 +244,63 @@ export function InscriptionsPage() {
                   <TableCell>
                     <div className="flex items-center gap-3">
                       {ins.elevePhotoUrl ? (
-                        <img
-                          src={ins.elevePhotoUrl}
-                          alt=""
-                          className="h-8 w-8 rounded-full object-cover"
-                        />
+                        <div className="group relative">
+                          <img
+                            src={ins.elevePhotoUrl}
+                            alt=""
+                            className="h-10 w-10 rounded-full border border-gray-100 object-cover shadow-sm transition-transform group-hover:scale-110"
+                            onError={(e) => {
+                              ;(e.target as HTMLImageElement).src =
+                                `https://ui-avatars.com/api/?name=${ins.elevePrenom}+${ins.eleveNom}&background=random`
+                            }}
+                          />
+                        </div>
                       ) : (
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-[10px] font-bold text-gray-400">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full border border-indigo-100 bg-indigo-50 text-[11px] font-bold text-indigo-500 shadow-inner">
                           {ins.elevePrenom[0]}
                           {ins.eleveNom[0]}
                         </div>
                       )}
                       <div>
-                        <div className="font-medium">
-                          {ins.elevePrenom} {ins.eleveNom}
+                        <div className="flex items-center gap-2">
+                          <div className="font-medium">
+                            {ins.elevePrenom} {ins.eleveNom}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            {ins.eleveActeNaissanceUrl && (
+                              <a
+                                href={ins.eleveActeNaissanceUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="Acte de naissance"
+                                className="text-red-500 hover:text-red-700"
+                              >
+                                <FileText className="h-3 w-3" />
+                              </a>
+                            )}
+                            {ins.eleveCertificatMedicalUrl && (
+                              <a
+                                href={ins.eleveCertificatMedicalUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="Certificat médical"
+                                className="text-blue-500 hover:text-blue-700"
+                              >
+                                <Stethoscope className="h-3 w-3" />
+                              </a>
+                            )}
+                            {ins.eleveBulletinUrl && (
+                              <a
+                                href={ins.eleveBulletinUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="Dernier bulletin"
+                                className="text-emerald-500 hover:text-emerald-700"
+                              >
+                                <GraduationCap className="h-3 w-3" />
+                              </a>
+                            )}
+                          </div>
                         </div>
                         <div className="font-mono text-[11px] text-gray-500">
                           {ins.eleveMatricule}
@@ -1980,11 +2025,15 @@ function DetailsDialog({
                     <img
                       src={data.elevePhotoUrl}
                       alt="Photo eleve"
-                      className="h-20 w-20 rounded-full object-cover shadow-sm"
+                      className="h-20 w-20 rounded-full border-2 border-white object-cover shadow-md"
+                      onError={(e) => {
+                        ;(e.target as HTMLImageElement).src =
+                          `https://ui-avatars.com/api/?name=${data.elevePrenom}+${data.eleveNom}&background=random&size=128`
+                      }}
                     />
                   ) : (
-                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 shadow-inner">
-                      <User className="h-10 w-10 text-gray-400" />
+                    <div className="flex h-20 w-20 items-center justify-center rounded-full border border-indigo-100 bg-indigo-50 shadow-inner">
+                      <User className="h-10 w-10 text-indigo-400" />
                     </div>
                   )}
                   <div>
