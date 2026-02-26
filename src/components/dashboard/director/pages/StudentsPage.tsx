@@ -11,7 +11,8 @@ import {
   Award,
   ClipboardList,
   CreditCard,
-  UserPlus,
+  User,
+  Filter,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -28,15 +29,12 @@ import { toast } from 'sonner'
 import Image from 'next/image'
 import Link from 'next/link'
 
-import { StudentForm } from '../forms/StudentForm'
-
 export function DirectorStudentsPage() {
   const [students, setStudents] = useState<EleveDto[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [classFilter, setClassFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [isFormOpen, setIsFormOpen] = useState(false)
 
   useEffect(() => {
     loadStudents()
@@ -112,16 +110,15 @@ export function DirectorStudentsPage() {
           <p className="mt-1 text-gray-600">{filteredStudents.length} élèves inscrits</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" className="gap-2">
-            <Download className="h-4 w-4" />
-            Exporter
-          </Button>
           <Button
-            className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]"
-            onClick={() => setIsFormOpen(true)}
+            variant="outline"
+            className="border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+            onClick={() => {
+              /* Logic for export if needed */
+            }}
           >
-            <UserPlus className="h-4 w-4" />
-            Nouvel élève
+            <Download className="mr-2 h-4 w-4" />
+            Exporter la liste
           </Button>
         </div>
       </div>
@@ -174,38 +171,41 @@ export function DirectorStudentsPage() {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="rounded-2xl border border-gray-100 bg-white p-4">
-        <div className="flex flex-col gap-4 md:flex-row">
+      <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <Input
-              placeholder="Rechercher par nom ou matricule..."
-              className="pl-10"
+              placeholder="Rechercher par nom, prénom ou matricule..."
+              className="h-11 border-gray-200 pl-10 focus-visible:ring-[#2302B3]"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <Select value={classFilter} onValueChange={setClassFilter}>
-            <SelectTrigger className="w-full md:w-[180px]">
-              <SelectValue placeholder="Classe" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Toutes les classes</SelectItem>
-              {/* Dynamic classes would be loaded here */}
-              <SelectItem value="6ème A">6ème A</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full md:w-[180px]">
-              <SelectValue placeholder="Statut" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tous les statuts</SelectItem>
-              <SelectItem value="ACTIF">Actif</SelectItem>
-              <SelectItem value="EXCLU">Exclu</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex flex-wrap gap-2">
+            <Select value={classFilter} onValueChange={setClassFilter}>
+              <SelectTrigger className="h-11 w-full border-gray-200 md:w-[180px]">
+                <div className="flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-gray-400" />
+                  <SelectValue placeholder="Classe" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toutes les classes</SelectItem>
+                <SelectItem value="6ème A">6ème A</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="h-11 w-full border-gray-200 md:w-[180px]">
+                <SelectValue placeholder="Statut" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous les statuts</SelectItem>
+                <SelectItem value="ACTIF">Actif</SelectItem>
+                <SelectItem value="EXCLU">Exclu</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
@@ -291,13 +291,6 @@ export function DirectorStudentsPage() {
           </table>
         </div>
       </div>
-      <StudentForm
-        open={isFormOpen}
-        onOpenChange={setIsFormOpen}
-        onSuccess={() => {
-          loadStudents()
-        }}
-      />
     </div>
   )
 }
