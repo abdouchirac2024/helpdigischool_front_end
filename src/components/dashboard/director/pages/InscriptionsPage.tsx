@@ -772,6 +772,25 @@ function CreateInscriptionDialog({
       const success = await handleCreateNewStudent()
       if (!success) return
     }
+    // Auto-select parent when moving from step 1 to step 2
+    if (step === 1 && selectedStudentId) {
+      try {
+        const relations = await parentService.getEleveParentsByEleve(Number(selectedStudentId))
+        if (relations.length > 0) {
+          // Pick the principal relation first, otherwise the first one
+          const principal = relations.find((r) => r.estPrincipal) || relations[0]
+          setSelectedParentId(principal.parentId)
+          setTypeRelation(principal.typeRelation)
+          setParentAlreadyLinked(true)
+          setParentMode('existing')
+          toast.info(
+            `Parent déjà associé : ${principal.parentNom} ${principal.parentPrenom} (${TypeRelationLabels[principal.typeRelation]})`
+          )
+        }
+      } catch {
+        // Pas de relation existante, l'utilisateur choisira manuellement
+      }
+    }
     if (step === 2) {
       if (parentMode === 'new') {
         const result = await handleCreateNewParent()
