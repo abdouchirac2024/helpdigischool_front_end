@@ -678,7 +678,6 @@ function CreateInscriptionDialog({
     if (
       !newParentForm.nom ||
       !newParentForm.prenom ||
-      !newParentForm.email ||
       !newParentForm.telephone ||
       !newParentForm.adresse ||
       !newParentForm.quartierId
@@ -1006,6 +1005,11 @@ function CreateInscriptionDialog({
                         <Input
                           id="new-date"
                           type="date"
+                          max={
+                            new Date(new Date().setFullYear(new Date().getFullYear() - 2))
+                              .toISOString()
+                              .split('T')[0]
+                          }
                           value={newStudentForm.dateNaissance}
                           onChange={(e) =>
                             setNewStudentForm((prev) => ({
@@ -1328,7 +1332,7 @@ function CreateInscriptionDialog({
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1.5">
-                        <Label>Email *</Label>
+                        <Label>Email (Optionnel)</Label>
                         <Input
                           type="email"
                           placeholder="email@exemple.com"
