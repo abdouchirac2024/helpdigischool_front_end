@@ -969,9 +969,9 @@ function CreateInscriptionDialog({
                           : undefined
                       }
                       onPhotoSelected={async (file) => {
-                        const result = await fileService.upload(file)
-                        setStudentPhotoUrl(result.url)
-                        return result.url
+                        const result = await fileService.upload(file, 'PHOTO_ELEVE')
+                        setStudentPhotoUrl(result.downloadUrl)
+                        return result.downloadUrl
                       }}
                       onPhotoRemoved={() => setStudentPhotoUrl(null)}
                     />
@@ -1120,12 +1120,12 @@ function CreateInscriptionDialog({
                         <DocumentUpload
                           label="Acte de naissance"
                           onFileSelected={async (file) => {
-                            const result = await fileService.upload(file)
+                            const result = await fileService.upload(file, 'ACTE_NAISSANCE')
                             setNewStudentForm((prev: any) => ({
                               ...prev,
-                              acteNaissanceUrl: result.url,
+                              acteNaissanceUrl: result.downloadUrl,
                             }))
-                            return result.url
+                            return result.downloadUrl
                           }}
                           onFileRemoved={() =>
                             setNewStudentForm((prev: any) => ({ ...prev, acteNaissanceUrl: '' }))
@@ -1134,12 +1134,12 @@ function CreateInscriptionDialog({
                         <DocumentUpload
                           label="Certificat médical"
                           onFileSelected={async (file) => {
-                            const result = await fileService.upload(file)
+                            const result = await fileService.upload(file, 'CERTIFICAT_MEDICAL')
                             setNewStudentForm((prev: any) => ({
                               ...prev,
-                              certificatMedicalUrl: result.url,
+                              certificatMedicalUrl: result.downloadUrl,
                             }))
-                            return result.url
+                            return result.downloadUrl
                           }}
                           onFileRemoved={() =>
                             setNewStudentForm((prev: any) => ({
@@ -1151,9 +1151,12 @@ function CreateInscriptionDialog({
                         <DocumentUpload
                           label="Dernier bulletin"
                           onFileSelected={async (file) => {
-                            const result = await fileService.upload(file)
-                            setNewStudentForm((prev: any) => ({ ...prev, bulletinUrl: result.url }))
-                            return result.url
+                            const result = await fileService.upload(file, 'BULLETIN_ANCIEN')
+                            setNewStudentForm((prev: any) => ({
+                              ...prev,
+                              bulletinUrl: result.downloadUrl,
+                            }))
+                            return result.downloadUrl
                           }}
                           onFileRemoved={() =>
                             setNewStudentForm((prev: any) => ({ ...prev, bulletinUrl: '' }))
@@ -1302,9 +1305,9 @@ function CreateInscriptionDialog({
                           : undefined
                       }
                       onPhotoSelected={async (file) => {
-                        const result = await fileService.upload(file)
-                        setParentPhotoUrl(result.url)
-                        return result.url
+                        const result = await fileService.upload(file, 'PIECE_IDENTITE_PARENT')
+                        setParentPhotoUrl(result.downloadUrl)
+                        return result.downloadUrl
                       }}
                       onPhotoRemoved={() => setParentPhotoUrl(null)}
                     />
