@@ -83,8 +83,17 @@ import { toast } from 'sonner'
 
 const ensureAbsoluteUrl = (url: string | null | undefined): string => {
   if (!url) return ''
+  // URL absolue Cloudinary ou autre → retourner tel quel
   if (url.startsWith('http://') || url.startsWith('https://')) return url
   if (url.startsWith('//')) return `https:${url}`
+  // Chemin relatif vers un fichier MongoDB GridFS → route Next.js dédiée
+  if (url.startsWith('/api/files/') || url.startsWith('api/files/')) {
+    const id = url.replace(/^\/?(api\/files\/)/, '')
+    return `/api/files/${id}`
+  }
+  // Autre chemin relatif (commence par /)
+  if (url.startsWith('/')) return url
+  // URL externe sans protocole
   return `https://${url}`
 }
 
