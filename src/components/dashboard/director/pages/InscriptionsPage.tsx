@@ -27,7 +27,9 @@ import {
   Info,
   Stethoscope,
   GraduationCap,
+  Smile,
 } from 'lucide-react'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -681,7 +683,16 @@ function CreateInscriptionDialog({
   }
 
   // ---- Step 2 helpers ----
-  const canProceedStep2 = selectedParentId !== null
+  const canProceedNewParent =
+    newParentForm.nom.trim() !== '' &&
+    newParentForm.prenom.trim() !== '' &&
+    newParentForm.telephone.trim() !== '' &&
+    newParentForm.adresse.trim() !== '' &&
+    newParentForm.quartierId !== 0 &&
+    parentPhotoUrl !== null
+
+  const canProceedStep2 =
+    parentMode === 'existing' ? selectedParentId !== null : canProceedNewParent
 
   const handleCreateNewParent = async (): Promise<'created_with_credentials' | boolean> => {
     if (
@@ -851,12 +862,29 @@ function CreateInscriptionDialog({
     return new Intl.NumberFormat('fr-FR').format(montant) + ' FCFA'
   }
 
+  const getStatusBadgeColor = (status: string) => {
+    switch (status) {
+      case 'ACTIF':
+        return 'bg-green-50 text-green-700 border-green-200'
+      case 'EXCLU':
+        return 'bg-red-50 text-red-700 border-red-200'
+      case 'ABANDON':
+        return 'bg-gray-50 text-gray-700 border-gray-200'
+      case 'TRANSFERE':
+        return 'bg-blue-50 text-blue-700 border-blue-200'
+      case 'DIPLOME':
+        return 'bg-purple-50 text-purple-700 border-purple-200'
+      default:
+        return 'bg-gray-50 text-gray-700 border-gray-200'
+    }
+  }
+
   const canProceedCurrentStep = () => {
     switch (step) {
       case 1:
         return canProceedStep1
       case 2:
-        return canProceedStep2 || parentMode === 'new'
+        return canProceedStep2
       case 3:
         return canProceedStep3
       default:
@@ -928,15 +956,23 @@ function CreateInscriptionDialog({
 
                 {studentMode === 'existing' ? (
                   <>
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                      <Input
-                        placeholder="Rechercher un eleve par nom ou matricule..."
-                        value={studentSearch}
-                        onChange={(e) => setStudentSearch(e.target.value)}
-                        className="pl-10"
-                        autoComplete="off"
-                      />
+                    <div className="space-y-4">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                        <Input
+                          placeholder="Rechercher un eleve par nom ou matricule..."
+                          value={studentSearch}
+                          onChange={(e) => setStudentSearch(e.target.value)}
+                          className="pl-10"
+                          autoComplete="off"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between px-1">
+                        <span className="text-xs font-medium uppercase tracking-wider text-gray-500">
+                          {filteredStudents.length} élève{filteredStudents.length > 1 ? 's' : ''}{' '}
+                          trouvé{filteredStudents.length > 1 ? 's' : ''}
+                        </span>
+                      </div>
                     </div>
                     <div className="max-h-60 overflow-y-auto rounded-md border">
                       {filteredStudents.length === 0 ? (
@@ -947,19 +983,49 @@ function CreateInscriptionDialog({
                         filteredStudents.map((student) => (
                           <div
                             key={student.id}
-                            className={`flex cursor-pointer items-center justify-between border-b p-3 last:border-b-0 hover:bg-gray-50 ${
+                            className={`flex cursor-pointer items-center gap-3 border-b p-3 last:border-b-0 hover:bg-gray-50 ${
                               selectedStudentId === student.id ? 'border-blue-200 bg-blue-50' : ''
                             }`}
                             onClick={() => setSelectedStudentId(student.id)}
                           >
-                            <div>
-                              <div className="font-medium">
-                                {student.prenom} {student.nom}
+                            <Avatar className="h-10 w-10 border">
+                              <AvatarImage
+                                src={ensureAbsoluteUrl(student.photoUrl)}
+                                alt={`${student.prenom} ${student.nom}`}
+                              />
+                              <AvatarFallback className="bg-blue-50 text-blue-600">
+                                {student.prenom[0]}
+                                {student.nom[0]}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="truncate font-medium">
+                                  {student.prenom} {student.nom}
+                                </span>
+                                {student.classeActuelle && (
+                                  <Badge
+                                    variant="outline"
+                                    className="h-4 border-blue-100 bg-blue-50 px-1.5 text-[10px] text-blue-700"
+                                  >
+                                    Déjà inscrit
+                                  </Badge>
+                                )}
                               </div>
-                              <div className="text-sm text-gray-500">{student.matricule}</div>
+                              <div className="mt-0.5 flex items-center gap-2">
+                                <span
+                                  className={`rounded-full border px-1.5 py-0.5 text-[10px] ${getStatusBadgeColor(student.statut)}`}
+                                >
+                                  {student.statut || 'ACTIF'}
+                                </span>
+                                <span className="truncate text-xs text-gray-500">
+                                  {student.matricule || 'Néant'} •{' '}
+                                  {student.classeActuelle || 'Aucune classe'}
+                                </span>
+                              </div>
                             </div>
                             {selectedStudentId === student.id && (
-                              <CheckCircle className="h-5 w-5 text-blue-600" />
+                              <CheckCircle className="h-5 w-5 flex-shrink-0 text-blue-600" />
                             )}
                           </div>
                         ))
