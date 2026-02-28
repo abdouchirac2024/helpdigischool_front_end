@@ -5,15 +5,17 @@ import {
   Users,
   Search,
   Download,
-  Phone,
   Eye,
   Edit,
   Award,
   ClipboardList,
   CreditCard,
-  User,
   Filter,
+  FileText,
+  Stethoscope,
+  BookOpen,
 } from 'lucide-react'
+
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -27,12 +29,16 @@ import { studentService } from '@/services/student.service'
 import type { EleveDto } from '@/types/student'
 import { toast } from 'sonner'
 import Image from 'next/image'
-import Link from 'next/link'
 
 const ensureAbsoluteUrl = (url: string | null | undefined): string => {
   if (!url) return ''
   if (url.startsWith('http://') || url.startsWith('https://')) return url
   if (url.startsWith('//')) return `https:${url}`
+  if (url.startsWith('/api/files/') || url.startsWith('api/files/')) {
+    const id = url.replace(/^\/?(api\/files\/)/, '')
+    return `/api/files/${id}`
+  }
+  if (url.startsWith('/')) return url
   return `https://${url}`
 }
 
@@ -60,31 +66,33 @@ export function DirectorStudentsPage() {
     }
   }
 
+  // Extraire les classes uniques pour le filtre
+  const uniqueClasses = Array.from(
+    new Set(students.map((s) => s.classeActuelle).filter(Boolean))
+  ) as string[]
+
   const filteredStudents = students.filter((student) => {
     const fullName = `${student.nom} ${student.prenom}`.toLowerCase()
     const matchesSearch =
       fullName.includes(searchQuery.toLowerCase()) ||
       student.matricule.toLowerCase().includes(searchQuery.toLowerCase())
-
-    // Filtres temporaires (à adapter selon les données réelles disponibles)
     const matchesClass = classFilter === 'all' || student.classeActuelle === classFilter
     const matchesStatus = statusFilter === 'all' || student.statut === statusFilter
-
     return matchesSearch && matchesClass && matchesStatus
   })
 
-  // Stats calculées sur les données réelles ou placeholders si non-dispo
   const totalStudents = students.length
+  const totalActifs = students.filter((s) => s.statut === 'ACTIF').length
 
   const getStatusBadge = (status: string) => {
-    const styles = {
+    const styles: Record<string, string> = {
       ACTIF: 'bg-green-100 text-green-700',
       EXCLU: 'bg-red-100 text-red-700',
       ABANDON: 'bg-orange-100 text-orange-700',
       TRANSFERE: 'bg-yellow-100 text-yellow-700',
       DIPLOME: 'bg-blue-100 text-blue-700',
     }
-    const labels = {
+    const labels: Record<string, string> = {
       ACTIF: 'Actif',
       EXCLU: 'Exclu',
       ABANDON: 'Abandon',
@@ -93,9 +101,9 @@ export function DirectorStudentsPage() {
     }
     return (
       <span
-        className={`rounded-full px-2 py-1 text-xs font-semibold ${styles[status as keyof typeof styles] || 'bg-gray-100 text-gray-700'}`}
+        className={`rounded-full px-2 py-1 text-xs font-semibold ${styles[status] || 'bg-gray-100 text-gray-700'}`}
       >
-        {labels[status as keyof typeof labels] || status}
+        {labels[status] || status}
       </span>
     )
   }
@@ -116,21 +124,16 @@ export function DirectorStudentsPage() {
           <h1 className="text-3xl font-bold text-gray-900">Gestion des Élèves</h1>
           <p className="mt-1 text-gray-600">{filteredStudents.length} élèves inscrits</p>
         </div>
-        <div className="flex gap-3">
-          <Button
-            variant="outline"
-            className="border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-            onClick={() => {
-              /* Logic for export if needed */
-            }}
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Exporter la liste
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          className="border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+        >
+          <Download className="mr-2 h-4 w-4" />
+          Exporter la liste
+        </Button>
       </div>
 
-      {/* Stats Cards - Mocked data for now as backend aggregates aren't ready */}
+      {/* Stats */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <div className="rounded-2xl border border-gray-100 bg-white p-5">
           <div className="flex items-center gap-4">
@@ -149,8 +152,8 @@ export function DirectorStudentsPage() {
               <Award className="h-6 w-6 text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">-</p>
-              <p className="text-sm text-gray-500">Moyenne générale</p>
+              <p className="text-2xl font-bold text-gray-900">{totalActifs}</p>
+              <p className="text-sm text-gray-500">Actifs</p>
             </div>
           </div>
         </div>
@@ -160,8 +163,8 @@ export function DirectorStudentsPage() {
               <ClipboardList className="h-6 w-6 text-purple-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">-</p>
-              <p className="text-sm text-gray-500">Taux de présence</p>
+              <p className="text-2xl font-bold text-gray-900">{uniqueClasses.length}</p>
+              <p className="text-sm text-gray-500">Classes</p>
             </div>
           </div>
         </div>
@@ -178,6 +181,7 @@ export function DirectorStudentsPage() {
         </div>
       </div>
 
+      {/* Filters */}
       <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-center">
           <div className="relative flex-1">
@@ -199,7 +203,11 @@ export function DirectorStudentsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Toutes les classes</SelectItem>
-                <SelectItem value="6ème A">6ème A</SelectItem>
+                {uniqueClasses.map((cls) => (
+                  <SelectItem key={cls} value={cls}>
+                    {cls}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -210,23 +218,26 @@ export function DirectorStudentsPage() {
                 <SelectItem value="all">Tous les statuts</SelectItem>
                 <SelectItem value="ACTIF">Actif</SelectItem>
                 <SelectItem value="EXCLU">Exclu</SelectItem>
+                <SelectItem value="ABANDON">Abandon</SelectItem>
+                <SelectItem value="TRANSFERE">Transféré</SelectItem>
+                <SelectItem value="DIPLOME">Diplômé</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
       </div>
 
-      {/* Students Table */}
+      {/* Table */}
       <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="border-b border-gray-100 bg-gray-50">
               <tr>
-                <th className="p-4 text-center font-semibold text-gray-600">Photo</th>
                 <th className="p-4 text-left font-semibold text-gray-600">Élève</th>
                 <th className="p-4 text-left font-semibold text-gray-600">Matricule</th>
-                <th className="p-4 text-left font-semibold text-gray-600">Date Naissance</th>
-                <th className="p-4 text-left font-semibold text-gray-600">Quartier</th>
+                <th className="p-4 text-left font-semibold text-gray-600">Classe</th>
+                <th className="p-4 text-left font-semibold text-gray-600">Date de naissance</th>
+                <th className="p-4 text-left font-semibold text-gray-600">Documents</th>
                 <th className="p-4 text-left font-semibold text-gray-600">Statut</th>
                 <th className="p-4 text-right font-semibold text-gray-600">Actions</th>
               </tr>
@@ -244,49 +255,136 @@ export function DirectorStudentsPage() {
                     key={student.id}
                     className="border-b border-gray-50 transition-colors hover:bg-gray-50"
                   >
-                    <td className="p-4 text-center">
-                      {student.photoUrl ? (
-                        <div className="relative mx-auto h-10 w-10 overflow-hidden rounded-full">
-                          <Image
-                            src={ensureAbsoluteUrl(student.photoUrl)}
-                            alt={`${student.nom} ${student.prenom}`}
-                            fill
-                            sizes="40px"
-                            className="object-cover"
-                            unoptimized
-                          />
-                        </div>
-                      ) : (
-                        <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] font-semibold text-white">
-                          {student.nom.charAt(0)}
-                        </div>
-                      )}
-                    </td>
+                    {/* Photo + Nom */}
                     <td className="p-4">
-                      <p className="font-semibold text-gray-900">
-                        {student.nom} {student.prenom}
-                      </p>
+                      <div className="flex items-center gap-3">
+                        {student.photoUrl ? (
+                          <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-full">
+                            <Image
+                              src={ensureAbsoluteUrl(student.photoUrl)}
+                              alt={`${student.nom} ${student.prenom}`}
+                              fill
+                              sizes="40px"
+                              className="object-cover"
+                              unoptimized
+                            />
+                          </div>
+                        ) : (
+                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] font-semibold text-white">
+                            {student.nom.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-semibold text-gray-900">
+                            {student.nom} {student.prenom}
+                          </p>
+                          {student.quartier && (
+                            <p className="text-xs text-gray-400">{student.quartier.nom}</p>
+                          )}
+                        </div>
+                      </div>
                     </td>
+
+                    {/* Matricule */}
                     <td className="p-4">
                       <code className="rounded bg-gray-100 px-2 py-1 text-sm">
                         {student.matricule}
                       </code>
                     </td>
+
+                    {/* Classe */}
                     <td className="p-4">
-                      <span className="text-gray-900">
+                      {student.classeActuelle ? (
+                        <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
+                          {student.classeActuelle}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
+                    </td>
+
+                    {/* Date naissance */}
+                    <td className="p-4">
+                      <span className="text-gray-700">
                         {new Date(student.dateNaissance).toLocaleDateString('fr-FR')}
                       </span>
                     </td>
+
+                    {/* Documents */}
                     <td className="p-4">
-                      <span className="text-gray-900">{student.quartier?.nom || '-'}</span>
+                      <div className="flex items-center gap-1">
+                        {student.acteNaissanceUrl ? (
+                          <a
+                            href={ensureAbsoluteUrl(student.acteNaissanceUrl)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Acte de naissance"
+                            className="flex h-7 w-7 items-center justify-center rounded-full bg-red-50 text-red-500 transition-colors hover:bg-red-100"
+                          >
+                            <FileText className="h-3.5 w-3.5" />
+                          </a>
+                        ) : (
+                          <span
+                            className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-50 text-gray-300"
+                            title="Acte de naissance manquant"
+                          >
+                            <FileText className="h-3.5 w-3.5" />
+                          </span>
+                        )}
+                        {student.certificatMedicalUrl ? (
+                          <a
+                            href={ensureAbsoluteUrl(student.certificatMedicalUrl)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Certificat médical"
+                            className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-blue-500 transition-colors hover:bg-blue-100"
+                          >
+                            <Stethoscope className="h-3.5 w-3.5" />
+                          </a>
+                        ) : (
+                          <span
+                            className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-50 text-gray-300"
+                            title="Certificat médical manquant"
+                          >
+                            <Stethoscope className="h-3.5 w-3.5" />
+                          </span>
+                        )}
+                        {student.bulletinUrl ? (
+                          <a
+                            href={ensureAbsoluteUrl(student.bulletinUrl)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Dernier bulletin"
+                            className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-50 text-emerald-500 transition-colors hover:bg-emerald-100"
+                          >
+                            <BookOpen className="h-3.5 w-3.5" />
+                          </a>
+                        ) : (
+                          <span
+                            className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-50 text-gray-300"
+                            title="Bulletin manquant"
+                          >
+                            <BookOpen className="h-3.5 w-3.5" />
+                          </span>
+                        )}
+                      </div>
                     </td>
+
+                    {/* Statut */}
                     <td className="p-4">{getStatusBadge(student.statut)}</td>
+
+                    {/* Actions */}
                     <td className="p-4">
                       <div className="flex items-center justify-end gap-1">
-                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
+                          title="Voir le profil"
+                        >
                           <Eye className="h-4 w-4 text-gray-500" />
                         </Button>
-                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0" title="Modifier">
                           <Edit className="h-4 w-4 text-gray-500" />
                         </Button>
                       </div>
