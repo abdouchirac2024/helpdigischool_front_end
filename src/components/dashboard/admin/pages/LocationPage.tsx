@@ -229,20 +229,18 @@ export function AdminLocationPage() {
             }}
             className={`rounded-2xl border p-5 text-left transition-all ${
               activeTab === tab.key
-                ? 'border-[#2302B3] bg-[#2302B3]/5'
+                ? 'border-primary bg-primary/5'
                 : 'border-gray-100 bg-white hover:shadow-md'
             }`}
           >
             <div className="flex items-center gap-3">
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-xl ${
-                  activeTab === tab.key ? 'bg-[#2302B3]/10' : 'bg-gray-50'
+                  activeTab === tab.key ? 'bg-primary/10' : 'bg-gray-50'
                 }`}
               >
                 <tab.icon
-                  className={`h-5 w-5 ${
-                    activeTab === tab.key ? 'text-[#2302B3]' : 'text-gray-500'
-                  }`}
+                  className={`h-5 w-5 ${activeTab === tab.key ? 'text-primary' : 'text-gray-500'}`}
                 />
               </div>
               <div>
@@ -263,7 +261,7 @@ export function AdminLocationPage() {
               onClick={item.onClick}
               className={`rounded px-2 py-1 transition-colors ${
                 i === breadcrumb.length - 1
-                  ? 'font-semibold text-[#2302B3]'
+                  ? 'font-semibold text-primary'
                   : 'text-gray-500 hover:text-gray-900'
               }`}
             >
@@ -300,7 +298,7 @@ export function AdminLocationPage() {
       {/* Loading */}
       {loading && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-[#2302B3]" />
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <span className="ml-3 text-gray-500">Chargement...</span>
         </div>
       )}
@@ -340,7 +338,7 @@ export function AdminLocationPage() {
                         </td>
                         <td className="p-4">
                           <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] font-semibold text-white">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary font-semibold text-white">
                               {region.nom.charAt(0)}
                             </div>
                             <span className="font-semibold text-gray-900">{region.nom}</span>

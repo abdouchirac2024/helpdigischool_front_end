@@ -127,7 +127,7 @@ export function AdminSecurityPage() {
           <h1 className="text-3xl font-bold text-gray-900">Sécurité</h1>
           <p className="mt-1 text-gray-600">Gérez la sécurité et les accès de la plateforme</p>
         </div>
-        <Button className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]">
+        <Button className="gap-2 bg-primary hover:bg-primary-dark">
           <RefreshCw className="h-4 w-4" />
           Audit de sécurité
         </Button>
@@ -208,7 +208,7 @@ export function AdminSecurityPage() {
               </div>
               <button
                 onClick={() => setTwoFactorEnabled(!twoFactorEnabled)}
-                className={`h-6 w-12 rounded-full transition-colors ${twoFactorEnabled ? 'bg-[#2302B3]' : 'bg-gray-300'}`}
+                className={`h-6 w-12 rounded-full transition-colors ${twoFactorEnabled ? 'bg-primary' : 'bg-gray-300'}`}
               >
                 <div
                   className={`h-5 w-5 rounded-full bg-white shadow transition-transform ${twoFactorEnabled ? 'translate-x-6' : 'translate-x-0.5'}`}
@@ -229,7 +229,7 @@ export function AdminSecurityPage() {
               </div>
               <button
                 onClick={() => setIpWhitelisting(!ipWhitelisting)}
-                className={`h-6 w-12 rounded-full transition-colors ${ipWhitelisting ? 'bg-[#2302B3]' : 'bg-gray-300'}`}
+                className={`h-6 w-12 rounded-full transition-colors ${ipWhitelisting ? 'bg-primary' : 'bg-gray-300'}`}
               >
                 <div
                   className={`h-5 w-5 rounded-full bg-white shadow transition-transform ${ipWhitelisting ? 'translate-x-6' : 'translate-x-0.5'}`}

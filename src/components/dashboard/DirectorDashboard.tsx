@@ -11,12 +11,18 @@ import {
   TrendingUp,
   BookOpen,
   Loader2,
+  Clock,
+  AlertTriangle,
+  CheckCircle,
+  Mail,
+  RefreshCw,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { classeService } from '@/services/classe.service'
-import { studentService } from '@/services/student.service'
-import { teacherService } from '@/services/teacher.service'
-import type { ClasseDto } from '@/types/classe'
+import { useAuth } from '@/lib/auth/auth-context'
+import { apiClient } from '@/lib/api/client'
+import { API_ENDPOINTS } from '@/lib/api/config'
+import { useDashboardStats } from '@/hooks/use-dashboard-stats'
+import type { AppNotification } from '@/types/models/notification'
 
 const BAR_COLORS = [
   'bg-blue-500',
@@ -31,32 +37,218 @@ const BAR_COLORS = [
   'bg-teal-500',
 ]
 
-export function DirectorDashboard() {
-  const [classes, setClasses] = useState<ClasseDto[]>([])
-  const [studentsCount, setStudentsCount] = useState(0)
-  const [teachersCount, setTeachersCount] = useState(0)
-  const [isLoading, setIsLoading] = useState(true)
+function PendingSchoolView() {
+  const [notifications, setNotifications] = useState<AppNotification[]>([])
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [rejectionReason, setRejectionReason] = useState<string | null>(null)
+  const { user, refreshSession } = useAuth()
+
+  const status = user?.schoolStatus || 'EN_ATTENTE'
+  const isRejected = status === 'REJETEE'
+
+  const fetchNotifications = async () => {
+    try {
+      const data = await apiClient.get<AppNotification[]>(API_ENDPOINTS.notifications.base)
+      setNotifications(data)
+
+      const rejection = data.find((n) => n.type === 'REJET_ECOLE')
+      if (rejection) {
+        setRejectionReason(rejection.message)
+      }
+
+      // If school was validated, refresh user data via /me instead of reloading
+      const validation = data.find((n) => n.type === 'VALIDATION_ECOLE')
+      if (validation && status !== 'VALIDEE') {
+        try {
+          await refreshSession()
+        } catch {
+          // If refresh fails, ignore - user can click "Verifier le statut"
+        }
+      }
+    } catch {
+      // Silently fail
+    }
+  }
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const [classesRes, studentsRes, teachersRes] = await Promise.allSettled([
-          classeService.getAll(),
-          studentService.getAll(),
-          teacherService.getAll(),
-        ])
-
-        if (classesRes.status === 'fulfilled') setClasses(classesRes.value)
-        if (studentsRes.status === 'fulfilled') setStudentsCount(studentsRes.value.length)
-        if (teachersRes.status === 'fulfilled') setTeachersCount(teachersRes.value.length)
-      } catch (error) {
-        console.error('Failed to load dashboard data:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    fetchData()
+    fetchNotifications()
   }, [])
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true)
+    await fetchNotifications()
+    setIsRefreshing(false)
+  }
+
+  return (
+    <div className="space-y-6 p-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <p className="mt-1 text-gray-600">Vue d&apos;ensemble de votre ecole</p>
+      </div>
+
+      {/* Status Card */}
+      <div className="mx-auto max-w-2xl">
+        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+          {isRejected ? (
+            <>
+              <div className="mb-6 flex justify-center">
+                <div className="rounded-full bg-red-100 p-5">
+                  <AlertTriangle className="h-12 w-12 text-red-600" />
+                </div>
+              </div>
+
+              <h2 className="mb-3 text-center text-xl font-bold text-gray-900">
+                Votre inscription a ete rejetee
+              </h2>
+
+              {rejectionReason && (
+                <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
+                  <p className="text-sm font-medium text-red-800">Motif du rejet :</p>
+                  <p className="mt-1 text-sm text-red-700">{rejectionReason}</p>
+                </div>
+              )}
+
+              <p className="mb-6 text-center text-sm text-gray-500">
+                Veuillez contacter le support pour corriger votre inscription.
+              </p>
+
+              <div className="flex justify-center">
+                <Button asChild className="bg-primary hover:bg-primary/90">
+                  <a href="mailto:support@helpdigischool.com">
+                    <Mail className="mr-2 h-4 w-4" />
+                    Contacter le support
+                  </a>
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="mb-6 flex justify-center">
+                <div className="rounded-full bg-primary/10 p-5">
+                  <Clock className="h-12 w-12 animate-pulse text-primary" />
+                </div>
+              </div>
+
+              <h2 className="mb-3 text-center text-xl font-bold text-gray-900">
+                Votre ecole est en cours de validation
+              </h2>
+              <p className="mb-8 text-center text-sm text-gray-500">
+                Notre equipe examine votre inscription. Vous serez notifie des que votre ecole sera
+                validee.
+              </p>
+
+              {/* Progress steps */}
+              <div className="mb-8 space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-100">
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">Inscription soumise</p>
+                    <p className="text-sm text-gray-500">Votre demande a ete recue</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                    <Clock className="h-5 w-5 animate-pulse text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">Examen en cours</p>
+                    <p className="text-sm text-gray-500">Notre equipe verifie vos informations</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100">
+                    <CheckCircle className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-400">Validation</p>
+                    <p className="text-sm text-gray-400">En attente de validation</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Email notice */}
+              <div className="flex items-center gap-3 rounded-lg bg-blue-50 p-4">
+                <Mail className="h-5 w-5 shrink-0 text-secondary" />
+                <p className="text-sm text-gray-700">
+                  Un email sera envoye a votre adresse une fois la validation effectuee.
+                </p>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Refresh button */}
+        <div className="mt-6 flex justify-center">
+          <Button
+            variant="outline"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            {isRefreshing ? 'Actualisation...' : 'Verifier le statut'}
+          </Button>
+        </div>
+
+        {/* Recent notifications */}
+        {notifications.length > 0 && (
+          <div className="mt-6 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900">Notifications recentes</h3>
+            <div className="space-y-3">
+              {notifications.slice(0, 5).map((notification) => (
+                <div
+                  key={notification.id}
+                  className={`rounded-lg border p-3 ${
+                    notification.lu
+                      ? 'border-gray-100 bg-gray-50'
+                      : 'border-primary/20 bg-primary/5'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm font-medium text-gray-900">{notification.titre}</p>
+                    {!notification.lu && (
+                      <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-secondary" />
+                    )}
+                  </div>
+                  <p className="mt-1 text-sm text-gray-600">{notification.message}</p>
+                  <p className="mt-1 text-xs text-gray-400">
+                    {new Date(notification.createdAt).toLocaleDateString('fr-FR', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export function DirectorDashboard() {
+  const { user } = useAuth()
+  const schoolStatus = user?.schoolStatus
+  const isSchoolValidated = !schoolStatus || schoolStatus === 'VALIDEE'
+
+  const { classes, studentsCount, teachersCount, isLoading } = useDashboardStats(
+    isSchoolValidated ? 'director' : undefined
+  )
+
+  // Show pending view for non-validated schools
+  if (!isSchoolValidated) {
+    return <PendingSchoolView />
+  }
 
   const totalStudents = classes.reduce((acc, cls) => acc + (cls.effectifActuel || 0), 0)
 
@@ -74,7 +266,7 @@ export function DirectorDashboard() {
   if (isLoading) {
     return (
       <div className="flex h-96 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#2302B3]" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
   }
@@ -85,7 +277,7 @@ export function DirectorDashboard() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="mt-1 text-gray-600">Vue d'ensemble de votre école</p>
+          <p className="mt-1 text-gray-600">Vue d&apos;ensemble de votre ecole</p>
         </div>
         <div className="flex gap-3">
           <Button variant="outline" className="gap-2" asChild>
@@ -94,7 +286,7 @@ export function DirectorDashboard() {
               Statistiques
             </Link>
           </Button>
-          <Button className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]" asChild>
+          <Button className="gap-2 bg-primary hover:bg-primary-dark" asChild>
             <Link href="/dashboard/director/students">Ajouter Élève</Link>
           </Button>
         </div>

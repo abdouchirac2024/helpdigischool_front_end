@@ -91,7 +91,7 @@ export function SecretaryStudentsPage() {
             <Download className="h-4 w-4" />
             Exporter
           </Button>
-          <Button className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]">
+          <Button className="gap-2 bg-primary hover:bg-primary-dark">
             <UserPlus className="h-4 w-4" />
             Nouvelle inscription
           </Button>
@@ -213,7 +213,7 @@ export function SecretaryStudentsPage() {
                   <td className="px-4 py-3">
                     <a
                       href={`tel:${student.phone}`}
-                      className="text-sm text-[#2302B3] hover:underline"
+                      className="text-sm text-primary hover:underline"
                     >
                       {student.phone}
                     </a>

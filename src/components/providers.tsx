@@ -7,6 +7,7 @@ import { Toaster } from '@/components/ui/toaster'
 import { Toaster as Sonner } from '@/components/ui/sonner'
 import { AuthProvider } from '@/lib/auth'
 import { LanguageProvider } from '@/lib/i18n'
+import { SessionExpirationGuard } from '@/components/dashboard/shared/SessionExpirationGuard'
 import { useState } from 'react'
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -29,6 +30,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
         <LanguageProvider>
           <AuthProvider>
+            <SessionExpirationGuard />
             <TooltipProvider>
               {children}
               <Toaster />

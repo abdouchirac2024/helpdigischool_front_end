@@ -105,7 +105,7 @@ export function StudentCoursesPage() {
               </div>
 
               <div className="flex gap-2">
-                <Button className="flex-1 gap-2 bg-[#2302B3] hover:bg-[#1a0285]" size="sm">
+                <Button className="flex-1 gap-2 bg-primary hover:bg-primary-dark" size="sm">
                   <Play className="h-4 w-4" />
                   Continuer
                 </Button>

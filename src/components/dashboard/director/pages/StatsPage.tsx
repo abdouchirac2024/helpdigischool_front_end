@@ -78,7 +78,7 @@ export function DirectorStatsPage() {
 
       {/* Main Stats */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <div className="rounded-2xl bg-gradient-to-br from-[#2302B3] to-[#4318FF] p-5 text-white">
+        <div className="rounded-2xl bg-gradient-to-br from-primary to-secondary p-5 text-white">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20">
               <Users className="h-6 w-6 text-white" />
@@ -148,7 +148,7 @@ export function DirectorStatsPage() {
                 >
                   <span className="text-sm font-bold text-gray-900">{stat.average}</span>
                   <div
-                    className="w-full rounded-t-lg bg-gradient-to-t from-[#2302B3] to-[#4318FF] transition-all"
+                    className="w-full rounded-t-lg bg-gradient-to-t from-primary to-secondary transition-all"
                     style={{ height: `${(stat.average / maxAverage) * 100}%` }}
                   />
                 </div>
@@ -168,7 +168,7 @@ export function DirectorStatsPage() {
                 <div className="flex-1">
                   <div className="h-3 overflow-hidden rounded-full bg-gray-100">
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-[#2302B3] to-[#4318FF]"
+                      className="h-full rounded-full bg-gradient-to-r from-primary to-secondary"
                       style={{ width: `${(subject.average / 20) * 100}%` }}
                     />
                   </div>
@@ -206,7 +206,7 @@ export function DirectorStatsPage() {
                   <span
                     className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${
                       student.rank <= 3
-                        ? 'bg-gradient-to-br from-[#2302B3] to-[#4318FF] text-white'
+                        ? 'bg-gradient-to-br from-primary to-secondary text-white'
                         : 'bg-gray-100 text-gray-600'
                     }`}
                   >
@@ -218,7 +218,7 @@ export function DirectorStatsPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-[#2302B3]">{student.average}/20</p>
+                  <p className="font-bold text-primary">{student.average}/20</p>
                 </div>
               </div>
             ))}
@@ -246,7 +246,7 @@ export function DirectorStatsPage() {
                   <span
                     className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${
                       cls.rank <= 3
-                        ? 'bg-gradient-to-br from-[#2302B3] to-[#4318FF] text-white'
+                        ? 'bg-gradient-to-br from-primary to-secondary text-white'
                         : 'bg-gray-100 text-gray-600'
                     }`}
                   >
@@ -258,7 +258,7 @@ export function DirectorStatsPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-[#2302B3]">{cls.average}/20</p>
+                  <p className="font-bold text-primary">{cls.average}/20</p>
                 </div>
               </div>
             ))}

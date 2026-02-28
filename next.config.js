@@ -109,6 +109,19 @@ const nextConfig = {
         protocol: 'http',
         hostname: 'localhost',
       },
+      // MinIO Docker (avatars, documents)
+      {
+        protocol: 'http',
+        hostname: 'minio',
+      },
+      {
+        protocol: 'http',
+        hostname: 'minio-api.localhost',
+      },
+      {
+        protocol: 'http',
+        hostname: '*.localhost',
+      },
     ],
     formats: ['image/webp', 'image/avif'],
   },
@@ -117,6 +130,8 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    // URL MinIO publique pour les avatars et fichiers (frontend)
+    NEXT_PUBLIC_MINIO_URL: process.env.NEXT_PUBLIC_MINIO_URL,
   },
 
   // Headers de securite
@@ -168,18 +183,19 @@ const nextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: https: blob:",
+              "img-src 'self' data: https: http: blob:",
               "font-src 'self' data:",
-              "connect-src 'self' " +
-                (() => {
-                  try {
-                    return new URL(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080')
-                      .origin
-                  } catch {
-                    return 'http://localhost:8080'
-                  }
-                })() +
-                ' https://www.google-analytics.com',
+              `connect-src 'self' ${(() => {
+                try {
+                  const origin = new URL(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080')
+                    .origin
+                  // Allow both HTTP and WebSocket connections to backend
+                  const wsOrigin = origin.replace('http', 'ws')
+                  return `${origin} ${wsOrigin}`
+                } catch {
+                  return 'http://localhost:8080 ws://localhost:8080'
+                }
+              })()} https://www.google-analytics.com`,
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",

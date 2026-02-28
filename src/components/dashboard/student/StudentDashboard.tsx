@@ -53,11 +53,11 @@ export function StudentDashboard() {
                 3<span className="text-lg text-gray-500">/32</span>
               </p>
             </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#2302B3]/10">
-              <Award className="h-6 w-6 text-[#2302B3]" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+              <Award className="h-6 w-6 text-primary" />
             </div>
           </div>
-          <span className="rounded-full bg-[#2302B3]/10 px-2 py-1 text-xs font-semibold text-[#2302B3]">
+          <span className="rounded-full bg-primary/10 px-2 py-1 text-xs font-semibold text-primary">
             Top 10%
           </span>
         </div>
@@ -138,7 +138,7 @@ export function StudentDashboard() {
                 key={i}
                 className={`flex items-center gap-4 rounded-xl p-4 transition-colors ${
                   course.status === 'current'
-                    ? 'border-2 border-[#2302B3] bg-[#2302B3]/10'
+                    ? 'border-2 border-primary bg-primary/10'
                     : course.status === 'done'
                       ? 'bg-gray-50 opacity-60'
                       : 'bg-gray-50 hover:bg-gray-100'
@@ -146,17 +146,17 @@ export function StudentDashboard() {
               >
                 <div className="min-w-[70px] text-center">
                   <Clock
-                    className={`mx-auto mb-1 h-4 w-4 ${course.status === 'current' ? 'text-[#2302B3]' : 'text-gray-400'}`}
+                    className={`mx-auto mb-1 h-4 w-4 ${course.status === 'current' ? 'text-primary' : 'text-gray-400'}`}
                   />
                   <p
-                    className={`text-xs font-medium ${course.status === 'current' ? 'text-[#2302B3]' : 'text-gray-500'}`}
+                    className={`text-xs font-medium ${course.status === 'current' ? 'text-primary' : 'text-gray-500'}`}
                   >
                     {course.time.split(' - ')[0]}
                   </p>
                 </div>
                 <div className="flex-1">
                   <p
-                    className={`font-semibold ${course.status === 'current' ? 'text-[#2302B3]' : 'text-gray-900'}`}
+                    className={`font-semibold ${course.status === 'current' ? 'text-primary' : 'text-gray-900'}`}
                   >
                     {course.subject}
                   </p>
@@ -165,7 +165,7 @@ export function StudentDashboard() {
                   </p>
                 </div>
                 {course.status === 'current' && (
-                  <span className="rounded-full bg-[#2302B3] px-3 py-1 text-xs font-semibold text-white">
+                  <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white">
                     En cours
                   </span>
                 )}
@@ -230,7 +230,7 @@ export function StudentDashboard() {
                 <Button
                   size="sm"
                   variant={hw.urgent ? 'default' : 'outline'}
-                  className={hw.urgent ? 'bg-[#2302B3] hover:bg-[#1a0285]' : ''}
+                  className={hw.urgent ? 'bg-primary hover:bg-primary-dark' : ''}
                 >
                   Voir
                 </Button>
@@ -262,12 +262,12 @@ export function StudentDashboard() {
               </div>
               <p className="mb-2 font-semibold text-gray-900">{note.subject}</p>
               <div className="flex items-end gap-1">
-                <span className="text-3xl font-bold text-[#2302B3]">{note.grade}</span>
+                <span className="text-3xl font-bold text-primary">{note.grade}</span>
                 <span className="mb-1 text-lg text-gray-400">/{note.max}</span>
               </div>
               <div className="mt-2 h-2 overflow-hidden rounded-full bg-gray-200">
                 <div
-                  className="h-full bg-[#2302B3]"
+                  className="h-full bg-primary"
                   style={{ width: `${(note.grade / note.max) * 100}%` }}
                 />
               </div>

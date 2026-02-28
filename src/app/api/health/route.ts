@@ -1,6 +1,13 @@
-import { NextRequest } from 'next/server'
-import { proxyToBackend } from '@/lib/api/proxy'
+import { NextResponse } from 'next/server'
 
-export async function GET(request: NextRequest) {
-  return proxyToBackend(request, '/api/health')
+export async function GET() {
+  return NextResponse.json({
+    status: 'UP',
+    service: 'helpdigischool-frontend',
+    timestamp: new Date().toISOString(),
+  })
+}
+
+export async function HEAD() {
+  return new NextResponse(null, { status: 200 })
 }

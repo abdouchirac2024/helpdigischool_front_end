@@ -151,7 +151,7 @@ export function SecretaryContactsPage() {
           <h1 className="text-3xl font-bold text-gray-900">Contacts</h1>
           <p className="mt-1 text-gray-600">Annuaire des contacts de l'école</p>
         </div>
-        <Button className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]">
+        <Button className="gap-2 bg-primary hover:bg-primary-dark">
           <Plus className="h-4 w-4" />
           Ajouter contact
         </Button>
@@ -165,7 +165,7 @@ export function SecretaryContactsPage() {
             variant={selectedCategory === cat.id ? 'default' : 'outline'}
             size="sm"
             onClick={() => setSelectedCategory(cat.id)}
-            className={`gap-2 ${selectedCategory === cat.id ? 'bg-[#2302B3]' : ''}`}
+            className={`gap-2 ${selectedCategory === cat.id ? 'bg-primary' : ''}`}
           >
             <cat.icon className="h-4 w-4" />
             {cat.label}
@@ -217,14 +217,14 @@ export function SecretaryContactsPage() {
             <div className="space-y-3">
               <a
                 href={`tel:${contact.phone}`}
-                className="flex items-center gap-3 text-sm text-gray-600 hover:text-[#2302B3]"
+                className="flex items-center gap-3 text-sm text-gray-600 hover:text-primary"
               >
                 <Phone className="h-4 w-4" />
                 {contact.phone}
               </a>
               <a
                 href={`mailto:${contact.email}`}
-                className="flex items-center gap-3 text-sm text-gray-600 hover:text-[#2302B3]"
+                className="flex items-center gap-3 text-sm text-gray-600 hover:text-primary"
               >
                 <Mail className="h-4 w-4" />
                 {contact.email}

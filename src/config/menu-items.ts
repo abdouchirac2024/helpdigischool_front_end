@@ -28,14 +28,15 @@ import {
   Navigation,
   UserCheck,
   Link2,
+  Palette,
 } from 'lucide-react'
 import { type MenuItem } from '@/components/dashboard/shared/Sidebar'
 
 export const menuItemsByRole: Record<string, MenuItem[]> = {
   admin: [
     { icon: LayoutDashboard, label: "Vue d'ensemble", href: '/dashboard/admin' },
-    { icon: Building2, label: 'Écoles', href: '/dashboard/admin/schools', badge: '127' },
-    { icon: Users, label: 'Utilisateurs', href: '/dashboard/admin/users', badge: '2.4k' },
+    { icon: Building2, label: 'Écoles', href: '/dashboard/admin/schools' },
+    { icon: Users, label: 'Utilisateurs', href: '/dashboard/admin/users' },
     { icon: CreditCard, label: 'Abonnements', href: '/dashboard/admin/subscriptions' },
     { icon: TrendingUp, label: 'Revenus', href: '/dashboard/admin/revenue' },
     { icon: BarChart3, label: 'Analytiques', href: '/dashboard/admin/analytics' },
@@ -68,6 +69,7 @@ export const menuItemsByRole: Record<string, MenuItem[]> = {
         },
       ],
     },
+    { icon: Bell, label: 'Notifications', href: '/dashboard/admin/notifications' },
     { icon: Database, label: 'Base de données', href: '/dashboard/admin/database' },
     { icon: Shield, label: 'Sécurité', href: '/dashboard/admin/security' },
     { icon: Settings, label: 'Paramètres', href: '/dashboard/admin/settings' },
@@ -114,7 +116,8 @@ export const menuItemsByRole: Record<string, MenuItem[]> = {
       ],
     },
     { icon: BarChart3, label: 'Statistiques', href: '/dashboard/director/stats' },
-    { icon: Bell, label: 'Notifications', href: '/dashboard/director/notifications', badge: '5' },
+    { icon: Palette, label: 'Branding', href: '/dashboard/director/branding' },
+    { icon: Bell, label: 'Notifications', href: '/dashboard/director/notifications' },
     { icon: Settings, label: 'Paramètres', href: '/dashboard/director/settings' },
   ],
   teacher: [

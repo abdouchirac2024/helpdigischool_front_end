@@ -25,6 +25,7 @@ import {
 import { useToast } from '@/hooks/use-toast'
 import { useAuth, ROLE_DASHBOARD_PATHS_EXTENDED } from '@/lib/auth'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import type { SchoolBackend } from '@/types/models/school'
 
 const slides = [
   {
@@ -90,7 +91,64 @@ export default function LoginForm() {
     rememberMe: false,
   })
 
+  // School branding for subdomain login
+  const [schoolBranding, setSchoolBranding] = useState<SchoolBackend | null>(null)
+  const [brandingLoading, setBrandingLoading] = useState(true)
+
+  // Fetch school branding based on subdomain
+  useEffect(() => {
+    async function fetchBranding() {
+      try {
+        const hostname = window.location.hostname
+        // Extract subdomain: "ecole-la-victoire.localhost" → "ecole-la-victoire"
+        const parts = hostname.split('.')
+        let slug: string | null = null
+        if (parts.length >= 2 && parts[parts.length - 1] !== 'com') {
+          slug = parts.slice(0, -1).join('.')
+        } else if (parts.length >= 3 && parts[parts.length - 1] === 'com') {
+          slug = parts.slice(0, -2).join('.')
+        }
+
+        if (!slug) {
+          setBrandingLoading(false)
+          return
+        }
+
+        const res = await fetch(`/api/backend/schools/slug/${slug}`)
+        if (!res.ok) {
+          setBrandingLoading(false)
+          return
+        }
+        const school: SchoolBackend = await res.json()
+        if (school && school.statutEcole === 'VALIDEE') {
+          setSchoolBranding(school)
+        }
+      } catch {
+        // Fallback to default login on error
+      } finally {
+        setBrandingLoading(false)
+      }
+    }
+    fetchBranding()
+  }, [])
+
   const callbackUrl = searchParams.get('callbackUrl')
+
+  // Derived branding values
+  const primaryColor = schoolBranding?.couleurPrimaire || '#2302B3'
+  const primaryColorHover = schoolBranding?.couleurPrimaire
+    ? `${schoolBranding.couleurPrimaire}dd`
+    : '#1c0291'
+
+  function getSchoolInitials(nom: string): string {
+    return nom
+      .split(' ')
+      .filter((w) => w.length > 0)
+      .slice(0, 3)
+      .map((w) => w[0])
+      .join('')
+      .toUpperCase()
+  }
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -165,7 +223,10 @@ export default function LoginForm() {
       {/* Left Side - Form */}
       <div className="relative flex flex-col justify-center overflow-hidden bg-white p-8 lg:p-16">
         {/* Geometric Pattern Overlay - Consistent with Contact Page */}
-        <div className="pointer-events-none absolute inset-0 text-[#2302B3] opacity-[0.04]">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.04]"
+          style={{ color: primaryColor }}
+        >
           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <pattern
@@ -199,19 +260,48 @@ export default function LoginForm() {
 
         <div className="relative z-10 mx-auto w-full max-w-md">
           <div className="mb-10">
-            <Link href="/" className="group mb-8 inline-flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2302B3]/10 transition-colors group-hover:bg-[#2302B3]/20">
-                <GraduationCap className="h-6 w-6 text-[#2302B3]" />
+            {schoolBranding ? (
+              <div className="group mb-8 inline-flex items-center gap-2">
+                {schoolBranding.logoUrl ? (
+                  <div
+                    className="flex h-10 w-10 items-center justify-center rounded-xl p-1"
+                    style={{ backgroundColor: `${primaryColor}15` }}
+                  >
+                    <img
+                      src={schoolBranding.logoUrl}
+                      alt={schoolBranding.nom}
+                      className="h-full w-full rounded-lg object-contain"
+                    />
+                  </div>
+                ) : (
+                  <div
+                    className="flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold text-white"
+                    style={{ backgroundColor: primaryColor }}
+                  >
+                    {getSchoolInitials(schoolBranding.nom)}
+                  </div>
+                )}
+                <span className="text-xl font-bold tracking-tight" style={{ color: primaryColor }}>
+                  {schoolBranding.nom}
+                </span>
               </div>
-              <span className="text-xl font-bold tracking-tight text-[#2302B3]">
-                Help Digi School
-              </span>
-            </Link>
+            ) : (
+              <Link href="/" className="group mb-8 inline-flex items-center gap-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2302B3]/10 transition-colors group-hover:bg-[#2302B3]/20">
+                  <GraduationCap className="h-6 w-6 text-[#2302B3]" />
+                </div>
+                <span className="text-xl font-bold tracking-tight text-[#2302B3]">
+                  Help Digi School
+                </span>
+              </Link>
+            )}
             <h1 className="mb-3 text-3xl font-black tracking-tight text-gray-900">
-              Bon retour parmi nous
+              {schoolBranding ? `Bienvenue a ${schoolBranding.nom}` : 'Bon retour parmi nous'}
             </h1>
             <p className="text-lg text-muted-foreground">
-              Connectez-vous pour gérer votre établissement.
+              {schoolBranding
+                ? `Connectez-vous a votre espace ${schoolBranding.nom}`
+                : 'Connectez-vous pour gérer votre établissement.'}
             </p>
           </div>
 
@@ -237,7 +327,8 @@ export default function LoginForm() {
                 <Label htmlFor="password">Mot de passe</Label>
                 <Link
                   href="/forgot-password"
-                  className="text-sm font-medium text-[#2302B3] hover:underline"
+                  className="text-sm font-medium hover:underline"
+                  style={{ color: primaryColor }}
                 >
                   Oublié?
                 </Link>
@@ -270,7 +361,12 @@ export default function LoginForm() {
                 onCheckedChange={(checked) =>
                   setFormData((prev) => ({ ...prev, rememberMe: checked as boolean }))
                 }
-                className="data-[state=checked]:border-[#2302B3] data-[state=checked]:bg-[#2302B3]"
+                style={
+                  {
+                    '--checkbox-color': primaryColor,
+                  } as React.CSSProperties
+                }
+                className="data-[state=checked]:border-[var(--checkbox-color)] data-[state=checked]:bg-[var(--checkbox-color)]"
               />
               <Label htmlFor="remember" className="cursor-pointer text-sm text-gray-600">
                 Se souvenir de moi pendant 30 jours
@@ -279,7 +375,10 @@ export default function LoginForm() {
 
             <Button
               type="submit"
-              className="h-12 w-full bg-[#2302B3] text-base font-semibold shadow-lg shadow-blue-900/20 hover:bg-[#1c0291]"
+              className="h-12 w-full text-base font-semibold text-white shadow-lg shadow-blue-900/20"
+              style={{ backgroundColor: primaryColor }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = primaryColorHover)}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = primaryColor)}
               disabled={isLoading}
             >
               {isLoading ? (
@@ -293,19 +392,24 @@ export default function LoginForm() {
             </Button>
           </form>
 
-          <div className="mt-8 border-t border-gray-100 pt-6 text-center">
-            <p className="text-gray-500">
-              Pas encore de compte?{' '}
-              <Link href="/register" className="font-bold text-[#2302B3] hover:underline">
-                Créer un compte école
-              </Link>
-            </p>
-          </div>
+          {!schoolBranding && (
+            <div className="mt-8 border-t border-gray-100 pt-6 text-center">
+              <p className="text-gray-500">
+                Pas encore de compte?{' '}
+                <Link href="/register" className="font-bold text-[#2302B3] hover:underline">
+                  Créer un compte école
+                </Link>
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Right Side - Carousel & Features */}
-      <div className="hidden overflow-hidden bg-[#2302B3] text-white lg:relative lg:block">
+      <div
+        className="hidden overflow-hidden text-white lg:relative lg:block"
+        style={{ backgroundColor: primaryColor }}
+      >
         {/* Carousel Layers */}
         {slides.map((slide, index) => (
           <div key={index} className="absolute inset-0">
@@ -324,8 +428,8 @@ export default function LoginForm() {
               style={{
                 background:
                   slide.position === 'top'
-                    ? 'linear-gradient(to bottom, #2302B3 10%, rgba(35,2,179,0.8) 50%, transparent 100%)'
-                    : 'linear-gradient(to top, #2302B3 10%, rgba(35,2,179,0.8) 50%, transparent 100%)',
+                    ? `linear-gradient(to bottom, ${primaryColor} 10%, ${primaryColor}cc 50%, transparent 100%)`
+                    : `linear-gradient(to top, ${primaryColor} 10%, ${primaryColor}cc 50%, transparent 100%)`,
               }}
             />
           </div>

@@ -198,7 +198,7 @@ export function AdminEleveParentsPage() {
           <h1 className="text-3xl font-bold text-gray-900">Relations Élève-Parent</h1>
           <p className="mt-1 text-gray-600">{relations.length} relation(s) enregistrée(s)</p>
         </div>
-        <Button onClick={openCreateModal} className="bg-[#2302B3] hover:bg-[#1a0285]">
+        <Button onClick={openCreateModal} className="bg-primary hover:bg-primary-dark">
           <Plus className="mr-2 h-4 w-4" />
           Ajouter une relation
         </Button>
@@ -279,7 +279,7 @@ export function AdminEleveParentsPage() {
       {/* Loading */}
       {loading && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-[#2302B3]" />
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <span className="ml-3 text-gray-500">Chargement...</span>
         </div>
       )}
@@ -489,7 +489,7 @@ export function AdminEleveParentsPage() {
                     type="checkbox"
                     checked={formData.estPrincipal}
                     onChange={(e) => setFormData({ ...formData, estPrincipal: e.target.checked })}
-                    className="h-4 w-4 rounded border-gray-300 text-[#2302B3]"
+                    className="h-4 w-4 rounded border-gray-300 text-primary"
                   />
                   <div>
                     <span className="text-sm font-medium text-gray-700">Parent principal</span>
@@ -506,7 +506,7 @@ export function AdminEleveParentsPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, autoriseUrgence: e.target.checked })
                     }
-                    className="h-4 w-4 rounded border-gray-300 text-[#2302B3]"
+                    className="h-4 w-4 rounded border-gray-300 text-primary"
                   />
                   <div>
                     <span className="text-sm font-medium text-gray-700">
@@ -525,7 +525,7 @@ export function AdminEleveParentsPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, autorisePriseEnCharge: e.target.checked })
                     }
-                    className="h-4 w-4 rounded border-gray-300 text-[#2302B3]"
+                    className="h-4 w-4 rounded border-gray-300 text-primary"
                   />
                   <div>
                     <span className="text-sm font-medium text-gray-700">
@@ -553,7 +553,7 @@ export function AdminEleveParentsPage() {
                 <Button type="button" variant="outline" onClick={() => setShowModal(false)}>
                   Annuler
                 </Button>
-                <Button type="submit" disabled={saving} className="bg-[#2302B3] hover:bg-[#1a0185]">
+                <Button type="submit" disabled={saving} className="bg-primary hover:bg-[#1a0185]">
                   {saving ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />

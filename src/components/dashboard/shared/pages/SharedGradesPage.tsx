@@ -25,12 +25,6 @@ interface SharedGradesPageProps {
 }
 
 // ---------------------------------------------------------------------------
-// Brand colour
-// ---------------------------------------------------------------------------
-
-const BRAND = '#2302B3'
-
-// ---------------------------------------------------------------------------
 // Header titles per role
 // ---------------------------------------------------------------------------
 
@@ -156,11 +150,8 @@ function StatCard({
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
       <div className="flex items-center gap-3">
-        <div
-          className="flex h-10 w-10 items-center justify-center rounded-lg"
-          style={{ backgroundColor: `${BRAND}15` }}
-        >
-          <Icon className="h-5 w-5" style={{ color: BRAND }} />
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/[0.08]">
+          <Icon className="h-5 w-5 text-primary" />
         </div>
         <div>
           <p className="text-sm text-gray-500">{label}</p>
@@ -199,8 +190,7 @@ function DirectorView() {
           <h2 className="text-lg font-semibold text-gray-900">Résultats par classe</h2>
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90"
-            style={{ backgroundColor: BRAND }}
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90"
           >
             <Download className="h-4 w-4" />
             Exporter
@@ -262,8 +252,7 @@ function TeacherView() {
           <select
             value={selectedClass}
             onChange={(e) => setSelectedClass(e.target.value)}
-            className="appearance-none rounded-lg border border-gray-300 bg-white py-2 pl-4 pr-10 text-sm font-medium text-gray-700 focus:border-transparent focus:outline-none focus:ring-2"
-            style={{ focusRingColor: BRAND } as React.CSSProperties}
+            className="appearance-none rounded-lg border border-gray-300 bg-white py-2 pl-4 pr-10 text-sm font-medium text-gray-700 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary"
           >
             <option>6ème A</option>
             <option>6ème B</option>
@@ -310,8 +299,7 @@ function TeacherView() {
             </button>
             <button
               type="button"
-              className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90"
-              style={{ backgroundColor: BRAND }}
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90"
             >
               <Check className="h-4 w-4" />
               Enregistrer
@@ -344,8 +332,7 @@ function TeacherView() {
                         defaultValue={s.eval1}
                         min={0}
                         max={20}
-                        className="w-16 rounded border border-gray-300 px-2 py-1 text-center text-sm focus:outline-none focus:ring-2"
-                        style={{ focusRingColor: BRAND } as React.CSSProperties}
+                        className="w-16 rounded border border-gray-300 px-2 py-1 text-center text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </td>
                     <td className="px-6 py-3">
@@ -431,8 +418,7 @@ function StudentView() {
           <h2 className="text-lg font-semibold text-gray-900">Détail des notes — Trimestre 1</h2>
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90"
-            style={{ backgroundColor: BRAND }}
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90"
           >
             <Download className="h-4 w-4" />
             Télécharger le bulletin
@@ -478,10 +464,7 @@ function StudentView() {
                   Moyenne générale pondérée
                 </td>
                 <td className="px-6 py-3">
-                  <span
-                    className="inline-flex rounded-full px-2.5 py-0.5 text-sm font-bold"
-                    style={{ backgroundColor: `${BRAND}15`, color: BRAND }}
-                  >
+                  <span className="inline-flex rounded-full bg-primary/[0.08] px-2.5 py-0.5 text-sm font-bold text-primary">
                     {generalAvg}/20
                   </span>
                 </td>
@@ -515,10 +498,9 @@ function ParentView() {
             onClick={() => setSelectedChild(c.id)}
             className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
               c.id === selectedChild
-                ? 'border-transparent text-white'
+                ? 'border-transparent bg-primary text-white'
                 : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
             }`}
-            style={c.id === selectedChild ? { backgroundColor: BRAND } : undefined}
           >
             <GraduationCap className="h-4 w-4" />
             {c.name} — {c.class}
@@ -540,8 +522,7 @@ function ParentView() {
           <h2 className="text-lg font-semibold text-gray-900">Notes de {child.name}</h2>
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90"
-            style={{ backgroundColor: BRAND }}
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90"
           >
             <Download className="h-4 w-4" />
             Télécharger le bulletin
@@ -587,10 +568,7 @@ function ParentView() {
                   Moyenne générale pondérée
                 </td>
                 <td className="px-6 py-3">
-                  <span
-                    className="inline-flex rounded-full px-2.5 py-0.5 text-sm font-bold"
-                    style={{ backgroundColor: `${BRAND}15`, color: BRAND }}
-                  >
+                  <span className="inline-flex rounded-full bg-primary/[0.08] px-2.5 py-0.5 text-sm font-bold text-primary">
                     {generalAvg}/20
                   </span>
                 </td>
@@ -619,8 +597,7 @@ export default function SharedGradesPage({ role, viewMode }: SharedGradesPagePro
             <input
               type="text"
               placeholder="Rechercher..."
-              className="rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-4 text-sm text-gray-700 focus:outline-none focus:ring-2"
-              style={{ focusRingColor: BRAND } as React.CSSProperties}
+              className="rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-4 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
         )}

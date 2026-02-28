@@ -152,7 +152,7 @@ export function TeacherAttendancePage() {
                 <div className="flex items-center gap-4">
                   <span className="w-8 text-sm font-medium text-gray-500">{index + 1}</span>
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] font-semibold text-white">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary font-semibold text-white">
                       {student.name.charAt(0)}
                     </div>
                     <span className="font-medium text-gray-900">{student.name}</span>
@@ -201,7 +201,7 @@ export function TeacherAttendancePage() {
 
       {/* Save Button */}
       <div className="flex justify-end">
-        <Button className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]" size="lg">
+        <Button className="gap-2 bg-primary hover:bg-primary-dark" size="lg">
           <Check className="h-5 w-5" />
           Enregistrer la présence
         </Button>

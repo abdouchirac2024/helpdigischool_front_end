@@ -87,7 +87,7 @@ export function SecretaryDashboard() {
             ].map((enrollment, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between rounded-lg border border-gray-200 p-3 transition-colors hover:border-[#2302B3]"
+                className="flex items-center justify-between rounded-lg border border-gray-200 p-3 transition-colors hover:border-primary"
               >
                 <div>
                   <p className="text-sm font-medium">{enrollment.name}</p>
@@ -96,7 +96,7 @@ export function SecretaryDashboard() {
                   </p>
                   <p className="text-xs text-gray-400">{enrollment.phone}</p>
                 </div>
-                <Button size="sm" className="bg-[#2302B3] hover:bg-[#1a0285]">
+                <Button size="sm" className="bg-primary hover:bg-primary-dark">
                   Traiter
                 </Button>
               </div>

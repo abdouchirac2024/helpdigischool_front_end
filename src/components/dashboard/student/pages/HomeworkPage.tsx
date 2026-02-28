@@ -125,7 +125,7 @@ export function StudentHomeworkPage() {
             variant={filter === f.value ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter(f.value)}
-            className={filter === f.value ? 'bg-[#2302B3] hover:bg-[#1a0285]' : ''}
+            className={filter === f.value ? 'bg-primary hover:bg-primary-dark' : ''}
           >
             {f.label} ({f.count})
           </Button>
@@ -144,7 +144,7 @@ export function StudentHomeworkPage() {
             <div className="flex flex-col gap-4 md:flex-row md:items-start">
               <div className="flex-1">
                 <div className="mb-2 flex items-center gap-3">
-                  <span className="rounded-full bg-[#2302B3]/10 px-3 py-1 text-sm font-semibold text-[#2302B3]">
+                  <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
                     {hw.subject}
                   </span>
                   {getStatusBadge(hw.status, hw.urgent)}
@@ -166,7 +166,7 @@ export function StudentHomeworkPage() {
                       <Upload className="h-4 w-4" />
                       Déposer
                     </Button>
-                    <Button size="sm" className="bg-[#2302B3] hover:bg-[#1a0285]">
+                    <Button size="sm" className="bg-primary hover:bg-primary-dark">
                       Voir détails
                     </Button>
                   </>

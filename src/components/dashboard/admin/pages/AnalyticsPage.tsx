@@ -148,7 +148,7 @@ export function AdminAnalyticsPage() {
                 className="flex items-center justify-between rounded-xl bg-gray-50 p-3 transition-colors hover:bg-gray-100"
               >
                 <div className="flex items-center gap-3">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#2302B3] text-xs font-bold text-white">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
                     {i + 1}
                   </span>
                   <span className="font-medium text-gray-900">{page.page}</span>
@@ -189,7 +189,7 @@ export function AdminAnalyticsPage() {
                   <td className="p-4">
                     <span
                       className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
-                        i < 3 ? 'bg-[#2302B3] text-white' : 'bg-gray-200 text-gray-600'
+                        i < 3 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'
                       }`}
                     >
                       {i + 1}
@@ -204,11 +204,11 @@ export function AdminAnalyticsPage() {
                     <div className="flex items-center justify-end gap-2">
                       <div className="h-2 w-20 overflow-hidden rounded-full bg-gray-100">
                         <div
-                          className="h-full bg-[#2302B3]"
+                          className="h-full bg-primary"
                           style={{ width: `${Math.min(school.users / 2, 100)}%` }}
                         />
                       </div>
-                      <span className="text-sm font-semibold text-[#2302B3]">
+                      <span className="text-sm font-semibold text-primary">
                         {Math.round(school.sessions / school.users)}
                       </span>
                     </div>

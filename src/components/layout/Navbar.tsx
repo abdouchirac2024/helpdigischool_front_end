@@ -121,6 +121,19 @@ export function Navbar() {
   const userEmail = user?.email || ''
   const dashboardPath = user?.role ? roleDashboardPaths[user.role] || '/dashboard' : '/dashboard'
 
+  // Resoudre l'URL de l'avatar via le proxy backend
+  const avatarUrl = (() => {
+    const raw = user?.profile?.avatar
+    if (!raw) return null
+    if (raw.startsWith('http')) return raw
+    const backendBase =
+      typeof window !== 'undefined' && window.location.hostname === 'localhost'
+        ? '/api/backend'
+        : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
+    const path = raw.startsWith('/api/') ? raw.substring(4) : raw
+    return `${backendBase}${path}`
+  })()
+
   const handleLogout = async () => {
     try {
       await logout()
@@ -231,9 +244,17 @@ export function Navbar() {
                       variant="ghost"
                       className="flex items-center gap-2 rounded-xl px-2 hover:bg-gray-50 sm:px-3"
                     >
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] shadow-md shadow-[#2302B3]/20">
-                        <span className="text-xs font-semibold text-white">{userInitials}</span>
-                      </div>
+                      {avatarUrl ? (
+                        <img
+                          src={avatarUrl}
+                          alt={userName}
+                          className="h-8 w-8 rounded-full border border-gray-200 object-cover shadow-md shadow-[#2302B3]/20"
+                        />
+                      ) : (
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] shadow-md shadow-[#2302B3]/20">
+                          <span className="text-xs font-semibold text-white">{userInitials}</span>
+                        </div>
+                      )}
                       <div className="hidden text-left md:block">
                         <p className="text-sm font-medium text-gray-900">{userName}</p>
                         <p className="text-[11px] text-gray-400" suppressHydrationWarning>
@@ -454,9 +475,17 @@ export function Navbar() {
           {!isLoading && isAuthenticated && user && (
             <div className="space-y-1">
               <div className="flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] shadow-md shadow-[#2302B3]/20">
-                  <span className="text-xs font-semibold text-white">{userInitials}</span>
-                </div>
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={userName}
+                    className="h-9 w-9 rounded-full border border-gray-200 object-cover shadow-md shadow-[#2302B3]/20"
+                  />
+                ) : (
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] shadow-md shadow-[#2302B3]/20">
+                    <span className="text-xs font-semibold text-white">{userInitials}</span>
+                  </div>
+                )}
                 <div>
                   <p className="text-sm font-medium text-gray-900">{userName}</p>
                   <p className="text-[11px] text-gray-400" suppressHydrationWarning>

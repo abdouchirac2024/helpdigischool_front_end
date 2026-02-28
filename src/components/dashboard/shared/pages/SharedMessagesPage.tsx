@@ -269,7 +269,7 @@ export default function SharedMessagesPage({ role }: SharedMessagesPageProps) {
         <div className="border-b border-gray-100 p-4">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-xl font-bold text-gray-900">Messages</h2>
-            <Button size="sm" className="h-8 w-8 bg-[#2302B3] p-0 hover:bg-[#1a0285]">
+            <Button size="sm" className="h-8 w-8 bg-primary p-0 hover:bg-primary-dark">
               <Plus className="h-4 w-4" />
             </Button>
           </div>
@@ -286,12 +286,12 @@ export default function SharedMessagesPage({ role }: SharedMessagesPageProps) {
               onClick={() => setSelectedConversation(conv)}
               className={`flex cursor-pointer items-center gap-3 p-4 transition-colors ${
                 selectedConversation.id === conv.id
-                  ? 'border-l-2 border-[#2302B3] bg-[#2302B3]/5'
+                  ? 'border-l-2 border-primary bg-primary/5'
                   : 'hover:bg-gray-50'
               }`}
             >
               <div className="relative">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] font-semibold text-white">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary font-semibold text-white">
                   {conv.avatar}
                 </div>
                 {conv.online && (
@@ -306,7 +306,7 @@ export default function SharedMessagesPage({ role }: SharedMessagesPageProps) {
                 <p className="truncate text-sm text-gray-500">{conv.lastMessage}</p>
               </div>
               {conv.unread > 0 && (
-                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#2302B3] text-xs text-white">
+                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-xs text-white">
                   {conv.unread}
                 </div>
               )}
@@ -321,7 +321,7 @@ export default function SharedMessagesPage({ role }: SharedMessagesPageProps) {
         <div className="flex items-center justify-between border-b border-gray-100 bg-white px-6 py-4">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] font-semibold text-white">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary font-semibold text-white">
                 {selectedConversation.avatar}
               </div>
               {selectedConversation.online && (
@@ -360,7 +360,7 @@ export default function SharedMessagesPage({ role }: SharedMessagesPageProps) {
               <div
                 className={`max-w-[70%] ${
                   msg.sender === 'me'
-                    ? 'rounded-2xl rounded-br-sm bg-[#2302B3] text-white'
+                    ? 'rounded-2xl rounded-br-sm bg-primary text-white'
                     : 'rounded-2xl rounded-bl-sm border border-gray-100 bg-white text-gray-900'
                 } px-4 py-3`}
               >
@@ -390,7 +390,7 @@ export default function SharedMessagesPage({ role }: SharedMessagesPageProps) {
               onChange={(e) => setMessageText(e.target.value)}
               className="flex-1 border-gray-200 bg-gray-50"
             />
-            <Button className="bg-[#2302B3] hover:bg-[#1a0285]">
+            <Button className="bg-primary hover:bg-primary-dark">
               <Send className="h-5 w-5" />
             </Button>
           </div>

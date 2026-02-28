@@ -45,7 +45,7 @@ export function AdminDatabasePage() {
             <RefreshCw className="h-4 w-4" />
             Actualiser
           </Button>
-          <Button className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]">
+          <Button className="gap-2 bg-primary hover:bg-primary-dark">
             <Download className="h-4 w-4" />
             Backup manuel
           </Button>
@@ -121,8 +121,8 @@ export function AdminDatabasePage() {
             {tables.map((table, i) => (
               <div key={i} className="flex items-center justify-between p-4 hover:bg-gray-50">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#2302B3]/10">
-                    <Database className="h-5 w-5 text-[#2302B3]" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                    <Database className="h-5 w-5 text-primary" />
                   </div>
                   <div>
                     <p className="font-mono font-semibold text-gray-900">{table.name}</p>

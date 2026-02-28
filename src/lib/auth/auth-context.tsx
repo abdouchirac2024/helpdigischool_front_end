@@ -8,14 +8,13 @@ import {
   RegisterSchoolRequest,
   RegisterResponse,
 } from '@/types/api/auth'
-import { apiClient, setAuthToken, removeAuthToken } from '@/lib/api/client'
+import { apiClient, removeAuthToken } from '@/lib/api/client'
 import { API_ENDPOINTS } from '@/lib/api/config'
 import { useRouter } from 'next/navigation'
 
-// Token storage keys
-const TOKEN_KEY = 'auth_token'
-const REFRESH_TOKEN_KEY = 'refresh_token'
+// Storage keys (tokens JWT plus stockés ici — gérés par cookies HttpOnly côté backend)
 const USER_KEY = 'auth_user'
+export const TOKEN_EXPIRES_AT_KEY = 'token_expires_at'
 
 // Backend role to frontend role mapping
 const BACKEND_ROLE_MAP: Record<string, UserRole> = {
@@ -31,6 +30,9 @@ const BACKEND_ROLE_MAP: Record<string, UserRole> = {
 function mapBackendUserToFrontend(backendUser: BackendUserResponse): User {
   const frontendRole = BACKEND_ROLE_MAP[backendUser.role] || 'director'
 
+  // Determine if school is pending/rejected
+  const schoolStatus = backendUser.statutEcole || undefined
+
   return {
     id: String(backendUser.id),
     email: backendUser.email,
@@ -40,8 +42,12 @@ function mapBackendUserToFrontend(backendUser: BackendUserResponse): User {
       firstName: backendUser.prenom,
       lastName: backendUser.nom,
       phone: backendUser.telephone || undefined,
+      avatar: backendUser.avatarUrl || undefined,
     },
     schoolId: backendUser.tenantId,
+    ecoleId: backendUser.ecoleId || undefined,
+    schoolName: backendUser.ecoleNom || undefined,
+    schoolStatus,
     createdAt: new Date(),
     updatedAt: new Date(),
   }
@@ -59,6 +65,8 @@ interface BackendUserResponse {
   ecoleId: number | null
   ecoleNom: string | null
   codeEcole: string | null
+  statutEcole: string | null
+  avatarUrl: string | null
 }
 
 interface BackendLoginResponse {
@@ -69,23 +77,12 @@ interface BackendLoginResponse {
   user: BackendUserResponse
 }
 
-// Cookie helpers for middleware access
-function setCookie(name: string, value: string, days: number = 7) {
-  if (typeof document === 'undefined') return
-  const expires = new Date(Date.now() + days * 864e5).toUTCString()
-  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`
-}
-
-function deleteCookie(name: string) {
-  if (typeof document === 'undefined') return
-  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`
-}
-
 export interface AuthState {
   user: User | null
   isAuthenticated: boolean
   isLoading: boolean
   error: string | null
+  tokenExpiresAt: number | null
 }
 
 export interface AuthContextType extends AuthState {
@@ -96,6 +93,7 @@ export interface AuthContextType extends AuthState {
   clearError: () => void
   hasPermission: (permission: keyof User) => boolean
   isRole: (role: UserRole | UserRole[]) => boolean
+  updateUser: (updates: Partial<User>) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -127,39 +125,44 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isAuthenticated: false,
     isLoading: true,
     error: null,
+    tokenExpiresAt: null,
   })
 
-  // Initialize auth state from storage
+  // Initialize auth state — vérifie la session via cookie HttpOnly → /api/auth/me
+  // Guard: on ne tente la vérification que si localStorage indique une session précédente.
+  // Évite une boucle infinie sur /login (sans storedUser → pas d'appel → pas de 401 loop).
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const token = localStorage.getItem(TOKEN_KEY)
         const storedUser = localStorage.getItem(USER_KEY)
 
-        if (token && storedUser) {
-          const user = JSON.parse(storedUser) as User
-          setAuthToken(token)
+        if (storedUser) {
+          const storedExpiresAt = localStorage.getItem(TOKEN_EXPIRES_AT_KEY)
+          const tokenExpiresAt = storedExpiresAt ? Number(storedExpiresAt) : null
 
-          // Verify token with backend via apiClient (utilise le proxy CORS)
+          // Vérifier la session avec le backend via cookie (withCredentials auto).
+          // Si le access_token est expiré, l'intercepteur axios tente un refresh automatique.
           try {
             const backendUser = await apiClient.get<BackendUserResponse>(API_ENDPOINTS.auth.me)
             const frontendUser = mapBackendUserToFrontend(backendUser)
 
+            localStorage.setItem(USER_KEY, JSON.stringify(frontendUser))
             setState({
               user: frontendUser,
               isAuthenticated: true,
               isLoading: false,
               error: null,
+              tokenExpiresAt,
             })
-
-            localStorage.setItem(USER_KEY, JSON.stringify(frontendUser))
           } catch {
-            // API error, use stored user
+            // Cookie invalide ou expiré et refresh échoué → nettoyage
+            clearAuthStorage()
             setState({
-              user: user,
-              isAuthenticated: true,
+              user: null,
+              isAuthenticated: false,
               isLoading: false,
               error: null,
+              tokenExpiresAt: null,
             })
           }
         } else {
@@ -168,6 +171,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             isAuthenticated: false,
             isLoading: false,
             error: null,
+            tokenExpiresAt: null,
           })
         }
       } catch {
@@ -176,6 +180,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           isAuthenticated: false,
           isLoading: false,
           error: null,
+          tokenExpiresAt: null,
         })
       }
     }
@@ -184,66 +189,67 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [])
 
   const clearAuthStorage = () => {
-    localStorage.removeItem(TOKEN_KEY)
-    localStorage.removeItem(REFRESH_TOKEN_KEY)
     localStorage.removeItem(USER_KEY)
-    deleteCookie(TOKEN_KEY)
-    removeAuthToken()
+    localStorage.removeItem(TOKEN_EXPIRES_AT_KEY)
+    removeAuthToken() // no-op, conservé pour compatibilité
   }
 
-  const login = useCallback(async (credentials: LoginRequest): Promise<LoginResponse> => {
-    setState((prev) => ({ ...prev, isLoading: true, error: null }))
+  const login = useCallback(
+    async (credentials: LoginRequest): Promise<LoginResponse> => {
+      setState((prev) => ({ ...prev, isLoading: true, error: null }))
 
-    try {
-      // Call backend via apiClient (utilise le proxy CORS + retry)
-      const backendResponse = await apiClient.post<BackendLoginResponse>(API_ENDPOINTS.auth.login, {
-        login: credentials.login,
-        password: credentials.password,
-      })
+      try {
+        // Le backend pose les cookies HttpOnly access_token + refresh_token dans la réponse
+        const backendResponse = await apiClient.post<BackendLoginResponse>(
+          API_ENDPOINTS.auth.login,
+          {
+            login: credentials.login,
+            password: credentials.password,
+          }
+        )
 
-      // Convert backend user to frontend user
-      const frontendUser = mapBackendUserToFrontend(backendResponse.user)
+        const frontendUser = mapBackendUserToFrontend(backendResponse.user)
 
-      const loginResponse: LoginResponse = {
-        success: true,
-        user: frontendUser,
-        accessToken: backendResponse.accessToken,
-        refreshToken: backendResponse.refreshToken,
-        expiresIn: backendResponse.expiresIn / 1000, // Convert ms to seconds
+        const loginResponse: LoginResponse = {
+          success: true,
+          user: frontendUser,
+          accessToken: backendResponse.accessToken,
+          refreshToken: backendResponse.refreshToken,
+          expiresIn: backendResponse.expiresIn / 1000, // Convert ms to seconds
+        }
+
+        // Stocker les infos utilisateur (non sensibles) et l'expiration pour SessionExpirationGuard
+        localStorage.setItem(USER_KEY, JSON.stringify(loginResponse.user))
+        const tokenExpiresAt = Date.now() + backendResponse.expiresIn
+        localStorage.setItem(TOKEN_EXPIRES_AT_KEY, String(tokenExpiresAt))
+
+        setState({
+          user: loginResponse.user,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+          tokenExpiresAt,
+        })
+
+        return loginResponse
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Erreur de connexion'
+        setState((prev) => ({
+          ...prev,
+          isLoading: false,
+          error: message,
+        }))
+        throw error
       }
-
-      // Store tokens and user
-      setAuthToken(loginResponse.accessToken)
-      localStorage.setItem(TOKEN_KEY, loginResponse.accessToken)
-      localStorage.setItem(REFRESH_TOKEN_KEY, loginResponse.refreshToken)
-      localStorage.setItem(USER_KEY, JSON.stringify(loginResponse.user))
-      // Set cookie for middleware
-      setCookie(TOKEN_KEY, loginResponse.accessToken, credentials.rememberMe ? 30 : 7)
-
-      setState({
-        user: loginResponse.user,
-        isAuthenticated: true,
-        isLoading: false,
-        error: null,
-      })
-
-      return loginResponse
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erreur de connexion'
-      setState((prev) => ({
-        ...prev,
-        isLoading: false,
-        error: message,
-      }))
-      throw error
-    }
-  }, [])
+    },
+    [router]
+  )
 
   const register = useCallback(async (data: RegisterSchoolRequest): Promise<RegisterResponse> => {
     setState((prev) => ({ ...prev, isLoading: true, error: null }))
 
     try {
-      // Call backend via apiClient (utilise le proxy CORS + retry)
+      // Le backend pose les cookies HttpOnly dans la réponse d'inscription
       const backendResponse = await apiClient.post<BackendLoginResponse>(
         API_ENDPOINTS.auth.register,
         data
@@ -251,18 +257,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       const frontendUser = mapBackendUserToFrontend(backendResponse.user)
 
-      // Save tokens and user (auto-login after registration)
-      setAuthToken(backendResponse.accessToken)
-      localStorage.setItem(TOKEN_KEY, backendResponse.accessToken)
-      localStorage.setItem(REFRESH_TOKEN_KEY, backendResponse.refreshToken)
       localStorage.setItem(USER_KEY, JSON.stringify(frontendUser))
-      setCookie(TOKEN_KEY, backendResponse.accessToken)
+      const tokenExpiresAt = Date.now() + backendResponse.expiresIn
+      localStorage.setItem(TOKEN_EXPIRES_AT_KEY, String(tokenExpiresAt))
 
       setState((prev) => ({
         ...prev,
         isAuthenticated: true,
         user: frontendUser,
         isLoading: false,
+        tokenExpiresAt,
       }))
 
       const response: RegisterResponse = {
@@ -286,44 +290,43 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = useCallback(async () => {
     try {
-      const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY)
-      if (refreshToken) {
-        await apiClient.post(API_ENDPOINTS.auth.logout, { refreshToken }).catch(() => {})
-      }
+      // Le backend révoque le refresh token (via cookie) et efface les cookies
+      await apiClient.post(API_ENDPOINTS.auth.logout).catch(() => {})
     } finally {
+      // Notifier le système de présence pour déconnecter le WebSocket
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('auth:logout'))
+      }
       clearAuthStorage()
       setState({
         user: null,
         isAuthenticated: false,
         isLoading: false,
         error: null,
+        tokenExpiresAt: null,
       })
       router.push('/login')
     }
   }, [router])
 
   const refreshSession = useCallback(async () => {
-    const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY)
-    if (!refreshToken) {
-      throw new Error('No session available')
-    }
-
     try {
+      // Le cookie refresh_token est envoyé automatiquement (withCredentials)
       const backendResponse = await apiClient.post<BackendLoginResponse>(
-        API_ENDPOINTS.auth.refresh,
-        { refreshToken }
+        API_ENDPOINTS.auth.refresh
+        // Pas de body — le refresh_token est dans le cookie HttpOnly
       )
       const frontendUser = mapBackendUserToFrontend(backendResponse.user)
 
-      setAuthToken(backendResponse.accessToken)
-      localStorage.setItem(TOKEN_KEY, backendResponse.accessToken)
-      localStorage.setItem(REFRESH_TOKEN_KEY, backendResponse.refreshToken)
       localStorage.setItem(USER_KEY, JSON.stringify(frontendUser))
+      const tokenExpiresAt = Date.now() + backendResponse.expiresIn
+      localStorage.setItem(TOKEN_EXPIRES_AT_KEY, String(tokenExpiresAt))
 
       setState((prev) => ({
         ...prev,
         user: frontendUser,
         isAuthenticated: true,
+        tokenExpiresAt,
       }))
     } catch {
       clearAuthStorage()
@@ -332,6 +335,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         isAuthenticated: false,
         isLoading: false,
         error: 'Session expirée',
+        tokenExpiresAt: null,
       })
       throw new Error('Session expired')
     }
@@ -360,6 +364,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     [state.user]
   )
 
+  const updateUser = useCallback((updates: Partial<User>) => {
+    setState((prev) => {
+      if (!prev.user) return prev
+      const updatedUser = { ...prev.user, ...updates }
+      localStorage.setItem(USER_KEY, JSON.stringify(updatedUser))
+      return { ...prev, user: updatedUser }
+    })
+  }, [])
+
   const value: AuthContextType = {
     ...state,
     login,
@@ -369,6 +382,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     clearError,
     hasPermission,
     isRole,
+    updateUser,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

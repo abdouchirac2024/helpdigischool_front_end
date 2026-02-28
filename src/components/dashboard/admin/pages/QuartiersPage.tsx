@@ -79,7 +79,7 @@ export function AdminQuartiersPage() {
 
       {loading && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-[#2302B3]" />
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <span className="ml-3 text-gray-500">Chargement...</span>
         </div>
       )}

@@ -464,7 +464,7 @@ export function TeacherStudentsPage() {
             <Download className="h-4 w-4" />
             Exporter
           </Button>
-          <Button className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]">
+          <Button className="gap-2 bg-primary hover:bg-primary-dark">
             <Mail className="h-4 w-4" />
             Contacter parents
           </Button>
@@ -595,7 +595,7 @@ export function TeacherStudentsPage() {
                 <tr key={student.id} className="transition-colors hover:bg-gray-50">
                   <td className="whitespace-nowrap px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] font-semibold text-white">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary font-semibold text-white">
                         {student.name.charAt(0)}
                       </div>
                       <div>

@@ -323,7 +323,7 @@ export function AdminParentsPage() {
             <Download className="h-4 w-4" />
             Exporter
           </Button>
-          <Button onClick={openCreateModal} className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]">
+          <Button onClick={openCreateModal} className="gap-2 bg-primary hover:bg-primary-dark">
             <UserPlus className="h-4 w-4" />
             Nouveau parent
           </Button>
@@ -444,7 +444,7 @@ export function AdminParentsPage() {
       {/* Loading */}
       {loading && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-[#2302B3]" />
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <span className="ml-3 text-gray-500">Chargement...</span>
         </div>
       )}
@@ -547,7 +547,7 @@ export function AdminParentsPage() {
                             className="h-10 w-10 rounded-full object-cover"
                           />
                         ) : (
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] font-semibold text-white">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary font-semibold text-white">
                             {parent.prenom.charAt(0)}
                             {parent.nom.charAt(0)}
                           </div>
@@ -735,7 +735,7 @@ export function AdminParentsPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="bg-[#2302B3] text-white hover:bg-[#1a0285]"
+                className="bg-primary text-white hover:bg-primary-dark"
               >
                 1
               </Button>
@@ -768,7 +768,7 @@ export function AdminParentsPage() {
                   onClick={() => setActiveTab('info')}
                   className={`border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
                     activeTab === 'info'
-                      ? 'border-[#2302B3] text-[#2302B3]'
+                      ? 'border-primary text-primary'
                       : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
                 >
@@ -779,7 +779,7 @@ export function AdminParentsPage() {
                   onClick={() => setActiveTab('contact')}
                   className={`border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
                     activeTab === 'contact'
-                      ? 'border-[#2302B3] text-[#2302B3]'
+                      ? 'border-primary text-primary'
                       : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
                 >
@@ -790,7 +790,7 @@ export function AdminParentsPage() {
                   onClick={() => setActiveTab('identite')}
                   className={`border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
                     activeTab === 'identite'
-                      ? 'border-[#2302B3] text-[#2302B3]'
+                      ? 'border-primary text-primary'
                       : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
                 >
@@ -1021,7 +1021,7 @@ export function AdminParentsPage() {
                 <Button type="button" variant="outline" onClick={() => setShowModal(false)}>
                   Annuler
                 </Button>
-                <Button type="submit" disabled={saving} className="bg-[#2302B3] hover:bg-[#1a0185]">
+                <Button type="submit" disabled={saving} className="bg-primary hover:bg-[#1a0185]">
                   {saving ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -1094,7 +1094,7 @@ export function AdminParentsPage() {
                     className="h-16 w-16 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] text-xl font-semibold text-white">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-xl font-semibold text-white">
                     {viewingParent.prenom.charAt(0)}
                     {viewingParent.nom.charAt(0)}
                   </div>
@@ -1117,7 +1117,7 @@ export function AdminParentsPage() {
               {/* Informations personnelles */}
               <div className="mb-6">
                 <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
-                  <Users className="h-5 w-5 text-[#2302B3]" />
+                  <Users className="h-5 w-5 text-primary" />
                   Informations personnelles
                 </h3>
                 <div className="grid grid-cols-2 gap-4 rounded-xl bg-gray-50 p-4">
@@ -1157,7 +1157,7 @@ export function AdminParentsPage() {
               {/* Contact */}
               <div className="mb-6">
                 <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
-                  <Phone className="h-5 w-5 text-[#2302B3]" />
+                  <Phone className="h-5 w-5 text-primary" />
                   Contact
                 </h3>
                 <div className="grid grid-cols-2 gap-4 rounded-xl bg-gray-50 p-4">
@@ -1189,7 +1189,7 @@ export function AdminParentsPage() {
               {/* Adresse */}
               <div className="mb-6">
                 <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
-                  <MapPin className="h-5 w-5 text-[#2302B3]" />
+                  <MapPin className="h-5 w-5 text-primary" />
                   Adresse
                 </h3>
                 <div className="grid grid-cols-2 gap-4 rounded-xl bg-gray-50 p-4">
@@ -1211,7 +1211,7 @@ export function AdminParentsPage() {
               {/* Profession */}
               <div className="mb-6">
                 <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
-                  <Briefcase className="h-5 w-5 text-[#2302B3]" />
+                  <Briefcase className="h-5 w-5 text-primary" />
                   Profession
                 </h3>
                 <div className="grid grid-cols-2 gap-4 rounded-xl bg-gray-50 p-4">
@@ -1237,7 +1237,7 @@ export function AdminParentsPage() {
               {/* Pièce d'identité */}
               <div className="mb-6">
                 <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
-                  <FileText className="h-5 w-5 text-[#2302B3]" />
+                  <FileText className="h-5 w-5 text-primary" />
                   Pièce d&apos;identité
                 </h3>
                 <div className="grid grid-cols-2 gap-4 rounded-xl bg-gray-50 p-4">
@@ -1265,7 +1265,7 @@ export function AdminParentsPage() {
               {/* Dates */}
               <div className="mb-6">
                 <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
-                  <Calendar className="h-5 w-5 text-[#2302B3]" />
+                  <Calendar className="h-5 w-5 text-primary" />
                   Historique
                 </h3>
                 <div className="grid grid-cols-3 gap-4 rounded-xl bg-gray-50 p-4">
@@ -1328,7 +1328,7 @@ export function AdminParentsPage() {
                   Fermer
                 </Button>
                 <Button
-                  className="bg-[#2302B3] hover:bg-[#1a0185]"
+                  className="bg-primary hover:bg-[#1a0185]"
                   onClick={() => {
                     setViewingParent(null)
                     openEditModal(viewingParent)
