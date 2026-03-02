@@ -139,7 +139,7 @@ export function SecretaryPrintingPage() {
           <h1 className="text-3xl font-bold text-gray-900">Impressions</h1>
           <p className="mt-1 text-gray-600">Gestion de la file d'attente d'impression</p>
         </div>
-        <Button className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]">
+        <Button className="gap-2 bg-primary hover:bg-primary-dark">
           <Plus className="h-4 w-4" />
           Nouvelle impression
         </Button>
@@ -316,9 +316,9 @@ export function SecretaryPrintingPage() {
           ].map((template, i) => (
             <button
               key={i}
-              className="rounded-xl border-2 border-dashed border-gray-200 p-4 text-left transition-all hover:border-[#2302B3] hover:bg-[#2302B3]/5"
+              className="rounded-xl border-2 border-dashed border-gray-200 p-4 text-left transition-all hover:border-primary hover:bg-primary/5"
             >
-              <template.icon className="mb-2 h-8 w-8 text-[#2302B3]" />
+              <template.icon className="mb-2 h-8 w-8 text-primary" />
               <p className="font-semibold text-gray-900">{template.label}</p>
               <p className="mt-1 text-xs text-gray-500">{template.description}</p>
             </button>

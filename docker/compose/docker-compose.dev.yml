@@ -1,4 +1,3 @@
-
 # ============================================
 # Help Digi School - Docker Compose Development
 # ============================================
@@ -19,8 +18,10 @@ services:
       - /app/node_modules
       - nextjs-cache:/app/.next
     environment:
-      # Communication intra-Docker vers le backend
-      - NEXT_PUBLIC_API_URL=http://digischool-backend:8080/api/v1
+      # L'API pointe desormais sur Traefik (car plusieurs instances backend)
+      - NEXT_PUBLIC_API_URL=http://api.helpdigischool.localhost/api
+      # URL interne Docker pour le proxy serveur Next.js (load balancing entre les 3 instances)
+      - BACKEND_URL=http://backend:8080
     env_file:
       - ../../.env.local
     extra_hosts:

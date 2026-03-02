@@ -1,15 +1,14 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import {
   GraduationCap,
   Menu,
   X,
-  Bell,
   User,
   LogOut,
-  Settings,
   Home,
   LayoutDashboard,
   ChevronDown,
@@ -28,6 +27,7 @@ import { useAuth } from '@/lib/auth'
 import { useToast } from '@/hooks/use-toast'
 import { useLanguage } from '@/lib/i18n'
 import { useInstallPWA } from '@/hooks/use-install-pwa'
+import { NotificationBell } from './NotificationBell'
 
 // Role labels
 const roleLabels: Record<string, { fr: string; en: string }> = {
@@ -47,6 +47,65 @@ interface TopBarProps {
   userName?: string
   userRole?: string
   userEmail?: string
+  logoUrl?: string | null
+  avatarUrl?: string | null
+}
+
+/**
+ * Avatar intelligent : affiche l'image si disponible et valide,
+ * sinon les initiales du nom, sinon une icone generique.
+ */
+function UserAvatar({
+  src,
+  name,
+  size = 32,
+}: {
+  src?: string | null
+  name: string
+  size?: number
+}) {
+  const [imgError, setImgError] = useState(false)
+  const hasValidSrc = !!src && src.trim().length > 0 && !imgError
+
+  const initials = name
+    .split(' ')
+    .filter(Boolean)
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+
+  const sizeClass = size >= 40 ? 'h-10 w-10' : 'h-8 w-8'
+  const textClass = size >= 40 ? 'text-sm' : 'text-xs'
+
+  if (hasValidSrc) {
+    return (
+      <img
+        src={src}
+        alt={name}
+        className={`${sizeClass} rounded-full border-2 border-white object-cover shadow-sm`}
+        onError={() => setImgError(true)}
+      />
+    )
+  }
+
+  if (initials) {
+    return (
+      <div
+        className={`${sizeClass} flex items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary shadow-sm ring-2 ring-white`}
+      >
+        <span className={`${textClass} font-bold leading-none text-white`}>{initials}</span>
+      </div>
+    )
+  }
+
+  return (
+    <div
+      className={`${sizeClass} flex items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary shadow-sm ring-2 ring-white`}
+    >
+      <User className="h-4 w-4 text-white/90" />
+    </div>
+  )
 }
 
 export function TopBar({
@@ -56,6 +115,8 @@ export function TopBar({
   userName = 'Jean Dupont',
   userRole = 'Directeur',
   userEmail = 'jean.dupont@ecole.cm',
+  logoUrl,
+  avatarUrl,
 }: TopBarProps) {
   const { logout } = useAuth()
   const { toast } = useToast()
@@ -85,13 +146,6 @@ export function TopBar({
     }
   }
 
-  // Get user initials
-  const userInitials = userName
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-
   return (
     <header className="fixed left-0 right-0 top-0 z-40 h-16 border-b border-gray-200 bg-white">
       <div className="flex h-full items-center justify-between px-4">
@@ -105,11 +159,15 @@ export function TopBar({
 
           {/* Logo - Links to Home */}
           <Link href="/" className="group flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#2302B3] to-[#4318FF] transition-transform group-hover:scale-105">
-              <GraduationCap className="h-5 w-5 text-white" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-secondary transition-transform group-hover:scale-105">
+              {logoUrl ? (
+                <img src={logoUrl} alt="" className="h-6 w-6 rounded-lg object-contain" />
+              ) : (
+                <GraduationCap className="h-5 w-5 text-white" />
+              )}
             </div>
             <div className="hidden sm:block">
-              <span className="text-base font-bold text-[#2302B3]">Help Digi School</span>
+              <span className="text-base font-bold text-primary">Help Digi School</span>
               <p className="text-xs text-gray-500">{schoolName}</p>
             </div>
           </Link>
@@ -124,7 +182,7 @@ export function TopBar({
             className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-2.5 py-1.5 hover:bg-gray-100"
             suppressHydrationWarning
           >
-            <Globe className="h-4 w-4 text-[#2302B3]" />
+            <Globe className="h-4 w-4 text-primary" />
             <span className="text-sm font-semibold text-gray-700" suppressHydrationWarning>
               {language.toUpperCase()}
             </span>
@@ -136,7 +194,7 @@ export function TopBar({
               variant="ghost"
               size="sm"
               onClick={() => promptInstall()}
-              className="flex items-center gap-1.5 rounded-lg border border-[#2302B3]/20 bg-[#2302B3]/5 px-2.5 text-[#2302B3] hover:bg-[#2302B3]/10"
+              className="flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/5 px-2.5 text-primary"
               title={language === 'fr' ? "Installer l'application" : 'Install app'}
             >
               <Download className="h-4 w-4" />
@@ -147,18 +205,13 @@ export function TopBar({
           )}
 
           {/* Notifications */}
-          <Button variant="ghost" size="sm" className="relative">
-            <Bell className="h-5 w-5" />
-            <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-red-500"></span>
-          </Button>
+          <NotificationBell />
 
           {/* User Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2 px-2 sm:px-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF]">
-                  <span className="text-sm font-semibold text-white">{userInitials}</span>
-                </div>
+                <UserAvatar src={avatarUrl} name={userName} size={32} />
                 <div className="hidden text-left md:block">
                   <p className="text-sm font-medium text-gray-900">{userName}</p>
                   <p className="text-xs text-gray-500" suppressHydrationWarning>
@@ -170,9 +223,12 @@ export function TopBar({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>
-                <div className="flex flex-col">
-                  <span className="font-medium">{userName}</span>
-                  <span className="text-xs font-normal text-gray-500">{userEmail}</span>
+                <div className="flex items-center gap-3">
+                  <UserAvatar src={avatarUrl} name={userName} size={40} />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium">{userName}</p>
+                    <p className="truncate text-xs font-normal text-gray-500">{userEmail}</p>
+                  </div>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
@@ -186,18 +242,6 @@ export function TopBar({
                 <Link href="/dashboard" className="flex cursor-pointer items-center gap-2">
                   <LayoutDashboard className="h-4 w-4" />
                   <span suppressHydrationWarning>{getLabel('Mon Dashboard', 'My Dashboard')}</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/dashboard/settings" className="flex cursor-pointer items-center gap-2">
-                  <User className="h-4 w-4" />
-                  <span suppressHydrationWarning>{getLabel('Mon Profil', 'My Profile')}</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/dashboard/settings" className="flex cursor-pointer items-center gap-2">
-                  <Settings className="h-4 w-4" />
-                  <span suppressHydrationWarning>{getLabel('Paramètres', 'Settings')}</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />

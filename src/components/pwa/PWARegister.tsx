@@ -67,6 +67,16 @@ export function PWARegister() {
   useEffect(() => {
     if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return
 
+    let intervalId: NodeJS.Timeout | null = null
+    let refreshing = false
+
+    const handleControllerChange = () => {
+      if (!refreshing) {
+        refreshing = true
+        window.location.reload()
+      }
+    }
+
     navigator.serviceWorker
       .register('/sw.js')
       .then((registration) => {
@@ -90,9 +100,11 @@ export function PWARegister() {
         })
 
         // Verifier les mises a jour periodiquement
-        setInterval(
+        intervalId = setInterval(
           () => {
-            registration.update()
+            registration.update().catch((error) => {
+              console.log('SW update check failed:', error)
+            })
           },
           60 * 60 * 1000
         )
@@ -102,13 +114,15 @@ export function PWARegister() {
       })
 
     // Recharger quand le nouveau SW prend le controle
-    let refreshing = false
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (!refreshing) {
-        refreshing = true
-        window.location.reload()
+    navigator.serviceWorker.addEventListener('controllerchange', handleControllerChange)
+
+    // Cleanup
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId)
       }
-    })
+      navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange)
+    }
   }, [])
 
   const handleUpdate = () => {

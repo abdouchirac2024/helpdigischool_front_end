@@ -121,7 +121,7 @@ export function ParentReportsPage() {
             key={report.id}
             className="overflow-hidden rounded-xl border border-gray-100 bg-white transition-shadow hover:shadow-lg"
           >
-            <div className="bg-gradient-to-r from-[#2302B3] to-[#4318FF] p-4">
+            <div className="bg-gradient-to-r from-primary to-secondary p-4">
               <div className="flex items-center justify-between text-white">
                 <FileText className="h-8 w-8" />
                 <span className="rounded-full bg-white/20 px-2 py-1 text-xs font-semibold">
@@ -139,7 +139,7 @@ export function ParentReportsPage() {
               <div className="mb-6 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Moyenne</span>
-                  <span className="font-bold text-[#2302B3]">{report.average}/20</span>
+                  <span className="font-bold text-primary">{report.average}/20</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Rang</span>
@@ -158,7 +158,7 @@ export function ParentReportsPage() {
                   <Eye className="h-4 w-4" />
                   Voir
                 </Button>
-                <Button size="sm" className="flex-1 gap-2 bg-[#2302B3] hover:bg-[#1a0285]">
+                <Button size="sm" className="flex-1 gap-2 bg-primary hover:bg-primary-dark">
                   <Download className="h-4 w-4" />
                   PDF
                 </Button>

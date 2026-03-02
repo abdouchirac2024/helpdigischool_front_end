@@ -188,7 +188,7 @@ const MOCK_PAYMENTS: Payment[] = [
 // Helpers
 // ---------------------------------------------------------------------------
 
-const BRAND = '#2302B3'
+const BRAND_FALLBACK = '#2302B3'
 
 const STATUS_CONFIG: Record<Payment['status'], { label: string; bg: string; text: string }> = {
   paid: { label: 'Payé', bg: 'bg-green-100', text: 'text-green-700' },
@@ -209,7 +209,12 @@ function getStatsForRole(role: SharedPaymentsPageProps['role']): StatCard[] {
         icon: DollarSign,
         accent: '#059669',
       },
-      { label: 'Montant attendu', value: formatCurrency(19200), icon: TrendingUp, accent: BRAND },
+      {
+        label: 'Montant attendu',
+        value: formatCurrency(19200),
+        icon: TrendingUp,
+        accent: BRAND_FALLBACK,
+      },
       { label: 'Taux de recouvrement', value: '76,6 %', icon: CheckCircle, accent: '#0891b2' },
       { label: 'Impayés', value: '2', icon: AlertTriangle, accent: '#dc2626' },
     ]
@@ -219,7 +224,7 @@ function getStatsForRole(role: SharedPaymentsPageProps['role']): StatCard[] {
       { label: 'Total payé', value: formatCurrency(3100), icon: CheckCircle, accent: '#059669' },
       { label: 'En attente', value: formatCurrency(800), icon: Clock, accent: '#d97706' },
       { label: 'Impayé', value: formatCurrency(0), icon: AlertTriangle, accent: '#dc2626' },
-      { label: 'Transactions', value: '3', icon: Calendar, accent: BRAND },
+      { label: 'Transactions', value: '3', icon: Calendar, accent: BRAND_FALLBACK },
     ]
   }
   // secretary
@@ -230,7 +235,12 @@ function getStatsForRole(role: SharedPaymentsPageProps['role']): StatCard[] {
       icon: DollarSign,
       accent: '#059669',
     },
-    { label: 'Total mensuel', value: formatCurrency(14700), icon: TrendingUp, accent: BRAND },
+    {
+      label: 'Total mensuel',
+      value: formatCurrency(14700),
+      icon: TrendingUp,
+      accent: BRAND_FALLBACK,
+    },
     { label: 'Transactions', value: '6', icon: Users, accent: '#0891b2' },
     { label: 'En attente', value: '4', icon: Clock, accent: '#d97706' },
   ]
@@ -287,8 +297,7 @@ export default function SharedPaymentsPage({ role, viewMode }: SharedPaymentsPag
         {viewMode === 'manage' && (
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90"
-            style={{ backgroundColor: BRAND }}
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90"
           >
             <Download className="h-4 w-4" />
             Exporter
@@ -337,7 +346,7 @@ export default function SharedPaymentsPage({ role, viewMode }: SharedPaymentsPag
                 setSearch(e.target.value)
                 setPage(1)
               }}
-              className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm outline-none focus:border-[#2302B3] focus:ring-1 focus:ring-[#2302B3]"
+              className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
             />
           </div>
 
@@ -350,7 +359,7 @@ export default function SharedPaymentsPage({ role, viewMode }: SharedPaymentsPag
                 setStatusFilter(e.target.value as typeof statusFilter)
                 setPage(1)
               }}
-              className="appearance-none rounded-lg border border-gray-300 bg-white py-2 pl-9 pr-8 text-sm outline-none focus:border-[#2302B3] focus:ring-1 focus:ring-[#2302B3]"
+              className="appearance-none rounded-lg border border-gray-300 bg-white py-2 pl-9 pr-8 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
             >
               <option value="all">Tous les statuts</option>
               <option value="paid">Payé</option>
@@ -424,8 +433,7 @@ export default function SharedPaymentsPage({ role, viewMode }: SharedPaymentsPag
                             <button
                               type="button"
                               title="Marquer comme payé"
-                              className="rounded p-1.5 text-white transition-colors hover:opacity-90"
-                              style={{ backgroundColor: BRAND }}
+                              className="rounded bg-primary p-1.5 text-white transition-colors hover:opacity-90"
                             >
                               <CheckCircle className="h-4 w-4" />
                             </button>
@@ -462,9 +470,8 @@ export default function SharedPaymentsPage({ role, viewMode }: SharedPaymentsPag
                 type="button"
                 onClick={() => setPage(n)}
                 className={`rounded-lg px-3 py-1.5 font-medium transition-colors ${
-                  n === safePage ? 'text-white' : 'text-gray-600 hover:bg-gray-100'
+                  n === safePage ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'
                 }`}
-                style={n === safePage ? { backgroundColor: BRAND } : undefined}
               >
                 {n}
               </button>

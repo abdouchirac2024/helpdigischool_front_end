@@ -100,7 +100,7 @@ export function AdminRevenuePage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setPeriod(p)}
-                className={period === p ? 'bg-[#2302B3] text-white hover:bg-[#1a0285]' : ''}
+                className={period === p ? 'bg-primary text-white hover:bg-primary-dark' : ''}
               >
                 {p === 'week' ? 'Semaine' : p === 'month' ? 'Mois' : 'Année'}
               </Button>
@@ -115,7 +115,7 @@ export function AdminRevenuePage() {
 
       {/* Revenue Stats */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
-        <div className="rounded-2xl bg-gradient-to-br from-[#2302B3] to-[#4318FF] p-6 text-white">
+        <div className="rounded-2xl bg-gradient-to-br from-primary to-secondary p-6 text-white">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20">
               <DollarSign className="h-6 w-6 text-white" />
@@ -180,7 +180,7 @@ export function AdminRevenuePage() {
             <div key={i} className="flex flex-1 flex-col items-center gap-2">
               <div className="flex w-full flex-col items-center gap-1" style={{ height: '200px' }}>
                 <div
-                  className="w-full rounded-t-lg bg-[#2302B3] transition-all hover:bg-[#4318FF]"
+                  className="w-full rounded-t-lg bg-primary transition-all hover:bg-secondary"
                   style={{ height: `${(data.revenue / maxRevenue) * 100}%` }}
                 />
               </div>
@@ -190,7 +190,7 @@ export function AdminRevenuePage() {
         </div>
         <div className="mt-4 flex items-center justify-center gap-6 border-t border-gray-100 pt-4">
           <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded bg-[#2302B3]" />
+            <div className="h-3 w-3 rounded bg-primary" />
             <span className="text-sm text-gray-600">Revenus réels</span>
           </div>
           <div className="flex items-center gap-2">

@@ -121,7 +121,7 @@ export function SecretaryEnrollmentsPage() {
           <h1 className="text-3xl font-bold text-gray-900">Inscriptions</h1>
           <p className="mt-1 text-gray-600">Gestion des demandes d'inscription</p>
         </div>
-        <Button className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]">
+        <Button className="gap-2 bg-primary hover:bg-primary-dark">
           <UserPlus className="h-4 w-4" />
           Nouvelle demande
         </Button>
@@ -193,7 +193,7 @@ export function SecretaryEnrollmentsPage() {
             variant={filter === f.value ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter(f.value)}
-            className={filter === f.value ? 'bg-[#2302B3]' : ''}
+            className={filter === f.value ? 'bg-primary' : ''}
           >
             {f.label}
           </Button>
@@ -233,7 +233,7 @@ export function SecretaryEnrollmentsPage() {
                     <p className="mb-1 text-xs text-gray-500">Téléphone</p>
                     <a
                       href={`tel:${enrollment.parentPhone}`}
-                      className="flex items-center gap-1 font-medium text-[#2302B3] hover:underline"
+                      className="flex items-center gap-1 font-medium text-primary hover:underline"
                     >
                       <Phone className="h-3 w-3" />
                       {enrollment.parentPhone}
@@ -243,7 +243,7 @@ export function SecretaryEnrollmentsPage() {
                     <p className="mb-1 text-xs text-gray-500">Email</p>
                     <a
                       href={`mailto:${enrollment.parentEmail}`}
-                      className="flex items-center gap-1 font-medium text-[#2302B3] hover:underline"
+                      className="flex items-center gap-1 font-medium text-primary hover:underline"
                     >
                       <Mail className="h-3 w-3" />
                       {enrollment.parentEmail}
@@ -304,7 +304,7 @@ export function SecretaryEnrollmentsPage() {
                   </>
                 )}
                 {enrollment.status === 'approved' && (
-                  <Button size="sm" className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]">
+                  <Button size="sm" className="gap-2 bg-primary hover:bg-primary-dark">
                     <FileCheck className="h-4 w-4" />
                     Finaliser
                   </Button>

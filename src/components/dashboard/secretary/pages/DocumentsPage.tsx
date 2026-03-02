@@ -118,7 +118,7 @@ export function SecretaryDocumentsPage() {
           <h1 className="text-3xl font-bold text-gray-900">Documents</h1>
           <p className="mt-1 text-gray-600">Génération et gestion des documents administratifs</p>
         </div>
-        <Button className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]">
+        <Button className="gap-2 bg-primary hover:bg-primary-dark">
           <FilePlus className="h-4 w-4" />
           Nouveau document
         </Button>
@@ -154,7 +154,7 @@ export function SecretaryDocumentsPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="rounded-xl bg-gradient-to-r from-[#2302B3] to-[#4318FF] p-6 text-white">
+      <div className="rounded-xl bg-gradient-to-r from-primary to-secondary p-6 text-white">
         <h3 className="mb-4 text-lg font-semibold">Génération rapide</h3>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {[

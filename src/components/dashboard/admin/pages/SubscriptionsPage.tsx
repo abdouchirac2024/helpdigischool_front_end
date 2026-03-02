@@ -134,7 +134,7 @@ export function AdminSubscriptionsPage() {
           <h1 className="text-3xl font-bold text-gray-900">Abonnements</h1>
           <p className="mt-1 text-gray-600">Gérez les plans et abonnements des écoles</p>
         </div>
-        <Button className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]">
+        <Button className="gap-2 bg-primary hover:bg-primary-dark">
           <Plus className="h-4 w-4" />
           Nouveau plan
         </Button>
@@ -145,11 +145,11 @@ export function AdminSubscriptionsPage() {
         {plans.map((plan, i) => (
           <div
             key={i}
-            className={`rounded-2xl border-2 bg-white ${plan.popular ? 'border-[#2302B3]' : 'border-gray-100'} relative overflow-hidden`}
+            className={`rounded-2xl border-2 bg-white ${plan.popular ? 'border-primary' : 'border-gray-100'} relative overflow-hidden`}
           >
             {plan.popular && (
               <div className="absolute right-4 top-4">
-                <span className="rounded-full bg-[#2302B3] px-3 py-1 text-xs font-semibold text-white">
+                <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white">
                   Populaire
                 </span>
               </div>

@@ -22,6 +22,8 @@
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 90%;
     --input: 0 0% 90%;
+    --primary-dark: 250 97% 27%;
+    --primary-light: 250 90% 50%;
     --ring: 250 99% 35%;
     --radius: 0.75rem;
     --chart-1: 250 99% 35%;
@@ -112,7 +114,8 @@
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px);
   }
   50% {
@@ -191,7 +194,12 @@
 
 /* Gradient Text */
 .gradient-text {
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--accent)));
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary)),
+    hsl(var(--secondary)),
+    hsl(var(--accent))
+  );
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -200,7 +208,8 @@
 }
 
 @keyframes gradient-shift {
-  0%, 100% {
+  0%,
+  100% {
     background-position: 0% 50%;
   }
   50% {

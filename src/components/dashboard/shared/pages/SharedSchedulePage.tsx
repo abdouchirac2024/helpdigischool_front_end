@@ -36,8 +36,6 @@ interface CourseSlot {
 // Constants
 // ---------------------------------------------------------------------------
 
-const BRAND = '#2302B3'
-
 const DAYS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi']
 const DAYS_SHORT = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']
 
@@ -368,8 +366,7 @@ function FullGrid({ courses }: { courses: CourseSlot[] }) {
             {DAYS.map((d) => (
               <th
                 key={d}
-                className="border border-gray-200 px-3 py-2 text-center font-medium text-white"
-                style={{ backgroundColor: BRAND }}
+                className="border border-gray-200 bg-primary px-3 py-2 text-center font-medium text-white"
               >
                 {d}
               </th>
@@ -416,10 +413,7 @@ function TeacherStats() {
           key={s.label}
           className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4"
         >
-          <div
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-white"
-            style={{ backgroundColor: BRAND }}
-          >
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white">
             <s.icon className="h-5 w-5" />
           </div>
           <div>
@@ -441,10 +435,7 @@ function StudentDayView({ courses }: { courses: CourseSlot[] }) {
           .sort((a, b) => a.startTime.localeCompare(b.startTime))
         return (
           <div key={day} className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-            <div
-              className="px-3 py-2 text-center text-sm font-semibold text-white"
-              style={{ backgroundColor: BRAND }}
-            >
+            <div className="bg-primary px-3 py-2 text-center text-sm font-semibold text-white">
               {day}
             </div>
             <div className="flex flex-col gap-2 p-2">
@@ -495,8 +486,7 @@ export default function SharedSchedulePage({ role, editable = false }: SharedSch
             <select
               value={selectedClass}
               onChange={(e) => setSelectedClass(e.target.value)}
-              className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2"
-              style={{ focusRingColor: BRAND } as React.CSSProperties}
+              className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {CLASSES.map((c) => (
                 <option key={c} value={c}>
@@ -534,8 +524,7 @@ export default function SharedSchedulePage({ role, editable = false }: SharedSch
             <>
               <button
                 type="button"
-                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90"
-                style={{ backgroundColor: BRAND }}
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90"
               >
                 <Plus className="h-4 w-4" />
                 Ajouter cours
@@ -554,8 +543,7 @@ export default function SharedSchedulePage({ role, editable = false }: SharedSch
           {role === 'parent' && (
             <button
               type="button"
-              className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90"
-              style={{ backgroundColor: BRAND }}
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90"
             >
               <Download className="h-4 w-4" />
               Exporter

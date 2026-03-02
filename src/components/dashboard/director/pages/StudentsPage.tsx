@@ -97,7 +97,7 @@ export function DirectorStudentsPage() {
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center bg-gray-50">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2302B3] border-t-transparent"></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
       </div>
     )
   }
@@ -116,7 +116,7 @@ export function DirectorStudentsPage() {
             Exporter
           </Button>
           <Button
-            className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]"
+            className="gap-2 bg-primary hover:bg-primary-dark"
             onClick={() => setIsFormOpen(true)}
           >
             <UserPlus className="h-4 w-4" />
@@ -237,7 +237,7 @@ export function DirectorStudentsPage() {
                   >
                     <td className="p-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] font-semibold text-white">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary font-semibold text-white">
                           {student.nom.charAt(0)}
                         </div>
                         <div>

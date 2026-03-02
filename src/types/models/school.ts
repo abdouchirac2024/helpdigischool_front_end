@@ -21,7 +21,50 @@ export type CameroonRegion =
 export type SchoolType = 'primary' | 'secondary' | 'high_school' | 'technical'
 
 // Statut de l'école
-export type SchoolStatus = 'active' | 'inactive' | 'suspended' | 'trial'
+export type SchoolStatus = 'active' | 'inactive' | 'suspended' | 'trial' | 'pending' | 'rejected'
+
+// Branding de l'école
+export interface SchoolBranding {
+  logoUrl?: string
+  couleurPrimaire: string
+  couleurSecondaire: string
+}
+
+// Ecole backend DTO (mapped from Java EcoleDto)
+export interface SchoolBackend {
+  id: number
+  codeEcole: string
+  nom: string
+  adresse: string
+  telephone: string
+  email: string
+  statutEcole: 'EN_ATTENTE' | 'VALIDEE' | 'REJETEE' | 'SUSPENDUE'
+  slug: string
+  motifRejet?: string
+  dateValidation?: string
+  nombreEleves?: number
+  logoUrl?: string
+  couleurPrimaire?: string
+  couleurSecondaire?: string
+  typeSecteur?: string
+  typeEtablissement?: string
+  sousSysteme?: string
+  boitePostale?: string
+  siteWeb?: string
+  devise?: string
+  anneeFondation?: number
+  numeroAutorisation?: string
+  quartierId?: number
+  quartierNom?: string
+  villeNom?: string
+  departementNom?: string
+  regionNom?: string
+  directeurNom?: string
+  directeurEmail?: string
+  nombreClasses?: number
+  createdAt: string
+  updatedAt: string
+}
 
 // Adresse de l'école
 export interface SchoolAddress {

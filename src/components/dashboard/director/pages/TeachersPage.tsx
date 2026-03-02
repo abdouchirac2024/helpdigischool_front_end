@@ -83,7 +83,7 @@ export function DirectorTeachersPage() {
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center bg-gray-50">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2302B3] border-t-transparent"></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
       </div>
     )
   }
@@ -102,7 +102,7 @@ export function DirectorTeachersPage() {
             Exporter
           </Button>
           <Button
-            className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]"
+            className="gap-2 bg-primary hover:bg-primary-dark"
             onClick={() => setIsFormOpen(true)}
           >
             <Plus className="h-4 w-4" />
@@ -176,7 +176,7 @@ export function DirectorTeachersPage() {
               variant={subjectFilter === 'all' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setSubjectFilter('all')}
-              className={subjectFilter === 'all' ? 'bg-[#2302B3] hover:bg-[#1a0285]' : ''}
+              className={subjectFilter === 'all' ? 'bg-primary hover:bg-primary-dark' : ''}
             >
               Tous
             </Button>
@@ -186,7 +186,7 @@ export function DirectorTeachersPage() {
                 variant={subjectFilter === subject ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setSubjectFilter(subject)}
-                className={subjectFilter === subject ? 'bg-[#2302B3] hover:bg-[#1a0285]' : ''}
+                className={subjectFilter === subject ? 'bg-primary hover:bg-primary-dark' : ''}
               >
                 {subject}
               </Button>
@@ -211,7 +211,7 @@ export function DirectorTeachersPage() {
                 {/* Header */}
                 <div className="mb-4 flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] text-lg font-bold text-white">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-lg font-bold text-white">
                       {teacher.nom.charAt(0)}
                       {teacher.prenom.charAt(0)}
                     </div>
@@ -219,7 +219,7 @@ export function DirectorTeachersPage() {
                       <h3 className="font-bold text-gray-900">
                         {teacher.nom} {teacher.prenom}
                       </h3>
-                      <p className="text-sm font-medium text-[#2302B3]">{teacher.specialite}</p>
+                      <p className="text-sm font-medium text-primary">{teacher.specialite}</p>
                     </div>
                   </div>
                   {getStatusBadge(teacher.status)}

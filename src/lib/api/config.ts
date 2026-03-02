@@ -5,7 +5,9 @@
 
 // URL de base de l'API Gateway (point d'entrée unique)
 // En développement avec le navigateur, utiliser la route API Next.js pour éviter les problèmes CORS
-const isDev = typeof window !== 'undefined' && window.location.hostname === 'localhost'
+const isDev =
+  typeof window !== 'undefined' &&
+  (window.location.hostname === 'localhost' || window.location.hostname.endsWith('.localhost'))
 export const API_BASE_URL = isDev
   ? '/api/backend'
   : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
@@ -52,6 +54,9 @@ export const API_ENDPOINTS = {
   users: {
     base: '/users',
     byId: (id: string) => `/users/${id}`,
+    stats: '/users/stats',
+    connected: '/users/connected',
+    updateStatus: (id: string) => `/users/${id}/status`,
     profile: '/users/profile',
     updateProfile: '/users/profile',
     changePassword: '/users/change-password',
@@ -63,12 +68,18 @@ export const API_ENDPOINTS = {
   // ============================================
   schools: {
     base: '/schools',
+    all: '/schools/all',
     byId: (id: string) => `/schools/${id}`,
+    register: '/schools/register',
+    pending: '/schools/pending',
+    validate: (id: string) => `/schools/${id}/validate`,
+    branding: (id: string) => `/schools/${id}/branding`,
+    bySlug: (slug: string) => `/schools/slug/${slug}`,
+    stats: '/schools/stats',
     classes: (schoolId: string) => `/schools/${schoolId}/classes`,
     students: (schoolId: string) => `/schools/${schoolId}/students`,
     teachers: (schoolId: string) => `/schools/${schoolId}/teachers`,
     staff: (schoolId: string) => `/schools/${schoolId}/staff`,
-    stats: (schoolId: string) => `/schools/${schoolId}/stats`,
     settings: (schoolId: string) => `/schools/${schoolId}/settings`,
   },
 
@@ -77,6 +88,7 @@ export const API_ENDPOINTS = {
   // ============================================
   classes: {
     base: '/classes',
+    count: '/classes/count',
     byId: (id: string) => `/classes/${id}`,
     students: (classId: string) => `/classes/${classId}/students`,
     schedule: (classId: string) => `/classes/${classId}/schedule`,
@@ -88,6 +100,7 @@ export const API_ENDPOINTS = {
   // ============================================
   students: {
     base: '/students',
+    count: '/students/count',
     byId: (id: string) => `/students/${id}`,
     grades: (studentId: string) => `/students/${studentId}/grades`,
     attendance: (studentId: string) => `/students/${studentId}/attendance`,
@@ -100,6 +113,7 @@ export const API_ENDPOINTS = {
   // ============================================
   teachers: {
     base: '/teachers',
+    count: '/teachers/count',
     byId: (id: string) => `/teachers/${id}`,
     classes: (teacherId: string) => `/teachers/${teacherId}/classes`,
     subjects: (teacherId: string) => `/teachers/${teacherId}/subjects`,
@@ -188,6 +202,7 @@ export const API_ENDPOINTS = {
     base: '/notifications',
     byId: (id: string) => `/notifications/${id}`,
     unread: '/notifications/unread',
+    unreadCount: '/notifications/unread/count',
     markAsRead: (id: string) => `/notifications/${id}/read`,
     markAllAsRead: '/notifications/read-all',
   },
@@ -226,6 +241,18 @@ export const API_ENDPOINTS = {
     grades: '/reports/grades',
     payments: '/reports/payments',
     export: '/reports/export',
+  },
+
+  // ============================================
+  // PRESENCE SERVICE - Statut en ligne / hors ligne
+  // ============================================
+  presence: {
+    online: '/presence/online',
+    all: '/presence/all',
+    onlineIds: '/presence/online/ids',
+    count: '/presence/count',
+    byUserId: (userId: string) => `/presence/${userId}`,
+    forceDisconnect: (userId: string) => `/presence/force-disconnect/${userId}`,
   },
 
   // ============================================

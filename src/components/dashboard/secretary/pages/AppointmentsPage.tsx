@@ -114,7 +114,7 @@ export function SecretaryAppointmentsPage() {
           <h1 className="text-3xl font-bold text-gray-900">Rendez-vous</h1>
           <p className="mt-1 text-gray-600">Gestion des rendez-vous et plannings</p>
         </div>
-        <Button className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]">
+        <Button className="gap-2 bg-primary hover:bg-primary-dark">
           <Plus className="h-4 w-4" />
           Nouveau rendez-vous
         </Button>
@@ -128,7 +128,7 @@ export function SecretaryAppointmentsPage() {
               <p className="mb-1 text-sm text-gray-600">Aujourd'hui</p>
               <p className="text-2xl font-bold text-gray-900">{todayAppointments.length}</p>
             </div>
-            <Calendar className="h-8 w-8 text-[#2302B3]" />
+            <Calendar className="h-8 w-8 text-primary" />
           </div>
         </div>
         <div className="rounded-xl border border-gray-100 bg-white p-4">
@@ -178,7 +178,7 @@ export function SecretaryAppointmentsPage() {
               onClick={() => setSelectedDate(currentWeekDates[i])}
               className={`rounded-xl p-4 text-center transition-all ${
                 selectedDate === currentWeekDates[i]
-                  ? 'bg-[#2302B3] text-white'
+                  ? 'bg-primary text-white'
                   : 'bg-gray-50 hover:bg-gray-100'
               }`}
             >

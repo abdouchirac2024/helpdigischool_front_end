@@ -38,12 +38,44 @@ const roleDashboards: Record<string, string> = {
   student: '/dashboard/student',
 }
 
+// Extract subdomain from host header (e.g. "ecole-la-victoire.localhost:3000" → "ecole-la-victoire")
+function getSubdomain(host: string | null): string | null {
+  if (!host) return null
+  const hostWithoutPort = host.split(':')[0]
+  const parts = hostWithoutPort.split('.')
+  // "ecole-la-victoire.localhost" → ["ecole-la-victoire", "localhost"] → subdomain
+  // "localhost" → ["localhost"] → no subdomain
+  // "ecole.helpdigischool.com" → ["ecole", "helpdigischool", "com"] → subdomain
+  if (parts.length >= 2 && parts[parts.length - 1] !== 'com') {
+    // Dev: *.localhost
+    return parts.slice(0, -1).join('.')
+  }
+  if (parts.length >= 3 && parts[parts.length - 1] === 'com') {
+    // Prod: *.helpdigischool.com
+    return parts.slice(0, -2).join('.')
+  }
+  return null
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Get auth token from cookie or header
+  // --- Subdomain branding logic ---
+  const host = request.headers.get('host')
+  const subdomain = getSubdomain(host)
+
+  if (subdomain) {
+    // On subdomain root, redirect to /login
+    if (pathname === '/') {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+  }
+
+  // --- Standard auth logic ---
+
+  // Get auth token from HttpOnly cookie (access_token) or Authorization header
   const token =
-    request.cookies.get('auth_token')?.value ||
+    request.cookies.get('access_token')?.value ||
     request.headers.get('authorization')?.replace('Bearer ', '')
 
   // Check if the path is public
@@ -55,10 +87,16 @@ export function middleware(request: NextRequest) {
   if (isPublicRoute) {
     // If user is authenticated and tries to access login/register, redirect to dashboard
     if (token && (pathname === '/login' || pathname === '/register')) {
-      // We need to decode the token to get the role
-      // For now, redirect to generic dashboard which will handle role-based redirect
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
+
+    // On /login with subdomain, pass the slug via response header
+    if (subdomain && pathname === '/login') {
+      const response = NextResponse.next()
+      response.headers.set('x-school-slug', subdomain)
+      return response
+    }
+
     return NextResponse.next()
   }
 

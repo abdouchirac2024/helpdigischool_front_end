@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Save, type LucideIcon } from 'lucide-react'
+import { type LucideIcon } from 'lucide-react'
 
 interface SettingsSection {
   id: string
@@ -24,15 +24,7 @@ export default function SharedSettingsPage({ role, sections }: SharedSettingsPag
     <div className="flex h-full flex-col">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-        <h1 className="text-2xl font-bold text-gray-900">Paramètres</h1>
-        <button
-          type="button"
-          className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90"
-          style={{ backgroundColor: '#2302B3' }}
-        >
-          <Save className="h-4 w-4" />
-          Enregistrer
-        </button>
+        <h1 className="text-2xl font-bold text-gray-900">Parametres</h1>
       </div>
 
       {/* Body */}
@@ -48,9 +40,8 @@ export default function SharedSettingsPage({ role, sections }: SharedSettingsPag
                 type="button"
                 onClick={() => setActiveSection(section.id)}
                 className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  isActive ? 'text-white' : 'text-gray-700 hover:bg-gray-100'
+                  isActive ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'
                 }`}
-                style={isActive ? { backgroundColor: '#2302B3' } : undefined}
               >
                 <Icon className="h-4 w-4 shrink-0" />
                 {section.label}

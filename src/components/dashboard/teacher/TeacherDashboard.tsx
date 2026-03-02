@@ -77,7 +77,7 @@ export function TeacherDashboard() {
               key={i}
               className={`flex items-center gap-4 rounded-xl border-2 p-4 ${
                 lesson.status === 'current'
-                  ? 'border-[#2302B3] bg-[#2302B3]/5'
+                  ? 'border-primary bg-primary/5'
                   : lesson.status === 'completed'
                     ? 'border-gray-200 bg-gray-50 opacity-60'
                     : 'border-gray-200'
@@ -91,7 +91,7 @@ export function TeacherDashboard() {
                 <p className="text-sm text-gray-500">{lesson.room}</p>
               </div>
               {lesson.status === 'current' && (
-                <span className="rounded-full bg-[#2302B3] px-3 py-1 text-xs font-semibold text-white">
+                <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white">
                   En cours
                 </span>
               )}

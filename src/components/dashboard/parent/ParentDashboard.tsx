@@ -22,7 +22,7 @@ export function ParentDashboard() {
           <div key={i} className="rounded-2xl border border-gray-100 bg-white p-6">
             <div className="mb-4 flex items-start justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] text-lg font-bold text-white">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-lg font-bold text-white">
                   {child.name.charAt(0)}
                 </div>
                 <div>
@@ -106,7 +106,7 @@ export function ParentDashboard() {
                   </p>
                   <p className="text-xs text-gray-500">{grade.date}</p>
                 </div>
-                <span className="text-lg font-bold text-[#2302B3]">{grade.grade}</span>
+                <span className="text-lg font-bold text-primary">{grade.grade}</span>
               </div>
             ))}
           </div>
@@ -153,7 +153,7 @@ export function ParentDashboard() {
               </div>
             ))}
           </div>
-          <Button className="mt-4 w-full bg-[#2302B3] hover:bg-[#1a0285]">
+          <Button className="mt-4 w-full bg-primary hover:bg-primary-dark">
             Effectuer un paiement
           </Button>
         </div>
@@ -170,10 +170,10 @@ export function ParentDashboard() {
           ].map((event, i) => (
             <div
               key={i}
-              className="rounded-xl border-2 border-gray-200 p-4 transition-colors hover:border-[#2302B3]"
+              className="rounded-xl border-2 border-gray-200 p-4 transition-colors hover:border-primary"
             >
               <div className="mb-2 flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-[#2302B3]" />
+                <Calendar className="h-5 w-5 text-primary" />
                 <p className="text-sm font-semibold">{event.title}</p>
               </div>
               <p className="text-xs text-gray-600">

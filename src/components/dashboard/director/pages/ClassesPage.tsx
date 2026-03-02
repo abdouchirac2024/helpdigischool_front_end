@@ -246,9 +246,9 @@ export function DirectorClassesPage() {
     if (sortField !== field)
       return <ArrowUpDown className="ml-1 inline h-3.5 w-3.5 text-gray-400" />
     return sortDir === 'asc' ? (
-      <ArrowUp className="ml-1 inline h-3.5 w-3.5 text-[#2302B3]" />
+      <ArrowUp className="ml-1 inline h-3.5 w-3.5 text-primary" />
     ) : (
-      <ArrowDown className="ml-1 inline h-3.5 w-3.5 text-[#2302B3]" />
+      <ArrowDown className="ml-1 inline h-3.5 w-3.5 text-primary" />
     )
   }
 
@@ -351,7 +351,7 @@ export function DirectorClassesPage() {
   if (isLoading) {
     return (
       <div className="flex h-96 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#2302B3]" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
   }
@@ -367,7 +367,7 @@ export function DirectorClassesPage() {
             {classes.length} classes &bull; {totalStudents} élèves
           </p>
         </div>
-        <Button className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]" onClick={openCreateDialog}>
+        <Button className="gap-2 bg-primary hover:bg-primary-dark" onClick={openCreateDialog}>
           <Plus className="h-4 w-4" />
           Nouvelle classe
         </Button>
@@ -456,7 +456,7 @@ export function DirectorClassesPage() {
                 <SlidersHorizontal className="h-4 w-4" />
                 Filtres
                 {activeFiltersCount > 0 && (
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#2302B3] text-[10px] font-bold text-white">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
                     {activeFiltersCount}
                   </span>
                 )}
@@ -468,9 +468,7 @@ export function DirectorClassesPage() {
                 <button
                   onClick={() => setViewMode('grid')}
                   className={`flex items-center justify-center rounded-l-lg px-3 py-2 transition-colors ${
-                    viewMode === 'grid'
-                      ? 'bg-[#2302B3] text-white'
-                      : 'text-gray-500 hover:bg-gray-50'
+                    viewMode === 'grid' ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-50'
                   }`}
                 >
                   <LayoutGrid className="h-4 w-4" />
@@ -479,7 +477,7 @@ export function DirectorClassesPage() {
                   onClick={() => setViewMode('table')}
                   className={`flex items-center justify-center rounded-r-lg px-3 py-2 transition-colors ${
                     viewMode === 'table'
-                      ? 'bg-[#2302B3] text-white'
+                      ? 'bg-primary text-white'
                       : 'text-gray-500 hover:bg-gray-50'
                   }`}
                 >
@@ -651,8 +649,8 @@ export function DirectorClassesPage() {
                     <TableRow key={cls.id} className="group">
                       <TableCell>
                         <div className="flex items-center gap-3">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#2302B3]/10">
-                            <School className="h-4 w-4 text-[#2302B3]" />
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                            <School className="h-4 w-4 text-primary" />
                           </div>
                           <div>
                             <p className="font-semibold text-gray-900">{cls.nomClasse}</p>
@@ -762,7 +760,7 @@ export function DirectorClassesPage() {
                   key={cls.id}
                   className="group overflow-hidden rounded-2xl border border-gray-100 bg-white transition-all hover:shadow-lg"
                 >
-                  <div className="bg-gradient-to-r from-[#2302B3] to-[#4318FF] p-4">
+                  <div className="bg-gradient-to-r from-primary to-secondary p-4">
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="text-lg font-bold text-white">{cls.nomClasse}</h3>
@@ -786,7 +784,7 @@ export function DirectorClassesPage() {
                   <div className="space-y-3 p-4">
                     {/* Teacher */}
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] text-xs font-semibold text-white">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-xs font-semibold text-white">
                         {cls.titulaireNom
                           ? (
                               cls.titulaireNom.split(' ')[1]?.charAt(0) ||
@@ -961,7 +959,7 @@ export function DirectorClassesPage() {
                     variant={currentPage === item ? 'default' : 'outline'}
                     size="sm"
                     className={`h-8 w-8 p-0 text-xs ${
-                      currentPage === item ? 'bg-[#2302B3] hover:bg-[#1a0285]' : ''
+                      currentPage === item ? 'bg-primary hover:bg-primary-dark' : ''
                     }`}
                     onClick={() => setCurrentPage(item)}
                   >
@@ -1155,7 +1153,7 @@ export function DirectorClassesPage() {
               Annuler
             </Button>
             <Button
-              className="bg-[#2302B3] hover:bg-[#1a0285]"
+              className="bg-primary hover:bg-primary-dark"
               onClick={handleSave}
               disabled={isSaving}
             >
@@ -1249,7 +1247,7 @@ export function DirectorClassesPage() {
               Fermer
             </Button>
             <Button
-              className="bg-[#2302B3] hover:bg-[#1a0285]"
+              className="bg-primary hover:bg-primary-dark"
               onClick={() => {
                 setViewDialogOpen(false)
                 if (viewingClasse) openEditDialog(viewingClasse)

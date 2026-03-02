@@ -143,7 +143,7 @@ export function TeacherEvaluationsPage() {
           <h1 className="text-3xl font-bold text-gray-900">Évaluations</h1>
           <p className="mt-1 text-gray-600">Gérez vos contrôles et évaluations</p>
         </div>
-        <Button className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]">
+        <Button className="gap-2 bg-primary hover:bg-primary-dark">
           <Plus className="h-4 w-4" />
           Nouvelle évaluation
         </Button>
@@ -169,7 +169,7 @@ export function TeacherEvaluationsPage() {
         </div>
         <div className="rounded-xl border border-gray-100 bg-white p-4">
           <p className="mb-1 text-sm text-gray-600">Moyenne générale</p>
-          <p className="text-2xl font-bold text-[#2302B3]">14.8/20</p>
+          <p className="text-2xl font-bold text-primary">14.8/20</p>
         </div>
       </div>
 
@@ -193,7 +193,7 @@ export function TeacherEvaluationsPage() {
                 variant={filter === f.value ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setFilter(f.value)}
-                className={filter === f.value ? 'bg-[#2302B3]' : ''}
+                className={filter === f.value ? 'bg-primary' : ''}
               >
                 {f.label}
               </Button>
@@ -240,7 +240,7 @@ export function TeacherEvaluationsPage() {
                         <Users className="h-4 w-4" />
                         {evaluation.submitted}/{evaluation.total} copies
                       </div>
-                      <div className="flex items-center gap-2 text-sm font-semibold text-[#2302B3]">
+                      <div className="flex items-center gap-2 text-sm font-semibold text-primary">
                         <Award className="h-4 w-4" />
                         Moyenne: {evaluation.average}/20
                       </div>

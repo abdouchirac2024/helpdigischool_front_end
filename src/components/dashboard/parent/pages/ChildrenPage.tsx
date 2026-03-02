@@ -61,7 +61,7 @@ export function ParentChildrenPage() {
           <h1 className="text-3xl font-bold text-gray-900">Mes Enfants</h1>
           <p className="mt-1 text-gray-600">{children.length} enfants inscrits</p>
         </div>
-        <Button className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]">
+        <Button className="gap-2 bg-primary hover:bg-primary-dark">
           <Plus className="h-4 w-4" />
           Ajouter un enfant
         </Button>
@@ -75,7 +75,7 @@ export function ParentChildrenPage() {
             className="overflow-hidden rounded-2xl border border-gray-100 bg-white"
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-[#2302B3] to-[#4318FF] p-6">
+            <div className="bg-gradient-to-r from-primary to-secondary p-6">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-4">
                   <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-white/30 bg-white/20 text-2xl font-bold text-white backdrop-blur-sm">
@@ -102,7 +102,7 @@ export function ParentChildrenPage() {
             <div className="grid grid-cols-2 gap-4 border-b border-gray-100 p-6 md:grid-cols-4">
               <div className="text-center">
                 <p className="mb-1 text-sm text-gray-600">Moyenne générale</p>
-                <p className="text-2xl font-bold text-[#2302B3]">{child.average}/20</p>
+                <p className="text-2xl font-bold text-primary">{child.average}/20</p>
               </div>
               <div className="text-center">
                 <p className="mb-1 text-sm text-gray-600">Taux de présence</p>
@@ -132,7 +132,7 @@ export function ParentChildrenPage() {
                       <div className="mt-1 flex items-center gap-2">
                         <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-200">
                           <div
-                            className="h-full bg-[#2302B3]"
+                            className="h-full bg-primary"
                             style={{ width: `${(subject.grade / 20) * 100}%` }}
                           />
                         </div>

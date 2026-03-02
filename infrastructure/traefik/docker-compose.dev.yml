@@ -6,7 +6,7 @@
 
 services:
   traefik:
-    image: traefik:v3.2
+    image: traefik:latest
     container_name: traefik-dev
     restart: unless-stopped
     ports:
@@ -27,6 +27,7 @@ services:
       - "--metrics.prometheus.addServicesLabels=true"
     environment:
       - TZ=Europe/Paris
+      - DOCKER_API_VERSION=1.44
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:

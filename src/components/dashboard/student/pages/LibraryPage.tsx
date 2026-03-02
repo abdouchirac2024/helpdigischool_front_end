@@ -98,7 +98,7 @@ export function StudentLibraryPage() {
             key={cat}
             variant={cat === 'Tous' ? 'default' : 'outline'}
             size="sm"
-            className={cat === 'Tous' ? 'bg-[#2302B3]' : ''}
+            className={cat === 'Tous' ? 'bg-primary' : ''}
           >
             {cat}
           </Button>
@@ -137,7 +137,7 @@ export function StudentLibraryPage() {
                   <Eye className="h-4 w-4" />
                   Voir
                 </Button>
-                <Button size="sm" className="flex-1 gap-2 bg-[#2302B3] hover:bg-[#1a0285]">
+                <Button size="sm" className="flex-1 gap-2 bg-primary hover:bg-primary-dark">
                   <Download className="h-4 w-4" />
                   Télécharger
                 </Button>

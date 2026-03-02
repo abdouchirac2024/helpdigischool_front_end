@@ -171,7 +171,7 @@ export function StudentForm({ open, onOpenChange, onSuccess }: StudentFormProps)
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="bg-[#2302B3] hover:bg-[#1a0285]"
+                className="bg-primary hover:bg-primary-dark"
               >
                 {isLoading ? 'Création...' : 'Créer'}
               </Button>

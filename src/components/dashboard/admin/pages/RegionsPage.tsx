@@ -48,10 +48,10 @@ export function AdminRegionsPage() {
       </div>
 
       {/* Stats */}
-      <div className="rounded-2xl border border-[#2302B3] bg-[#2302B3]/5 p-5">
+      <div className="rounded-2xl border border-primary bg-primary/5 p-5">
         <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#2302B3]/10">
-            <Globe className="h-6 w-6 text-[#2302B3]" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+            <Globe className="h-6 w-6 text-primary" />
           </div>
           <div>
             <p className="text-2xl font-bold text-gray-900">{regions.length}</p>
@@ -87,7 +87,7 @@ export function AdminRegionsPage() {
       {/* Loading */}
       {loading && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-[#2302B3]" />
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <span className="ml-3 text-gray-500">Chargement...</span>
         </div>
       )}
@@ -123,7 +123,7 @@ export function AdminRegionsPage() {
                       </td>
                       <td className="p-4">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] font-semibold text-white">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary font-semibold text-white">
                             {region.nom.charAt(0)}
                           </div>
                           <span className="font-semibold text-gray-900">{region.nom}</span>

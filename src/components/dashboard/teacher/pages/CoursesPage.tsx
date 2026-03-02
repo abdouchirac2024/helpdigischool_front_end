@@ -27,7 +27,7 @@ export function TeacherCoursesPage() {
           <h1 className="text-3xl font-bold text-gray-900">Mes Cours</h1>
           <p className="mt-1 text-gray-600">Classe CM2-A • Année 2024-2025</p>
         </div>
-        <Button className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]">
+        <Button className="gap-2 bg-primary hover:bg-primary-dark">
           <Plus className="h-4 w-4" />
           Nouveau cours
         </Button>

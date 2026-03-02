@@ -3,11 +3,11 @@
  * Help Digi School - Frontend Next.js
  *
  * Fonctionnalités:
- * - Injection automatique du token Authorization (intercepteur request)
+ * - Cookies HttpOnly envoyés automatiquement (withCredentials: true)
  * - Retry automatique avec backoff exponentiel (intercepteur response)
  * - Gestion des erreurs avec toast notifications
  * - Timeout configurable
- * - Auto-déconnexion sur 401
+ * - Auto-refresh sur 401 via cookie refresh_token
  */
 
 import axios, {
@@ -44,38 +44,31 @@ export interface PaginatedResponse<T> {
   }
 }
 
-// Clé pour le token d'authentification
-const TOKEN_KEY = 'auth_token'
-const REFRESH_TOKEN_KEY = 'refresh_token'
-
 // Clé pour le compteur de retry (stocké dans la config de la requête)
 const RETRY_COUNT_KEY = '__retryCount'
 
 /**
- * Récupère le token d'authentification
+ * @deprecated Les tokens JWT sont maintenant gérés via cookies HttpOnly par le backend.
+ * Cette fonction retourne toujours null — conservée pour ne pas casser les imports existants.
  */
-function getAuthToken(): string | null {
-  if (typeof window === 'undefined') return null
-  return localStorage.getItem(TOKEN_KEY)
+export function getAuthToken(): string | null {
+  return null
 }
 
 /**
- * Définit le token d'authentification
+ * @deprecated Les tokens JWT sont maintenant gérés via cookies HttpOnly par le backend.
+ * Cette fonction est un no-op — conservée pour ne pas casser les imports existants.
  */
-export function setAuthToken(token: string): void {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem(TOKEN_KEY, token)
-  }
+export function setAuthToken(_token: string): void {
+  // no-op : le backend pose les cookies HttpOnly directement
 }
 
 /**
- * Supprime le token d'authentification
+ * @deprecated Les tokens JWT sont maintenant gérés via cookies HttpOnly par le backend.
+ * Cette fonction est un no-op — conservée pour ne pas casser les imports existants.
  */
 export function removeAuthToken(): void {
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem(TOKEN_KEY)
-    localStorage.removeItem(REFRESH_TOKEN_KEY)
-  }
+  // no-op : le backend efface les cookies via Set-Cookie Max-Age=0
 }
 
 /**
@@ -114,20 +107,25 @@ function sleep(ms: number): Promise<void> {
 
 /**
  * Fonction pour obtenir le baseURL dynamiquement
- * Assure que le proxy est utilisé côté client même après SSR
+ * Assure que le proxy est utilisé côté client même après SSR.
+ * Gère localhost ET les sous-domaines .localhost (ex: helpdigischool.localhost via Traefik).
  */
 function getBaseURL(): string {
-  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    return '/api/backend'
+  if (typeof window !== 'undefined') {
+    const { hostname } = window.location
+    if (hostname === 'localhost' || hostname.endsWith('.localhost')) {
+      return '/api/backend'
+    }
   }
   return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
 }
 
 /**
  * Création de l'instance Axios avec configuration de base
- * Note: Le tenant est extrait automatiquement du JWT token par le backend
+ * withCredentials: true → les cookies HttpOnly sont envoyés automatiquement
  */
 const axiosInstance: AxiosInstance = axios.create({
+  withCredentials: true,
   timeout: API_CONFIG.timeout,
   headers: {
     'Content-Type': 'application/json',
@@ -138,57 +136,55 @@ const axiosInstance: AxiosInstance = axios.create({
 // Flag pour éviter les boucles de refresh infinies
 let isRefreshing = false
 let failedQueue: Array<{
-  resolve: (value?: unknown) => void
+  resolve: () => void
   reject: (reason?: unknown) => void
 }> = []
 
-function processQueue(error: unknown, token: string | null = null) {
+function processQueue(error: unknown) {
   failedQueue.forEach(({ resolve, reject }) => {
     if (error) {
       reject(error)
     } else {
-      resolve(token)
+      resolve()
     }
   })
   failedQueue = []
 }
 
 /**
- * Tente de rafraîchir le token JWT
+ * Tente de rafraîchir les tokens JWT via le cookie refresh_token.
+ * Le backend repose les nouveaux cookies HttpOnly automatiquement.
+ * Retourne true si le refresh a réussi, false sinon.
  */
-async function tryRefreshToken(): Promise<string | null> {
-  if (typeof window === 'undefined') return null
-  const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY)
-  if (!refreshToken) return null
+async function tryRefreshToken(): Promise<boolean> {
+  if (typeof window === 'undefined') return false
 
   try {
     const baseURL = getBaseURL()
-    const response = await axios.post(`${baseURL}/auth/refresh-token`, { refreshToken })
-    const { accessToken, refreshToken: newRefreshToken } = response.data
+    const response = await axios.post(
+      `${baseURL}/auth/refresh-token`,
+      null, // Pas de body — le refresh_token est dans le cookie HttpOnly
+      { withCredentials: true }
+    )
 
-    localStorage.setItem(TOKEN_KEY, accessToken)
-    if (newRefreshToken) {
-      localStorage.setItem(REFRESH_TOKEN_KEY, newRefreshToken)
+    // Mettre à jour l'expiration stockée localement (pour SessionExpirationGuard)
+    const { expiresIn } = response.data
+    if (expiresIn && typeof window !== 'undefined') {
+      localStorage.setItem('token_expires_at', String(Date.now() + expiresIn))
     }
-    return accessToken
+    return true
   } catch {
-    return null
+    return false
   }
 }
 
 /**
- * Intercepteur de requête - Injection du token Authorization
- * Le tenant est extrait automatiquement du JWT token par le backend (JwtAuthFilter)
+ * Intercepteur de requête — injection du baseURL dynamique.
+ * Plus d'injection du Bearer token : les cookies HttpOnly sont envoyés automatiquement.
  */
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     config.baseURL = getBaseURL()
-
-    const token = getAuthToken()
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-
     return config
   },
   (error) => {
@@ -197,7 +193,7 @@ axiosInstance.interceptors.request.use(
 )
 
 /**
- * Intercepteur de réponse - Gestion des erreurs, retry automatique et auto-refresh 401
+ * Intercepteur de réponse — Gestion des erreurs, retry automatique et auto-refresh 401
  */
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => response,
@@ -217,8 +213,9 @@ axiosInstance.interceptors.response.use(
     if (status === 401 && !config._retry) {
       // Ne pas refresh pour les endpoints d'auth
       if (config.url?.includes('/auth/login') || config.url?.includes('/auth/refresh-token')) {
-        removeAuthToken()
         if (typeof window !== 'undefined') {
+          localStorage.removeItem('auth_user')
+          localStorage.removeItem('token_expires_at')
           window.location.href = '/login'
         }
         return Promise.reject(error)
@@ -226,10 +223,10 @@ axiosInstance.interceptors.response.use(
 
       if (isRefreshing) {
         // Mettre en file d'attente pendant le refresh
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
           failedQueue.push({ resolve, reject })
-        }).then((token) => {
-          config.headers.Authorization = `Bearer ${token}`
+        }).then(() => {
+          // Cookies mis à jour par le backend — retenter sans Authorization header
           return axiosInstance(config)
         })
       }
@@ -237,18 +234,18 @@ axiosInstance.interceptors.response.use(
       config._retry = true
       isRefreshing = true
 
-      const newToken = await tryRefreshToken()
+      const refreshSuccess = await tryRefreshToken()
 
-      if (newToken) {
-        config.headers.Authorization = `Bearer ${newToken}`
-        processQueue(null, newToken)
+      if (refreshSuccess) {
+        processQueue(null)
         isRefreshing = false
         return axiosInstance(config)
       } else {
         processQueue(new Error('Refresh failed'))
         isRefreshing = false
-        removeAuthToken()
         if (typeof window !== 'undefined') {
+          localStorage.removeItem('auth_user')
+          localStorage.removeItem('token_expires_at')
           window.location.href = '/login'
         }
         return Promise.reject(error)
@@ -339,10 +336,11 @@ export const apiClient = {
     const formData = new FormData()
     formData.append(fieldName, file)
 
+    // Force remove Content-Type so the browser auto-sets multipart/form-data with boundary
     const response = await axiosInstance.post<T>(endpoint, formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+        'Content-Type': undefined,
+      } as Record<string, string | undefined>,
     })
     return response.data
   },

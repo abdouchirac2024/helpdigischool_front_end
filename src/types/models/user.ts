@@ -29,7 +29,10 @@ export interface User {
   role: UserRole
   status: UserStatus
   profile: UserProfile
-  schoolId?: string // null pour admin SaaS
+  schoolId?: string // tenantId technique (ex: CM-CENTRE-ECOLE-001), null pour admin SaaS
+  ecoleId?: number // id numerique de l'ecole en base
+  schoolName?: string // nom affichable de l'ecole (ex: "Ecole La Victoire")
+  schoolStatus?: string // 'EN_ATTENTE', 'VALIDEE', 'REJETEE', etc.
   createdAt: Date
   updatedAt: Date
   lastLoginAt?: Date
@@ -129,4 +132,33 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canViewReports: false,
     canSendMessages: true,
   },
+}
+
+// DTO backend pour UserInfo (correspond a AuthResponse.UserInfo Java)
+export interface BackendUserInfo {
+  id: number
+  email: string
+  nom: string
+  prenom: string
+  telephone: string | null
+  role: 'SUPER_ADMIN' | 'ADMIN_ECOLE' | 'ENSEIGNANT' | 'PARENT' | 'SECRETAIRE' | 'COMPTABLE'
+  tenantId: string
+  ecoleId: number | null
+  ecoleNom: string | null
+  codeEcole: string | null
+  statutEcole: string | null
+  status: 'ACTIVE' | 'INACTIVE' | 'LOCKED' | 'PENDING'
+  lastLogin: string | null
+  createdAt: string | null
+  avatarUrl: string | null
+}
+
+// Statistiques utilisateurs retournees par GET /api/users/stats
+export interface UserStats {
+  total: number
+  active: number
+  inactive: number
+  locked: number
+  pending: number
+  connected: number
 }

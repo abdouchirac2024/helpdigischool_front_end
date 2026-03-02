@@ -9,12 +9,12 @@ interface PaginationProps {
   totalItems: number
 }
 
-export function Pagination({ 
-  currentPage, 
-  totalPages, 
+export function Pagination({
+  currentPage,
+  totalPages,
   onPageChange,
   itemsPerPage,
-  totalItems 
+  totalItems,
 }: PaginationProps) {
   const startItem = (currentPage - 1) * itemsPerPage + 1
   const endItem = Math.min(currentPage * itemsPerPage, totalItems)
@@ -22,7 +22,7 @@ export function Pagination({
   const getPageNumbers = () => {
     const pages = []
     const maxVisible = 5
-    
+
     if (totalPages <= maxVisible) {
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i)
@@ -44,12 +44,12 @@ export function Pagination({
         pages.push(totalPages)
       }
     }
-    
+
     return pages
   }
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200">
+    <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3">
       <div className="flex items-center gap-2">
         <p className="text-sm text-gray-700">
           Affichage de <span className="font-medium">{startItem}</span> à{' '}
@@ -57,7 +57,7 @@ export function Pagination({
           <span className="font-medium">{totalItems}</span> résultats
         </p>
       </div>
-      
+
       <div className="flex items-center gap-2">
         <Button
           variant="outline"
@@ -65,12 +65,12 @@ export function Pagination({
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
         >
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft className="h-4 w-4" />
           Précédent
         </Button>
-        
+
         <div className="flex gap-1">
-          {getPageNumbers().map((page, index) => (
+          {getPageNumbers().map((page, index) =>
             page === '...' ? (
               <span key={`ellipsis-${index}`} className="px-3 py-1 text-gray-500">
                 ...
@@ -81,14 +81,14 @@ export function Pagination({
                 variant={currentPage === page ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => onPageChange(page as number)}
-                className={currentPage === page ? 'bg-[#2302B3] hover:bg-[#1a0285]' : ''}
+                className={currentPage === page ? 'bg-primary hover:bg-primary-dark' : ''}
               >
                 {page}
               </Button>
             )
-          ))}
+          )}
         </div>
-        
+
         <Button
           variant="outline"
           size="sm"
@@ -96,7 +96,7 @@ export function Pagination({
           disabled={currentPage === totalPages}
         >
           Suivant
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
     </div>
