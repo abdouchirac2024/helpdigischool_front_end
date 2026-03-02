@@ -36,6 +36,12 @@ async function handleRequest(request: NextRequest, path: string[]) {
     headers['Authorization'] = authHeader
   }
 
+  // Forward X-Tenant-ID if present (required for public endpoints without JWT)
+  const tenantHeader = request.headers.get('X-Tenant-ID')
+  if (tenantHeader) {
+    headers['X-Tenant-ID'] = tenantHeader
+  }
+
   // Forward cookies (required for HttpOnly JWT: access_token, refresh_token)
   const cookieHeader = request.headers.get('Cookie')
   if (cookieHeader) {
