@@ -8,6 +8,53 @@ const ACCEPTED_FORMATS = ['image/jpeg', 'image/png', 'image/webp']
 const MAX_SIZE_MB = 5
 const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024
 
+// Compresse et redimensionne l'image côté client avant l'upload
+// Réduit une photo de 4MB → ~150KB (20x plus rapide à uploader)
+function compressImage(file: File, maxDimension = 800, quality = 0.85): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    const objectUrl = URL.createObjectURL(file)
+
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl)
+
+      let { width, height } = img
+      if (width > maxDimension || height > maxDimension) {
+        if (width > height) {
+          height = Math.round((height * maxDimension) / width)
+          width = maxDimension
+        } else {
+          width = Math.round((width * maxDimension) / height)
+          height = maxDimension
+        }
+      }
+
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return resolve(file)
+
+      ctx.drawImage(img, 0, 0, width, height)
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) return resolve(file)
+          resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }))
+        },
+        'image/jpeg',
+        quality
+      )
+    }
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl)
+      reject(new Error("Impossible de lire l'image"))
+    }
+
+    img.src = objectUrl
+  })
+}
+
 interface PhotoUploadProps {
   label: string
   required?: boolean
@@ -51,14 +98,15 @@ export function PhotoUpload({
         return
       }
 
-      // Show preview immediately
+      // Aperçu immédiat avec le fichier original
       const objectUrl = URL.createObjectURL(file)
       setPreviewUrl(objectUrl)
 
-      // Upload
+      // Compression côté client avant upload (4MB → ~150KB)
       setIsUploading(true)
       try {
-        await onPhotoSelected(file)
+        const compressed = await compressImage(file)
+        await onPhotoSelected(compressed)
       } catch {
         setError("Erreur lors de l'upload. Veuillez réessayer.")
         setPreviewUrl(currentPhotoUrl || null)

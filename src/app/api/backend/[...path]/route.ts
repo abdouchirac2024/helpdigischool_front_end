@@ -8,6 +8,9 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 
+// Vercel: autoriser jusqu'à 60s pour les uploads de fichiers (images, PDFs)
+export const maxDuration = 60
+
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8080'
 
 async function handleRequest(request: NextRequest, path: string[]) {
@@ -47,7 +50,7 @@ async function handleRequest(request: NextRequest, path: string[]) {
 
   try {
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 30000)
+    const timeoutId = setTimeout(() => controller.abort(), 55000)
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const fetchOptions: any = {
