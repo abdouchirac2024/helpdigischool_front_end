@@ -283,8 +283,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = useCallback(async () => {
     try {
-      // Le backend révoque le refresh token (via cookie) et efface les cookies
-      await apiClient.post(API_ENDPOINTS.auth.logout).catch(() => {})
+      // Appel via la route Next.js dédiée (pas le proxy /api/backend)
+      // qui efface les cookies HttpOnly côté serveur de façon fiable
+      await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {})
     } finally {
       // Notifier le système de présence pour déconnecter le WebSocket
       if (typeof window !== 'undefined') {
@@ -298,8 +299,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         error: null,
         tokenExpiresAt: null,
       })
-      // Forcer un rechargement complet pour que le middleware Next.js
-      // réévalue les cookies (la navigation client-side ne suffit pas)
+      // Rechargement complet — le middleware verra les cookies effacés
       window.location.href = '/login'
     }
   }, [])
