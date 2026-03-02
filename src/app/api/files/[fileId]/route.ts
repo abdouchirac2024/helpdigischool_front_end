@@ -9,15 +9,23 @@ import { NextRequest, NextResponse } from 'next/server'
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8080'
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ fileId: string }> }
 ) {
   const { fileId } = await params
   const url = `${BACKEND_URL}/api/files/${fileId}`
 
+  // Transmettre le cookie d'authentification au backend (requis pour les fichiers protégés)
+  const cookieHeader = request.headers.get('Cookie')
+  const fetchHeaders: HeadersInit = {}
+  if (cookieHeader) {
+    fetchHeaders['Cookie'] = cookieHeader
+  }
+
   try {
     const response = await fetch(url, {
       method: 'GET',
+      headers: fetchHeaders,
     })
 
     if (!response.ok) {
