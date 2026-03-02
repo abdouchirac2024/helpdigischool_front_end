@@ -87,7 +87,7 @@ export function DashboardContent() {
             <TrendingUp className="h-4 w-4" />
             Statistiques
           </Button>
-          <Button className="gap-2 bg-primary hover:bg-primary-dark">Ajouter Élève</Button>
+          <Button className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]">Ajouter Élève</Button>
         </div>
       </div>
 
@@ -134,7 +134,7 @@ export function DashboardContent() {
               </div>
             </div>
             <div className="mt-4 border-t border-gray-100 pt-4">
-              <span className="text-lg font-bold text-primary">{activity.badge}</span>
+              <span className="text-lg font-bold text-[#2302B3]">{activity.badge}</span>
             </div>
           </div>
         ))}
