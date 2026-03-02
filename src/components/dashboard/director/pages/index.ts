@@ -1,6 +1,5 @@
 export { DirectorStudentsPage } from './StudentsPage'
 export { DirectorClassesPage } from './ClassesPage'
-export { InscriptionsPage } from './InscriptionsPage'
 export { DirectorTeachersPage } from './TeachersPage'
 export { DirectorGradesPage } from './GradesPage'
 export { DirectorPaymentsPage } from './PaymentsPage'
