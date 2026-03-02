@@ -43,17 +43,22 @@ function getSubdomain(host: string | null): string | null {
   if (!host) return null
   const hostWithoutPort = host.split(':')[0]
   const parts = hostWithoutPort.split('.')
-  // "ecole-la-victoire.localhost" → ["ecole-la-victoire", "localhost"] → subdomain
-  // "localhost" → ["localhost"] → no subdomain
-  // "ecole.helpdigischool.com" → ["ecole", "helpdigischool", "com"] → subdomain
-  if (parts.length >= 2 && parts[parts.length - 1] !== 'com') {
-    // Dev: *.localhost
+
+  // Dev: *.localhost (ex: ecole.localhost)
+  if (parts.length >= 2 && parts[parts.length - 1] === 'localhost') {
     return parts.slice(0, -1).join('.')
   }
-  if (parts.length >= 3 && parts[parts.length - 1] === 'com') {
-    // Prod: *.helpdigischool.com
+
+  // Prod: *.helpdigischool.com (ex: ecole.helpdigischool.com)
+  if (
+    parts.length >= 3 &&
+    parts[parts.length - 2] === 'helpdigischool' &&
+    parts[parts.length - 1] === 'com'
+  ) {
     return parts.slice(0, -2).join('.')
   }
+
+  // Vercel/autres déploiements (*.vercel.app, etc.) → pas de sous-domaine école
   return null
 }
 
