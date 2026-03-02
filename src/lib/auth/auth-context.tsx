@@ -10,7 +10,6 @@ import {
 } from '@/types/api/auth'
 import { apiClient, removeAuthToken } from '@/lib/api/client'
 import { API_ENDPOINTS } from '@/lib/api/config'
-import { useRouter } from 'next/navigation'
 
 // Storage keys (tokens JWT plus stockés ici — gérés par cookies HttpOnly côté backend)
 const USER_KEY = 'auth_user'
@@ -120,7 +119,6 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const router = useRouter()
   const [state, setState] = useState<AuthState>({
     user: null,
     isAuthenticated: false,
@@ -195,56 +193,50 @@ export function AuthProvider({ children }: AuthProviderProps) {
     removeAuthToken() // no-op, conservé pour compatibilité
   }
 
-  const login = useCallback(
-    async (credentials: LoginRequest): Promise<LoginResponse> => {
-      setState((prev) => ({ ...prev, isLoading: true, error: null }))
+  const login = useCallback(async (credentials: LoginRequest): Promise<LoginResponse> => {
+    setState((prev) => ({ ...prev, isLoading: true, error: null }))
 
-      try {
-        // Le backend pose les cookies HttpOnly access_token + refresh_token dans la réponse
-        const backendResponse = await apiClient.post<BackendLoginResponse>(
-          API_ENDPOINTS.auth.login,
-          {
-            login: credentials.login,
-            password: credentials.password,
-          }
-        )
+    try {
+      // Le backend pose les cookies HttpOnly access_token + refresh_token dans la réponse
+      const backendResponse = await apiClient.post<BackendLoginResponse>(API_ENDPOINTS.auth.login, {
+        login: credentials.login,
+        password: credentials.password,
+      })
 
-        const frontendUser = mapBackendUserToFrontend(backendResponse.user)
+      const frontendUser = mapBackendUserToFrontend(backendResponse.user)
 
-        const loginResponse: LoginResponse = {
-          success: true,
-          user: frontendUser,
-          accessToken: backendResponse.accessToken,
-          refreshToken: backendResponse.refreshToken,
-          expiresIn: backendResponse.expiresIn / 1000, // Convert ms to seconds
-        }
-
-        // Stocker les infos utilisateur (non sensibles) et l'expiration pour SessionExpirationGuard
-        localStorage.setItem(USER_KEY, JSON.stringify(loginResponse.user))
-        const tokenExpiresAt = Date.now() + backendResponse.expiresIn
-        localStorage.setItem(TOKEN_EXPIRES_AT_KEY, String(tokenExpiresAt))
-
-        setState({
-          user: loginResponse.user,
-          isAuthenticated: true,
-          isLoading: false,
-          error: null,
-          tokenExpiresAt,
-        })
-
-        return loginResponse
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Erreur de connexion'
-        setState((prev) => ({
-          ...prev,
-          isLoading: false,
-          error: message,
-        }))
-        throw error
+      const loginResponse: LoginResponse = {
+        success: true,
+        user: frontendUser,
+        accessToken: backendResponse.accessToken,
+        refreshToken: backendResponse.refreshToken,
+        expiresIn: backendResponse.expiresIn / 1000, // Convert ms to seconds
       }
-    },
-    [router]
-  )
+
+      // Stocker les infos utilisateur (non sensibles) et l'expiration pour SessionExpirationGuard
+      localStorage.setItem(USER_KEY, JSON.stringify(loginResponse.user))
+      const tokenExpiresAt = Date.now() + backendResponse.expiresIn
+      localStorage.setItem(TOKEN_EXPIRES_AT_KEY, String(tokenExpiresAt))
+
+      setState({
+        user: loginResponse.user,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+        tokenExpiresAt,
+      })
+
+      return loginResponse
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Erreur de connexion'
+      setState((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: message,
+      }))
+      throw error
+    }
+  }, [])
 
   const register = useCallback(async (data: RegisterSchoolRequest): Promise<RegisterResponse> => {
     setState((prev) => ({ ...prev, isLoading: true, error: null }))
@@ -306,9 +298,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         error: null,
         tokenExpiresAt: null,
       })
-      router.push('/login')
+      // Forcer un rechargement complet pour que le middleware Next.js
+      // réévalue les cookies (la navigation client-side ne suffit pas)
+      window.location.href = '/login'
     }
-  }, [router])
+  }, [])
 
   const refreshSession = useCallback(async () => {
     try {
