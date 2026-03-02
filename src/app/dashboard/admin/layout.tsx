@@ -1,3 +1,5 @@
+'use client'
+
 import { DashboardShell } from '@/components/dashboard/shared/DashboardShell'
 import { PresenceProvider } from '@/lib/presence/presence-context'
 
