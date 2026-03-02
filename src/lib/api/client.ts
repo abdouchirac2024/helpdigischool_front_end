@@ -107,15 +107,12 @@ function sleep(ms: number): Promise<void> {
 
 /**
  * Fonction pour obtenir le baseURL dynamiquement
- * Assure que le proxy est utilisé côté client même après SSR.
- * Gère localhost ET les sous-domaines .localhost (ex: helpdigischool.localhost via Traefik).
+ * Côté client (navigateur): toujours utiliser le proxy Next.js pour éviter les problèmes CORS
+ * Côté serveur (SSR): utiliser l'URL directe du backend
  */
 function getBaseURL(): string {
   if (typeof window !== 'undefined') {
-    const { hostname } = window.location
-    if (hostname === 'localhost' || hostname.endsWith('.localhost')) {
-      return '/api/backend'
-    }
+    return '/api/backend'
   }
   return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
 }

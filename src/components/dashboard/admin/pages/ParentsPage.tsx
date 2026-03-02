@@ -19,6 +19,9 @@ import {
   Trash2,
   Calendar,
   FileText,
+  Copy,
+  CheckCircle,
+  KeyRound,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -74,6 +77,15 @@ export function AdminParentsPage() {
 
   // View modal state
   const [viewingParent, setViewingParent] = useState<Parent | null>(null)
+
+  // Credentials modal state (shown after parent creation)
+  const [createdCredentials, setCreatedCredentials] = useState<{
+    email: string
+    password: string
+    nom: string
+    prenom: string
+  } | null>(null)
+  const [copiedCredentials, setCopiedCredentials] = useState(false)
 
   useEffect(() => {
     loadParents()
@@ -204,8 +216,18 @@ export function AdminParentsPage() {
         await parentService.updateParent(editingParent.idParent, formData)
         toast.success('Parent modifié avec succès')
       } else {
-        await parentService.createParent(formData)
+        const createdParent = await parentService.createParent(formData)
         toast.success('Parent créé avec succès')
+        // Afficher les identifiants générés si disponibles
+        if (createdParent.generatedPassword) {
+          setCreatedCredentials({
+            email: createdParent.email,
+            password: createdParent.generatedPassword,
+            nom: createdParent.nom,
+            prenom: createdParent.prenom,
+          })
+          setCopiedCredentials(false)
+        }
       }
       setShowModal(false)
       loadParents()
@@ -799,7 +821,7 @@ export function AdminParentsPage() {
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6">
+            <form onSubmit={handleSubmit} className="p-6" autoComplete="off">
               {/* Tab: Informations */}
               {activeTab === 'info' && (
                 <div className="space-y-4">
@@ -835,6 +857,7 @@ export function AdminParentsPage() {
                     <Input
                       type="email"
                       required
+                      autoComplete="off"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       placeholder="jean.dupont@email.com"
@@ -1075,6 +1098,83 @@ export function AdminParentsPage() {
                 ) : (
                   'Supprimer'
                 )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Credentials Modal - Shown after parent creation */}
+      {createdCredentials && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+              <CheckCircle className="h-6 w-6 text-green-600" />
+            </div>
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+              Compte parent créé avec succès
+            </h3>
+            <p className="mb-4 text-sm text-gray-600">
+              Un compte a été créé pour{' '}
+              <strong>
+                {createdCredentials.prenom} {createdCredentials.nom}
+              </strong>
+              . Voici les identifiants de connexion :
+            </p>
+
+            <div className="mb-4 space-y-3 rounded-xl bg-gray-50 p-4">
+              <div>
+                <p className="text-xs font-medium text-gray-500">Email (identifiant)</p>
+                <p className="flex items-center gap-2 font-mono text-sm font-semibold text-gray-900">
+                  <Mail className="h-4 w-4 text-[#2302B3]" />
+                  {createdCredentials.email}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-gray-500">Mot de passe</p>
+                <p className="flex items-center gap-2 font-mono text-sm font-semibold text-gray-900">
+                  <KeyRound className="h-4 w-4 text-[#2302B3]" />
+                  {createdCredentials.password}
+                </p>
+              </div>
+            </div>
+
+            <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
+              <p className="text-xs text-amber-800">
+                Partagez ces identifiants avec le parent. Il pourra se connecter et accéder à son
+                espace parent.
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => {
+                  const text = `Identifiants DigiSchool\nEmail: ${createdCredentials.email}\nMot de passe: ${createdCredentials.password}`
+                  navigator.clipboard.writeText(text)
+                  setCopiedCredentials(true)
+                  toast.success('Identifiants copiés dans le presse-papiers')
+                  setTimeout(() => setCopiedCredentials(false), 3000)
+                }}
+              >
+                {copiedCredentials ? (
+                  <>
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    Copié
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-4 w-4" />
+                    Copier
+                  </>
+                )}
+              </Button>
+              <Button
+                className="bg-[#2302B3] hover:bg-[#1a0185]"
+                onClick={() => setCreatedCredentials(null)}
+              >
+                Fermer
               </Button>
             </div>
           </div>

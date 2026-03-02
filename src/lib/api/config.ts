@@ -4,11 +4,10 @@
  */
 
 // URL de base de l'API Gateway (point d'entrée unique)
-// En développement avec le navigateur, utiliser la route API Next.js pour éviter les problèmes CORS
-const isDev =
-  typeof window !== 'undefined' &&
-  (window.location.hostname === 'localhost' || window.location.hostname.endsWith('.localhost'))
-export const API_BASE_URL = isDev
+// Côté client (navigateur): toujours utiliser le proxy Next.js pour éviter les problèmes CORS
+// Côté serveur (SSR): utiliser l'URL directe du backend
+const isClient = typeof window !== 'undefined'
+export const API_BASE_URL = isClient
   ? '/api/backend'
   : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
 
@@ -262,6 +261,24 @@ export const API_ENDPOINTS = {
     upload: '/files/upload',
     download: (id: string) => `/files/${id}/download`,
     delete: (id: string) => `/files/${id}`,
+  },
+
+  // ============================================
+  // ANNEE SCOLAIRE SERVICE - Gestion des années scolaires
+  // ============================================
+  anneesScolaires: {
+    base: '/annees-scolaires',
+    byId: (id: string) => `/annees-scolaires/${id}`,
+  },
+
+  // ============================================
+  // INSCRIPTION SERVICE - Gestion des inscriptions
+  // ============================================
+  inscriptions: {
+    base: '/inscriptions',
+    byId: (id: string) => `/inscriptions/${id}`,
+    annuler: (id: string) => `/inscriptions/${id}/annuler`,
+    checkParents: (eleveId: string) => `/inscriptions/eleve/${eleveId}/has-parents`,
   },
 
   // ============================================

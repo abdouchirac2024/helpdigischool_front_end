@@ -20,6 +20,10 @@ export interface EleveDto extends BaseEntity {
   prenom: string
   dateNaissance: string // ISO Date
   statut: StatutEleve
+  photoUrl?: string
+  acteNaissanceUrl?: string
+  certificatMedicalUrl?: string
+  bulletinUrl?: string
 
   // Relations mapped flat for list display
   quartier?: QuartierDto
@@ -33,6 +37,18 @@ export interface CreateEleveRequest {
   dateNaissance: string
   lieuNaissance?: string
   sexe: 'M' | 'F'
+  nationalite?: string
   quartierId?: number
-  // Initial enrollment details could go here
+  photoUrl?: string
+  acteNaissanceUrl?: string
+  certificatMedicalUrl?: string
+  bulletinUrl?: string
+}
+
+export interface AnneeScolaireResponse {
+  id: number
+  libelle: string
+  dateDebut: string
+  dateFin: string
+  statut: boolean
 }

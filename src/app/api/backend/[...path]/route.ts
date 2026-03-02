@@ -12,22 +12,19 @@ const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8080'
 
 async function handleRequest(request: NextRequest, path: string[]) {
   const backendPath = `/api/${path.join('/')}`
-  // Conserver le query string (?status=INACTIVE, ?tenant=..., etc.)
-  const url = `${BACKEND_URL}${backendPath}${request.nextUrl.search}`
+  const searchParams = request.nextUrl.searchParams.toString()
+  const url = searchParams
+    ? `${BACKEND_URL}${backendPath}?${searchParams}`
+    : `${BACKEND_URL}${backendPath}`
 
-  // Detect multipart requests (file uploads)
-  const incomingContentType = request.headers.get('Content-Type') || ''
-  const isMultipart = incomingContentType.includes('multipart/form-data')
+  const contentType = request.headers.get('Content-Type') || ''
+  const isMultipart = contentType.includes('multipart/form-data')
 
-  const headers: Record<string, string> = {
-    Accept: 'application/json',
-  }
+  const headers: Record<string, string> = {}
 
-  if (isMultipart) {
-    // Forward the original Content-Type which includes the boundary parameter
-    headers['Content-Type'] = incomingContentType
-  } else {
+  if (!isMultipart) {
     headers['Content-Type'] = 'application/json'
+    headers['Accept'] = 'application/json'
   }
 
   // Forward authorization header if present
@@ -61,19 +58,19 @@ async function handleRequest(request: NextRequest, path: string[]) {
 
     // Add body for non-GET requests
     if (request.method !== 'GET' && request.method !== 'HEAD') {
-      if (isMultipart) {
-        // Stream the raw body directly to the backend (preserves multipart encoding)
-        fetchOptions.body = request.body
-        fetchOptions.duplex = 'half'
-      } else {
-        try {
+      try {
+        if (isMultipart) {
+          // For multipart requests, forward the raw body and let fetch set the boundary
+          const formData = await request.formData()
+          fetchOptions.body = formData
+        } else {
           const body = await request.text()
           if (body) {
             fetchOptions.body = body
           }
-        } catch {
-          // No body
         }
+      } catch {
+        // No body
       }
     }
 

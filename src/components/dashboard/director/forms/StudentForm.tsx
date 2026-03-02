@@ -135,7 +135,15 @@ export function StudentForm({ open, onOpenChange, onSuccess }: StudentFormProps)
                   <FormItem>
                     <FormLabel>Date de naissance</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <Input
+                        type="date"
+                        max={
+                          new Date(new Date().setFullYear(new Date().getFullYear() - 2))
+                            .toISOString()
+                            .split('T')[0]
+                        }
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
