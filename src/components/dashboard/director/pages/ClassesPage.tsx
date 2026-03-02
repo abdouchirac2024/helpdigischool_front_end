@@ -57,8 +57,6 @@ import {
 import { classeService } from '@/services/classe.service'
 import type { ClasseDto, CreateClasseRequest } from '@/types/classe'
 import { Niveau, SousSysteme, StatutClasse } from '@/types/classe'
-import { anneeScolaireService } from '@/services/anneeScolaire.service'
-import { useAuth } from '@/lib/auth/auth-context'
 import { toast } from 'sonner'
 
 // ── Labels ──────────────────────────────────────────────────
@@ -94,9 +92,6 @@ const emptyForm: CreateClasseRequest = {
   section: '',
   capacite: undefined,
   fraisScolarite: undefined,
-  fraisInscription: undefined,
-  premierVersement: undefined,
-  deuxiemeVersement: undefined,
   description: '',
 }
 
@@ -106,10 +101,8 @@ type ViewMode = 'grid' | 'table'
 
 // ── Component ───────────────────────────────────────────────
 export function DirectorClassesPage() {
-  const { user } = useAuth()
   const [classes, setClasses] = useState<ClasseDto[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [currentAnneeScolaireId, setCurrentAnneeScolaireId] = useState<number | undefined>()
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('')
@@ -147,18 +140,6 @@ export function DirectorClassesPage() {
       setIsLoading(true)
       const data = await classeService.getAll()
       setClasses(data)
-
-      // Récupérer l'année scolaire active pour la création
-      if (user?.schoolId) {
-        const annees = await anneeScolaireService.getAll(user.schoolId)
-        const activeYear = annees.find((a) => a.statut === true)
-        if (activeYear) {
-          setCurrentAnneeScolaireId(activeYear.id)
-        } else if (annees.length > 0) {
-          // Fallback sur la dernière année par défaut si aucune n'est explicitement active
-          setCurrentAnneeScolaireId(annees[annees.length - 1].id)
-        }
-      }
     } catch (error) {
       console.error('Failed to load classes:', error)
       toast.error('Impossible de charger les classes')
@@ -265,9 +246,9 @@ export function DirectorClassesPage() {
     if (sortField !== field)
       return <ArrowUpDown className="ml-1 inline h-3.5 w-3.5 text-gray-400" />
     return sortDir === 'asc' ? (
-      <ArrowUp className="ml-1 inline h-3.5 w-3.5 text-primary" />
+      <ArrowUp className="ml-1 inline h-3.5 w-3.5 text-[#2302B3]" />
     ) : (
-      <ArrowDown className="ml-1 inline h-3.5 w-3.5 text-primary" />
+      <ArrowDown className="ml-1 inline h-3.5 w-3.5 text-[#2302B3]" />
     )
   }
 
@@ -284,10 +265,7 @@ export function DirectorClassesPage() {
   }
   const openCreateDialog = () => {
     setEditingClasse(null)
-    setFormData({
-      ...emptyForm,
-      anneeScolaireId: currentAnneeScolaireId,
-    })
+    setFormData({ ...emptyForm })
     setDialogOpen(true)
   }
   const openEditDialog = (cls: ClasseDto) => {
@@ -300,9 +278,6 @@ export function DirectorClassesPage() {
       capacite: cls.capacite,
       statut: cls.statut || StatutClasse.ACTIVE,
       fraisScolarite: cls.fraisScolarite,
-      fraisInscription: cls.fraisInscription,
-      premierVersement: cls.premierVersement,
-      deuxiemeVersement: cls.deuxiemeVersement,
       description: cls.description || '',
       anneeScolaireId: cls.anneeScolaireId,
       titulaireId: cls.titulaireId,
@@ -376,7 +351,7 @@ export function DirectorClassesPage() {
   if (isLoading) {
     return (
       <div className="flex h-96 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#2302B3]" />
       </div>
     )
   }
@@ -392,7 +367,7 @@ export function DirectorClassesPage() {
             {classes.length} classes &bull; {totalStudents} élèves
           </p>
         </div>
-        <Button className="gap-2 bg-primary hover:bg-primary-dark" onClick={openCreateDialog}>
+        <Button className="gap-2 bg-[#2302B3] hover:bg-[#1a0285]" onClick={openCreateDialog}>
           <Plus className="h-4 w-4" />
           Nouvelle classe
         </Button>
@@ -481,7 +456,7 @@ export function DirectorClassesPage() {
                 <SlidersHorizontal className="h-4 w-4" />
                 Filtres
                 {activeFiltersCount > 0 && (
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#2302B3] text-[10px] font-bold text-white">
                     {activeFiltersCount}
                   </span>
                 )}
@@ -493,7 +468,9 @@ export function DirectorClassesPage() {
                 <button
                   onClick={() => setViewMode('grid')}
                   className={`flex items-center justify-center rounded-l-lg px-3 py-2 transition-colors ${
-                    viewMode === 'grid' ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-50'
+                    viewMode === 'grid'
+                      ? 'bg-[#2302B3] text-white'
+                      : 'text-gray-500 hover:bg-gray-50'
                   }`}
                 >
                   <LayoutGrid className="h-4 w-4" />
@@ -502,7 +479,7 @@ export function DirectorClassesPage() {
                   onClick={() => setViewMode('table')}
                   className={`flex items-center justify-center rounded-r-lg px-3 py-2 transition-colors ${
                     viewMode === 'table'
-                      ? 'bg-primary text-white'
+                      ? 'bg-[#2302B3] text-white'
                       : 'text-gray-500 hover:bg-gray-50'
                   }`}
                 >
@@ -674,8 +651,8 @@ export function DirectorClassesPage() {
                     <TableRow key={cls.id} className="group">
                       <TableCell>
                         <div className="flex items-center gap-3">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                            <School className="h-4 w-4 text-primary" />
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#2302B3]/10">
+                            <School className="h-4 w-4 text-[#2302B3]" />
                           </div>
                           <div>
                             <p className="font-semibold text-gray-900">{cls.nomClasse}</p>
@@ -785,7 +762,7 @@ export function DirectorClassesPage() {
                   key={cls.id}
                   className="group overflow-hidden rounded-2xl border border-gray-100 bg-white transition-all hover:shadow-lg"
                 >
-                  <div className="bg-gradient-to-r from-primary to-secondary p-4">
+                  <div className="bg-gradient-to-r from-[#2302B3] to-[#4318FF] p-4">
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="text-lg font-bold text-white">{cls.nomClasse}</h3>
@@ -809,7 +786,7 @@ export function DirectorClassesPage() {
                   <div className="space-y-3 p-4">
                     {/* Teacher */}
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-xs font-semibold text-white">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#2302B3] to-[#4318FF] text-xs font-semibold text-white">
                         {cls.titulaireNom
                           ? (
                               cls.titulaireNom.split(' ')[1]?.charAt(0) ||
@@ -984,7 +961,7 @@ export function DirectorClassesPage() {
                     variant={currentPage === item ? 'default' : 'outline'}
                     size="sm"
                     className={`h-8 w-8 p-0 text-xs ${
-                      currentPage === item ? 'bg-primary hover:bg-primary-dark' : ''
+                      currentPage === item ? 'bg-[#2302B3] hover:bg-[#1a0285]' : ''
                     }`}
                     onClick={() => setCurrentPage(item)}
                   >
@@ -1162,54 +1139,6 @@ export function DirectorClassesPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="fraisInscription">Frais d'inscription</Label>
-                <Input
-                  id="fraisInscription"
-                  type="number"
-                  placeholder="Ex: 10000"
-                  value={formData.fraisInscription ?? ''}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      fraisInscription: e.target.value ? Number(e.target.value) : undefined,
-                    }))
-                  }
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="premierVersement">1er versement</Label>
-                <Input
-                  id="premierVersement"
-                  type="number"
-                  placeholder="Ex: 30000"
-                  value={formData.premierVersement ?? ''}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      premierVersement: e.target.value ? Number(e.target.value) : undefined,
-                    }))
-                  }
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="deuxiemeVersement">2ème versement</Label>
-                <Input
-                  id="deuxiemeVersement"
-                  type="number"
-                  placeholder="Ex: 30000"
-                  value={formData.deuxiemeVersement ?? ''}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      deuxiemeVersement: e.target.value ? Number(e.target.value) : undefined,
-                    }))
-                  }
-                />
-              </div>
-            </div>
-
             <div className="grid gap-2">
               <Label htmlFor="description">Description</Label>
               <Input
@@ -1226,7 +1155,7 @@ export function DirectorClassesPage() {
               Annuler
             </Button>
             <Button
-              className="bg-primary hover:bg-primary-dark"
+              className="bg-[#2302B3] hover:bg-[#1a0285]"
               onClick={handleSave}
               disabled={isSaving}
             >
@@ -1294,32 +1223,7 @@ export function DirectorClassesPage() {
                       : '-'}
                   </p>
                 </div>
-                <div className="rounded-lg bg-gray-50 p-3">
-                  <p className="text-xs text-gray-500">Frais d'inscription</p>
-                  <p className="font-semibold text-gray-900">
-                    {viewingClasse.fraisInscription
-                      ? `${viewingClasse.fraisInscription.toLocaleString()} FCFA`
-                      : '-'}
-                  </p>
-                </div>
-                <div className="rounded-lg bg-gray-50 p-3">
-                  <p className="text-xs text-gray-500">1er versement</p>
-                  <p className="font-semibold text-gray-900">
-                    {viewingClasse.premierVersement
-                      ? `${viewingClasse.premierVersement.toLocaleString()} FCFA`
-                      : '-'}
-                  </p>
-                </div>
-                <div className="rounded-lg bg-gray-50 p-3">
-                  <p className="text-xs text-gray-500">2ème versement</p>
-                  <p className="font-semibold text-gray-900">
-                    {viewingClasse.deuxiemeVersement
-                      ? `${viewingClasse.deuxiemeVersement.toLocaleString()} FCFA`
-                      : '-'}
-                  </p>
-                </div>
               </div>
-
               <div className="rounded-lg bg-gray-50 p-3">
                 <p className="text-xs text-gray-500">Professeur principal</p>
                 <p className="font-semibold text-gray-900">
@@ -1345,7 +1249,7 @@ export function DirectorClassesPage() {
               Fermer
             </Button>
             <Button
-              className="bg-primary hover:bg-primary-dark"
+              className="bg-[#2302B3] hover:bg-[#1a0285]"
               onClick={() => {
                 setViewDialogOpen(false)
                 if (viewingClasse) openEditDialog(viewingClasse)

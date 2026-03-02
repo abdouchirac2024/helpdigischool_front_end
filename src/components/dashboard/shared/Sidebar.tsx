@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LucideIcon, ChevronDown, Lock } from 'lucide-react'
+import { LucideIcon, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export interface MenuItem {
@@ -18,12 +18,12 @@ interface SidebarProps {
   menuItems: MenuItem[]
   isOpen: boolean
   onClose: () => void
-  disabled?: boolean
 }
 
-export function Sidebar({ menuItems, isOpen, onClose, disabled = false }: SidebarProps) {
+export function Sidebar({ menuItems, isOpen, onClose }: SidebarProps) {
   const pathname = usePathname()
   const [expandedItems, setExpandedItems] = useState<string[]>(() => {
+    // Auto-expand parent if a sub-item is active
     const expanded: string[] = []
     menuItems.forEach((item) => {
       if (
@@ -41,9 +41,6 @@ export function Sidebar({ menuItems, isOpen, onClose, disabled = false }: Sideba
     )
   }
 
-  // First item (Vue d'ensemble) is always accessible
-  const overviewHref = menuItems[0]?.href
-
   return (
     <aside
       className={cn(
@@ -52,7 +49,7 @@ export function Sidebar({ menuItems, isOpen, onClose, disabled = false }: Sideba
       )}
     >
       <nav className="space-y-1 p-3">
-        {menuItems.map((item, index) => {
+        {menuItems.map((item) => {
           const hasSubItems = item.subItems && item.subItems.length > 0
           const isExpanded = expandedItems.includes(item.href)
           const isSubActive =
@@ -71,27 +68,7 @@ export function Sidebar({ menuItems, isOpen, onClose, disabled = false }: Sideba
                     (pathname === other.href || pathname.startsWith(other.href + '/'))
                 )))
 
-          // First item is always enabled; others are disabled when school is not validated
-          const isItemDisabled = disabled && index > 0
-
           if (hasSubItems) {
-            if (isItemDisabled) {
-              return (
-                <div key={item.href} className="group relative">
-                  <div className="flex w-full cursor-not-allowed items-center justify-between rounded-xl px-4 py-3 opacity-40">
-                    <div className="flex items-center gap-3">
-                      <item.icon className="h-5 w-5 text-gray-400" />
-                      <span className="text-sm font-medium text-gray-400">{item.label}</span>
-                    </div>
-                    <Lock className="h-3.5 w-3.5 text-gray-400" />
-                  </div>
-                  <div className="pointer-events-none absolute left-1/2 top-full z-50 mt-1 -translate-x-1/2 whitespace-nowrap rounded-lg bg-gray-900 px-3 py-1.5 text-xs text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-                    En attente de validation
-                  </div>
-                </div>
-              )
-            }
-
             return (
               <div key={item.href}>
                 <button
@@ -99,7 +76,7 @@ export function Sidebar({ menuItems, isOpen, onClose, disabled = false }: Sideba
                   className={cn(
                     'group flex w-full items-center justify-between rounded-xl px-4 py-3 transition-all',
                     isSubActive
-                      ? 'bg-primary/[0.08] text-primary'
+                      ? 'bg-[#2302B3]/10 text-[#2302B3]'
                       : 'text-gray-700 hover:bg-gray-50'
                   )}
                 >
@@ -107,7 +84,7 @@ export function Sidebar({ menuItems, isOpen, onClose, disabled = false }: Sideba
                     <item.icon
                       className={cn(
                         'h-5 w-5 transition-colors',
-                        isSubActive ? 'text-primary' : 'text-gray-500'
+                        isSubActive ? 'text-[#2302B3]' : 'text-gray-500 group-hover:text-[#2302B3]'
                       )}
                     />
                     <span className="text-sm font-medium">{item.label}</span>
@@ -116,13 +93,15 @@ export function Sidebar({ menuItems, isOpen, onClose, disabled = false }: Sideba
                     className={cn(
                       'h-4 w-4 transition-transform',
                       isExpanded ? 'rotate-180' : '',
-                      isSubActive ? 'text-primary' : 'text-gray-400'
+                      isSubActive ? 'text-[#2302B3]' : 'text-gray-400'
                     )}
                   />
                 </button>
                 {isExpanded && (
                   <div className="ml-4 mt-1 space-y-1 border-l-2 border-gray-100 pl-3">
                     {item.subItems!.map((sub) => {
+                      // Check if current path matches this sub-item exactly or starts with it
+                      // But exclude if there's a more specific sub-item that matches
                       const isExactMatch = pathname === sub.href
                       const isPathMatch = pathname.startsWith(sub.href + '/')
                       const hasMoreSpecificMatch = item.subItems!.some(
@@ -140,14 +119,16 @@ export function Sidebar({ menuItems, isOpen, onClose, disabled = false }: Sideba
                           className={cn(
                             'group flex items-center gap-3 rounded-lg px-3 py-2 transition-all',
                             isSubItemActive
-                              ? 'bg-primary text-white shadow-md shadow-primary/20'
+                              ? 'bg-[#2302B3] text-white shadow-md shadow-[#2302B3]/20'
                               : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                           )}
                         >
                           <sub.icon
                             className={cn(
                               'h-4 w-4',
-                              isSubItemActive ? 'text-white' : 'text-gray-400'
+                              isSubItemActive
+                                ? 'text-white'
+                                : 'text-gray-400 group-hover:text-[#2302B3]'
                             )}
                           />
                           <span className="text-sm">{sub.label}</span>
@@ -160,24 +141,6 @@ export function Sidebar({ menuItems, isOpen, onClose, disabled = false }: Sideba
             )
           }
 
-          // Non-expandable item
-          if (isItemDisabled) {
-            return (
-              <div key={item.href} className="group relative">
-                <div className="flex cursor-not-allowed items-center justify-between rounded-xl px-4 py-3 opacity-40">
-                  <div className="flex items-center gap-3">
-                    <item.icon className="h-5 w-5 text-gray-400" />
-                    <span className="text-sm font-medium text-gray-400">{item.label}</span>
-                  </div>
-                  <Lock className="h-3.5 w-3.5 text-gray-400" />
-                </div>
-                <div className="pointer-events-none absolute left-1/2 top-full z-50 mt-1 -translate-x-1/2 whitespace-nowrap rounded-lg bg-gray-900 px-3 py-1.5 text-xs text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-                  En attente de validation
-                </div>
-              </div>
-            )
-          }
-
           return (
             <Link
               key={item.href}
@@ -186,7 +149,7 @@ export function Sidebar({ menuItems, isOpen, onClose, disabled = false }: Sideba
               className={cn(
                 'group flex items-center justify-between rounded-xl px-4 py-3 transition-all',
                 isActive
-                  ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                  ? 'bg-[#2302B3] text-white shadow-lg shadow-[#2302B3]/20'
                   : 'text-gray-700 hover:bg-gray-50'
               )}
             >
@@ -194,7 +157,7 @@ export function Sidebar({ menuItems, isOpen, onClose, disabled = false }: Sideba
                 <item.icon
                   className={cn(
                     'h-5 w-5 transition-colors',
-                    isActive ? 'text-white' : 'text-gray-500'
+                    isActive ? 'text-white' : 'text-gray-500 group-hover:text-[#2302B3]'
                   )}
                 />
                 <span className="text-sm font-medium">{item.label}</span>
