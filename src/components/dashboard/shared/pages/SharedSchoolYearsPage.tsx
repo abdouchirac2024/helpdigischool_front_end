@@ -23,12 +23,14 @@ export default function SharedSchoolYearsPage({ role }: SharedSchoolYearsPagePro
   const router = useRouter()
 
   const [schoolYears, setSchoolYears] = useState<SchoolYear[]>([])
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadSchoolYears() {
       try {
         const data = await anneeScolaireService.getAll()
-        const formatted = data.map((item) => ({
+        const list = Array.isArray(data) ? data : []
+        const formatted = list.map((item) => ({
           id: item.id,
           label: item.libelle,
           current: item.statut,
@@ -40,10 +42,10 @@ export default function SharedSchoolYearsPage({ role }: SharedSchoolYearsPagePro
           periods: item.periods || [],
           closed: false,
         }))
-
         setSchoolYears(formatted)
       } catch (error) {
-        console.error('Erreur:', error)
+        console.error('Erreur chargement années scolaires:', error)
+        setError('Impossible de charger les années scolaires.')
       }
     }
 
@@ -101,6 +103,10 @@ export default function SharedSchoolYearsPage({ role }: SharedSchoolYearsPagePro
   // ------------------------
   // Render
   // ------------------------
+
+  if (error) {
+    return <div className="flex items-center justify-center p-10 text-sm text-red-600">{error}</div>
+  }
 
   return (
     <div className="flex flex-col gap-6 p-6">

@@ -14,7 +14,15 @@ export interface AnneeScolaire {
 
 class AnneeScolaireService {
   async getAll(): Promise<AnneeScolaire[]> {
-    return apiClient.get<AnneeScolaire[]>('/annees-scolaires')
+    const response = await apiClient.get<
+      AnneeScolaire[] | { content?: AnneeScolaire[]; data?: AnneeScolaire[] }
+    >('/annees-scolaires')
+    if (Array.isArray(response)) return response
+    if (response && Array.isArray((response as { content?: AnneeScolaire[] }).content))
+      return (response as { content: AnneeScolaire[] }).content
+    if (response && Array.isArray((response as { data?: AnneeScolaire[] }).data))
+      return (response as { data: AnneeScolaire[] }).data
+    return []
   }
 
   async getById(id: number): Promise<AnneeScolaire> {
