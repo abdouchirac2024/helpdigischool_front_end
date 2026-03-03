@@ -1,5 +1,12 @@
+'use client'
+
 import { DashboardShell } from '@/components/dashboard/shared/DashboardShell'
+import { PresenceProvider } from '@/lib/presence/presence-context'
 
 export default function DirectorLayout({ children }: { children: React.ReactNode }) {
-  return <DashboardShell role="director">{children}</DashboardShell>
+  return (
+    <PresenceProvider>
+      <DashboardShell role="director">{children}</DashboardShell>
+    </PresenceProvider>
+  )
 }
