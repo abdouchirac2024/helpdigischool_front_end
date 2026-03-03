@@ -29,6 +29,8 @@ import {
   UserCheck,
   Link2,
   Palette,
+  CalendarRange,
+  Briefcase,
 } from 'lucide-react'
 import { type MenuItem } from '@/components/dashboard/shared/Sidebar'
 
@@ -79,11 +81,13 @@ export const menuItemsByRole: Record<string, MenuItem[]> = {
     { icon: Users, label: 'Élèves', href: '/dashboard/director/students' },
     { icon: BookOpen, label: 'Classes', href: '/dashboard/director/classes' },
     { icon: UserPlus, label: 'Inscriptions', href: '/dashboard/director/inscriptions' },
+    { icon: CalendarRange, label: 'Années Scolaires', href: '/dashboard/director/school-years' },
     {
       icon: GraduationCap,
       label: 'Enseignants',
       href: '/dashboard/director/teachers',
     },
+    { icon: Briefcase, label: 'Employés', href: '/dashboard/director/employees' },
     { icon: FileText, label: 'Notes & Bulletins', href: '/dashboard/director/grades' },
     { icon: CreditCard, label: 'Paiements', href: '/dashboard/director/payments' },
     { icon: Calendar, label: 'Emploi du temps', href: '/dashboard/director/schedule' },
