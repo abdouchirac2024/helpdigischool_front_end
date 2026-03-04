@@ -28,16 +28,6 @@ export interface Echeance {
   statut: StatutEcheance
 }
 
-export interface ParentSummary {
-  matricule: string
-  nom: string
-  prenom: string
-  email: string
-  telephone: string
-  relation: string
-  principal: boolean
-}
-
 export interface Inscription {
   idInscription: number
   numeroInscription: string
@@ -49,34 +39,15 @@ export interface Inscription {
   eleveMatricule: string
   eleveNom: string
   elevePrenom: string
-  elevePhotoUrl?: string
-  eleveActeNaissanceUrl?: string
-  eleveCertificatMedicalUrl?: string
-  eleveBulletinUrl?: string
   classeId: number
   classeNom: string
   classeNiveau: string
   fraisScolarite: number
   anneeScolaireId: number
   anneeScolaireLibelle: string
-  // Finances
-  remise?: number
-  fraisTransport?: number
-  fraisCantine?: number
-  fraisAssurance?: number
-  // Echeancier
   echeances: Echeance[]
   generatedPassword?: string
   generatedEmail?: string
-  // Bio & Location
-  eleveDateNaissance?: string
-  eleveLieuNaissance?: string
-  eleveNationalite?: string
-  eleveSexe?: string
-  eleveQuartier?: string
-  eleveVille?: string
-  // Parents
-  parents?: ParentSummary[]
 }
 
 export interface InscriptionCreateRequest {
@@ -86,11 +57,6 @@ export interface InscriptionCreateRequest {
   dateInscription?: string
   /** Numeros des tranches a marquer comme payees (ex: [1], [1,2], [1,2,3]) */
   tranchesPayees?: number[]
-  // Finances
-  remise?: number
-  fraisTransport?: number
-  fraisCantine?: number
-  fraisAssurance?: number
 }
 
 export interface AnnulationRequest {
