@@ -47,7 +47,8 @@ async function handleRequest(request: NextRequest, path: string[]) {
 
   try {
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 9000)
+    const timeoutMs = parseInt(process.env.PROXY_TIMEOUT || '60000')
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const fetchOptions: any = {
